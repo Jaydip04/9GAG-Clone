@@ -30,7 +30,7 @@ class _SearchPageState extends State<SearchPage> {
                 ),
                 fillColor: Colors.grey.withOpacity(0.3),
                 filled: true,
-                hintText: "My Cousin Vinny",
+                hintText: "Search 9gag",
                 hintStyle: const TextStyle(
                     color: Colors.grey, fontWeight: FontWeight.bold),
                 focusedBorder: OutlineInputBorder(

@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       home: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => DrawerBloc())
+          BlocProvider(create: (_) => DrawerBloc()),
         ], child: HomePage(),
       )
 
