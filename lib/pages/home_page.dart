@@ -18,7 +18,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("9GAG"),
+        title: Transform.translate(
+          offset: Offset(-20.0, 0.0),
+          child: Image.asset("assets/logo/app_bar_logo.png",width: 50,height: 40,)
+          // Text(
+          //   "9GAG",
+          //   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          // ),
+        ),
       ),
       drawer: BlocBuilder<DrawerBloc, DrawerState>(
         builder: (context, state) {
@@ -46,36 +53,55 @@ class _HomePageState extends State<HomePage> {
                         Container(
                           child: const ListTile(
                             visualDensity: VisualDensity(vertical: -4),
-                            title: Text('Interests',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.grey),),
+                            title: Text(
+                              'Interests',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.grey),
+                            ),
                           ),
                         ),
-                        commonListTile(
-                            "Anime & Manga", Icons.ac_unit, Colors.yellow,Colors.red),
-                        commonListTile(
-                            "Latest News", Icons.ac_unit, Colors.green,Colors.yellow),
-                        commonListTile("Humor", Icons.ac_unit, Colors.deepPurple,Colors.yellow),
-                        commonListTile("Memes", Icons.ac_unit, Colors.deepPurpleAccent,Colors.yellow),
-                        commonListTile("Gaming", Icons.ac_unit, Colors.orange,Colors.yellow),
-                        commonListTile("WTF", Icons.ac_unit, Colors.lightGreen,Colors.yellow),
+                        commonListTile("Anime & Manga", Icons.ac_unit,
+                            Colors.yellow, Colors.red),
+                        commonListTile("Latest News", Icons.ac_unit,
+                            Colors.green, Colors.yellow),
+                        commonListTile("Humor", Icons.ac_unit,
+                            Colors.deepPurple, Colors.yellow),
+                        commonListTile("Memes", Icons.ac_unit,
+                            Colors.deepPurpleAccent, Colors.yellow),
+                        commonListTile("Gaming", Icons.ac_unit, Colors.orange,
+                            Colors.yellow),
+                        commonListTile("WTF", Icons.ac_unit, Colors.lightGreen,
+                            Colors.yellow),
                         commonListTile("Relationship & Dating", Icons.ac_unit,
-                            Colors.pinkAccent,Colors.yellow),
+                            Colors.pinkAccent, Colors.yellow),
+                        commonListTile("Animals & Pets", Icons.ac_unit,
+                            Colors.deepPurple, Colors.yellow),
+                        commonListTile("Science & Tech", Icons.ac_unit,
+                            Colors.red, Colors.yellow),
                         commonListTile(
-                            "Animals & Pets", Icons.ac_unit, Colors.deepPurple,Colors.yellow),
-                        commonListTile(
-                            "Science & Tech", Icons.ac_unit, Colors.red,Colors.yellow),
-                        commonListTile("Comic", Icons.ac_unit, Colors.pink,Colors.yellow),
-                        commonListTile("Wholesome", Icons.ac_unit, Colors.yellowAccent,Colors.red),
-                        commonListTile("Sports", Icons.ac_unit, Colors.redAccent,Colors.yellow),
-                        commonListTile(
-                            "Movies & TV", Icons.ac_unit, Colors.greenAccent,Colors.yellow),
-                        commonListTile("Cat", Icons.ac_unit, Colors.orangeAccent,Colors.yellow),
-                        commonListTile(
-                            "Food & Drinks", Icons.ac_unit, Colors.red,Colors.yellow),
-                        commonListTile("Lifestyle", Icons.ac_unit, Colors.blueAccent,Colors.yellow),
-                        commonListTile("Superhero", Icons.ac_unit, Colors.red,Colors.yellow),
-                        commonListTile("Crypto", Icons.ac_unit, Colors.blue,Colors.yellow),
-                        commonListTile("Random", Icons.ac_unit, Colors.pink,Colors.yellow),
-                        commonListTile("Woah", Icons.ac_unit, Colors.orange,Colors.yellow),
+                            "Comic", Icons.ac_unit, Colors.pink, Colors.yellow),
+                        commonListTile("Wholesome", Icons.ac_unit,
+                            Colors.yellowAccent, Colors.red),
+                        commonListTile("Sports", Icons.ac_unit,
+                            Colors.redAccent, Colors.yellow),
+                        commonListTile("Movies & TV", Icons.ac_unit,
+                            Colors.greenAccent, Colors.yellow),
+                        commonListTile("Cat", Icons.ac_unit,
+                            Colors.orangeAccent, Colors.yellow),
+                        commonListTile("Food & Drinks", Icons.ac_unit,
+                            Colors.red, Colors.yellow),
+                        commonListTile("Lifestyle", Icons.ac_unit,
+                            Colors.blueAccent, Colors.yellow),
+                        commonListTile("Superhero", Icons.ac_unit, Colors.red,
+                            Colors.yellow),
+                        commonListTile("Crypto", Icons.ac_unit, Colors.blue,
+                            Colors.yellow),
+                        commonListTile("Random", Icons.ac_unit, Colors.pink,
+                            Colors.yellow),
+                        commonListTile("Woah", Icons.ac_unit, Colors.orange,
+                            Colors.yellow),
                       ],
                     ),
                   ),
@@ -100,7 +126,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  ListTile commonListTile(name, icon, color,iconColor) {
+  ListTile commonListTile(name, icon, color, iconColor) {
     return ListTile(
       visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
       title: Text(
