@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("9GAG"),
+        title: const Text("9GAG"),
       ),
       drawer: BlocBuilder<DrawerBloc, DrawerState>(
         builder: (context, state) {
@@ -38,15 +38,15 @@ class _HomePageState extends State<HomePage> {
                                   bottom: BorderSide(
                                       width: 1.0,
                                       color: Colors.grey.withOpacity(0.2)))),
-                          child: ListTile(
-                            title: const Text('Home'),
+                          child: const ListTile(
+                            title: Text('Home'),
                             leading: Icon(Icons.home),
                           ),
                         ),
                         Container(
-                          child: ListTile(
+                          child: const ListTile(
                             visualDensity: VisualDensity(vertical: -4),
-                            title: const Text('Interests',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.grey),),
+                            title: Text('Interests',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.grey),),
                           ),
                         ),
                         commonListTile(
@@ -102,14 +102,14 @@ class _HomePageState extends State<HomePage> {
 
   ListTile commonListTile(name, icon, color,iconColor) {
     return ListTile(
-      visualDensity: VisualDensity(horizontal: 0, vertical: -2),
+      visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
       title: Text(
         name,
-        style: TextStyle(
+        style: const TextStyle(
             color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
       ),
       leading: Container(
-        padding: EdgeInsets.all(3.0),
+        padding: const EdgeInsets.all(3.0),
         decoration: BoxDecoration(
             color: color, borderRadius: BorderRadius.circular(5.00)),
         child: Icon(
@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
           size: 20,
         ),
       ),
-      trailing: Icon(
+      trailing: const Icon(
         CupertinoIcons.pin,
         size: 20,
       ),
