@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gagclone/bloc/drawer_bloc/drawer_bloc.dart';
 import 'package:gagclone/pages/home_page.dart';
 
+import 'bloc/video/video_bloc.dart';
+import 'bloc/video/video_event.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -18,6 +21,7 @@ class MyApp extends StatelessWidget {
       home: MultiBlocProvider(
         providers: [
           BlocProvider(create: (_) => DrawerBloc()),
+          BlocProvider(create: (_) => VideoBloc()),
         ], child: HomePage(),
       )
 
