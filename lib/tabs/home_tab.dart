@@ -1,10 +1,6 @@
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gagclone/bloc/video/video_bloc.dart';
-import 'package:gagclone/bloc/video/video_event.dart';
-import 'package:gagclone/bloc/video/video_state.dart';
 import 'package:video_player/video_player.dart';
 
 class HomeTab extends StatefulWidget {
@@ -18,10 +14,26 @@ class _HomeTabState extends State<HomeTab> {
   final String videoUrl =
       'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
   late FlickManager flickManager;
+  late FlickManager flickManager2;
+  late FlickManager flickManager3;
+  late FlickManager flickManager4;
+  late FlickManager flickManager5;
   @override
   void initState() {
     super.initState();
     flickManager = FlickManager(
+        videoPlayerController:
+            VideoPlayerController.networkUrl(Uri.parse(videoUrl)));
+    flickManager2 = FlickManager(
+        videoPlayerController:
+            VideoPlayerController.networkUrl(Uri.parse(videoUrl)));
+    flickManager3 = FlickManager(
+        videoPlayerController:
+            VideoPlayerController.networkUrl(Uri.parse(videoUrl)));
+    flickManager4 = FlickManager(
+        videoPlayerController:
+            VideoPlayerController.networkUrl(Uri.parse(videoUrl)));
+    flickManager5 = FlickManager(
         videoPlayerController:
             VideoPlayerController.networkUrl(Uri.parse(videoUrl)));
   }
@@ -35,124 +47,147 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          color: Colors.white,
-          child: Column(
-            children: [
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 20,
-                      ),
-                      commonContainerBG("olympics"),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      commonContainerBG("deadpool"),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      commonContainerBG("wolverine"),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      commonContainerBG("trump"),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      commonContainerBG("biden"),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      commonContainerBG("stellar blade"),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      commonContainerBG("latest news"),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      commonContainerBG("most commented"),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      commonContainerBG("weekly highlights"),
-                    ],
+      body: RefreshIndicator(
+        onRefresh: () async{
+          flickManager = FlickManager(
+              videoPlayerController:
+                  VideoPlayerController.networkUrl(Uri.parse(videoUrl)));
+          flickManager2 = FlickManager(
+              videoPlayerController:
+                  VideoPlayerController.networkUrl(Uri.parse(videoUrl)));
+          flickManager3 = FlickManager(
+              videoPlayerController:
+                  VideoPlayerController.networkUrl(Uri.parse(videoUrl)));
+          flickManager4 = FlickManager(
+              videoPlayerController:
+                  VideoPlayerController.networkUrl(Uri.parse(videoUrl)));
+          flickManager5 = FlickManager(
+              videoPlayerController:
+                  VideoPlayerController.networkUrl(Uri.parse(videoUrl)));
+        },
+        child: SingleChildScrollView(
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              children: [
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 20,
+                        ),
+                        commonContainerBG("olympics"),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        commonContainerBG("deadpool"),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        commonContainerBG("wolverine"),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        commonContainerBG("trump"),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        commonContainerBG("biden"),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        commonContainerBG("stellar blade"),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        commonContainerBG("latest news"),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        commonContainerBG("most commented"),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        commonContainerBG("weekly highlights"),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              postTitle(),
-              SizedBox(height: 5,),
-              postVideo(),
-              postSingleChildScrollView(),
-              postBottom(),
-              SizedBox(height: 5.0,),
-              Divider(
-                thickness: 7.0,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-
-              postTitle(),
-              SizedBox(height: 5,),
-              postVideo(),
-              postSingleChildScrollView(),
-              postBottom(),
-              SizedBox(height: 5.0,),
-              Divider(
-                thickness: 7.0,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-
-              postTitle(),
-              SizedBox(height: 5,),
-              postVideo(),
-              postSingleChildScrollView(),
-              postBottom(),
-              SizedBox(height: 5.0,),
-              Divider(
-                thickness: 7.0,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-
-              postTitle(),
-              SizedBox(height: 5,),
-              postVideo(),
-              postSingleChildScrollView(),
-              postBottom(),
-              SizedBox(height: 5.0,),
-              Divider(
-                thickness: 7.0,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-
-              postTitle(),
-              SizedBox(height: 5,),
-              postVideo(),
-              postSingleChildScrollView(),
-              postBottom(),
-              SizedBox(height: 5.0,),
-              Divider(
-                thickness: 7.0,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-
-              postTitle(),
-              SizedBox(height: 5,),
-              postVideo(),
-              postSingleChildScrollView(),
-              postBottom(),
-              SizedBox(height: 5.0,),
-              Divider(
-                thickness: 7.0,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-
-            ],
+                postTitle(),
+                SizedBox(
+                  height: 5,
+                ),
+                postVideo(flickManager),
+                postSingleChildScrollView(),
+                postBottom(),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Divider(
+                  thickness: 7.0,
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+                postTitle(),
+                SizedBox(
+                  height: 5,
+                ),
+                postVideo(flickManager2),
+                postSingleChildScrollView(),
+                postBottom(),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Divider(
+                  thickness: 7.0,
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+                postTitle(),
+                SizedBox(
+                  height: 5,
+                ),
+                postVideo(flickManager3),
+                postSingleChildScrollView(),
+                postBottom(),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Divider(
+                  thickness: 7.0,
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+                postTitle(),
+                SizedBox(
+                  height: 5,
+                ),
+                postVideo(flickManager4),
+                postSingleChildScrollView(),
+                postBottom(),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Divider(
+                  thickness: 7.0,
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+                postTitle(),
+                SizedBox(
+                  height: 5,
+                ),
+                postVideo(flickManager5),
+                postSingleChildScrollView(),
+                postBottom(),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Divider(
+                  thickness: 7.0,
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -217,13 +252,13 @@ class _HomeTabState extends State<HomeTab> {
                       ),
                       Text(
                         "Humor",
-                        style:
-                            commonTextStyle(Colors.black, FontWeight.bold, 14.00),
+                        style: commonTextStyle(
+                            Colors.black, FontWeight.bold, 14.00),
                       ),
                       Text(
                         " . 10h",
-                        style:
-                            commonTextStyle(Colors.grey, FontWeight.bold, 12.00),
+                        style: commonTextStyle(
+                            Colors.grey, FontWeight.bold, 12.00),
                       ),
                     ],
                   ),
@@ -371,7 +406,7 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
-  Row postVideo() {
+  Row postVideo(flickManager) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -382,6 +417,10 @@ class _HomeTabState extends State<HomeTab> {
           child: FlickVideoPlayer(
             flickManager: flickManager,
           ),
+        ),
+      ],
+    );
+  }
           // BlocBuilder<VideoBloc, VideoState>(
           //   builder: (context, state) {
           //     return Column(
@@ -522,8 +561,5 @@ class _HomeTabState extends State<HomeTab> {
           // );
           //                       },
           //                       ),
-        ),
-      ],
-    );
-  }
+
 }

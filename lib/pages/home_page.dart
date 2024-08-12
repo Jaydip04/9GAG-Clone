@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gagclone/pages/search_page.dart';
 import 'package:gagclone/tabs/ask_tab.dart';
+import 'package:gagclone/tabs/fresh_tab.dart';
 import 'package:gagclone/tabs/home_tab.dart';
+import 'package:gagclone/tabs/top_tab.dart';
+import 'package:gagclone/tabs/trending_tab.dart';
 import '../bloc/drawer_bloc/drawer_bloc.dart';
 import '../bloc/drawer_bloc/drawer_state.dart';
 
@@ -196,9 +199,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           children: [
                             AskTab(),
                             HomeTab(),
-                            Center(child: Text("data3")),
-                            Center(child: Text("data4")),
-                            Center(child: Text("data5")),
+                            TopTab(),
+                            TrendingTab(),
+                            FreshTab()
                           ],
                         ),
                       ),
