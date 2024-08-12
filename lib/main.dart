@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(create: (_) => DrawerBloc()),
           BlocProvider(create: (_) => VideoBloc()),
-        ], child: SettingPage(),
+        ], child: HomePage(),
       )
 
     );

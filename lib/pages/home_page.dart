@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gagclone/authentication/login_page.dart';
 import 'package:gagclone/authentication/signup_page.dart';
 import 'package:gagclone/pages/search_page.dart';
+import 'package:gagclone/pages/setting%20_page.dart';
 import 'package:gagclone/tabs/ask_tab.dart';
 import 'package:gagclone/tabs/fresh_tab.dart';
 import 'package:gagclone/tabs/home_tab.dart';
@@ -963,68 +964,73 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         Divider(
                           color: Colors.grey.withOpacity(0.3),
                         ),
-                        Container(
-                          margin: EdgeInsets.symmetric(
-                              horizontal: 15.0, vertical: 20.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.settings,
-                                            size: 25,
-                                            color: Colors.grey,
-                                          ),
-                                          SizedBox(
-                                            width: 30,
-                                          ),
-                                          Text(
-                                            "Setting",
-                                            style: commonTextStyle(Colors.black,
-                                                FontWeight.bold, 16.0, null),
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 25.0),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.feedback,
-                                            size: 25,
-                                            color: Colors.grey,
-                                          ),
-                                          SizedBox(
-                                            width: 35,
-                                          ),
-                                          Text(
-                                            "Send feedback",
-                                            style: commonTextStyle(Colors.black,
-                                                FontWeight.bold, 16.0, null),
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
+                        GestureDetector(
+                          child: Container(
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 15.0, vertical: 20.0),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.settings,
+                                              size: 25,
+                                              color: Colors.grey,
+                                            ),
+                                            SizedBox(
+                                              width: 30,
+                                            ),
+                                            Text(
+                                              "Setting",
+                                              style: commonTextStyle(Colors.black,
+                                                  FontWeight.bold, 16.0, null),
+                                            )
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 25.0),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.feedback,
+                                              size: 25,
+                                              color: Colors.grey,
+                                            ),
+                                            SizedBox(
+                                              width: 35,
+                                            ),
+                                            Text(
+                                              "Send feedback",
+                                              style: commonTextStyle(Colors.black,
+                                                  FontWeight.bold, 16.0, null),
+                                            )
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
+                          onTap: (){
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SettingPage()));
+                          },
                         ),
                         Divider(
                           color: Colors.grey.withOpacity(0.3),
