@@ -120,7 +120,7 @@ class _HomeTabState extends State<HomeTab> {
                 SizedBox(
                   height: 5,
                 ),
-                postVideo(flickManager),
+                // postVideo(flickManager),
                 postSingleChildScrollView(),
                 postBottom(),
                 SizedBox(
@@ -134,7 +134,7 @@ class _HomeTabState extends State<HomeTab> {
                 SizedBox(
                   height: 5,
                 ),
-                postVideo(flickManager2),
+                // postVideo(flickManager2),
                 postSingleChildScrollView(),
                 postBottom(),
                 SizedBox(
@@ -148,7 +148,7 @@ class _HomeTabState extends State<HomeTab> {
                 SizedBox(
                   height: 5,
                 ),
-                postVideo(flickManager3),
+                // postVideo(flickManager3),
                 postSingleChildScrollView(),
                 postBottom(),
                 SizedBox(
@@ -162,7 +162,7 @@ class _HomeTabState extends State<HomeTab> {
                 SizedBox(
                   height: 5,
                 ),
-                postVideo(flickManager4),
+                // postVideo(flickManager4),
                 postSingleChildScrollView(),
                 postBottom(),
                 SizedBox(
@@ -176,7 +176,7 @@ class _HomeTabState extends State<HomeTab> {
                 SizedBox(
                   height: 5,
                 ),
-                postVideo(flickManager5),
+                // postVideo(flickManager5),
                 postSingleChildScrollView(),
                 postBottom(),
                 SizedBox(

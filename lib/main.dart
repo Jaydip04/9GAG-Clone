@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gagclone/authentication/login_page.dart';
+import 'package:gagclone/authentication/signup_page.dart';
 import 'package:gagclone/bloc/drawer_bloc/drawer_bloc.dart';
 import 'package:gagclone/pages/home_page.dart';
 
