@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gagclone/authentication/login_page.dart';
 import 'package:gagclone/authentication/signup_page.dart';
 import 'package:gagclone/pages/notification_page.dart';
+import 'package:gagclone/pages/profile_page.dart';
 import 'package:gagclone/pages/search_page.dart';
 import 'package:gagclone/pages/setting%20_page.dart';
 import 'package:gagclone/tabs/ask_tab.dart';
@@ -27,7 +28,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 5, vsync: this,initialIndex: 1);
   }
 
   @override
@@ -334,7 +335,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   context: context,
                   isScrollControlled: true,
                   shape: RoundedRectangleBorder(
-                    // <-- for border radius
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(15.0),
                       topRight: Radius.circular(15.0),
@@ -360,210 +360,80 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         context: context,
                                         isScrollControlled: true,
                                         shape: RoundedRectangleBorder(
-                                          // <-- for border radius
                                           borderRadius: BorderRadius.only(
                                             topLeft: Radius.circular(15.0),
                                             topRight: Radius.circular(15.0),
                                           ),
                                         ),
                                         builder: (BuildContext context) {
-                                          return Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 30,
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 60.0),
-                                                child: RichText(
-                                                  text: TextSpan(
-                                                    children: <TextSpan>[
-                                                      TextSpan(
-                                                        text:
-                                                            "By continuing you agree to 9GAG's ",
-                                                        style: commonTextStyle(
-                                                            Colors.black
-                                                                .withOpacity(0.4),
-                                                            FontWeight.bold,
-                                                            12.0,
-                                                            null),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            'Terms of Services ',
-                                                        style: commonTextStyle(
-                                                            Colors.black
-                                                                .withOpacity(0.5),
-                                                            FontWeight.bold,
-                                                            12.0,
-                                                            TextDecoration
-                                                                .underline),
-                                                        recognizer:
-                                                            TapGestureRecognizer()
-                                                              ..onTap = () {},
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            "and acknowledge that you've read our ",
-                                                        style: commonTextStyle(
-                                                            Colors.black
-                                                                .withOpacity(0.4),
-                                                            FontWeight.bold,
-                                                            12.0,
-                                                            null),
-                                                      ),
-                                                      TextSpan(
-                                                        text: 'Privacy Policy',
-                                                        style: commonTextStyle(
-                                                            Colors.black
-                                                                .withOpacity(0.5),
-                                                            FontWeight.bold,
-                                                            12.0,
-                                                            TextDecoration
-                                                                .underline),
-                                                        recognizer:
-                                                            TapGestureRecognizer()
-                                                              ..onTap = () {},
-                                                      ),
-                                                    ],
+                                          return SingleChildScrollView(
+                                            child: Column(
+                                              children: [
+                                                SizedBox(
+                                                  height: 30,
+                                                ),
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(
+                                                      horizontal: 60.0),
+                                                  child: RichText(
+                                                    text: TextSpan(
+                                                      children: <TextSpan>[
+                                                        TextSpan(
+                                                          text:
+                                                              "By continuing you agree to 9GAG's ",
+                                                          style: commonTextStyle(
+                                                              Colors.black
+                                                                  .withOpacity(0.4),
+                                                              FontWeight.bold,
+                                                              12.0,
+                                                              null),
+                                                        ),
+                                                        TextSpan(
+                                                          text:
+                                                              'Terms of Services ',
+                                                          style: commonTextStyle(
+                                                              Colors.black
+                                                                  .withOpacity(0.5),
+                                                              FontWeight.bold,
+                                                              12.0,
+                                                              TextDecoration
+                                                                  .underline),
+                                                          recognizer:
+                                                              TapGestureRecognizer()
+                                                                ..onTap = () {},
+                                                        ),
+                                                        TextSpan(
+                                                          text:
+                                                              "and acknowledge that you've read our ",
+                                                          style: commonTextStyle(
+                                                              Colors.black
+                                                                  .withOpacity(0.4),
+                                                              FontWeight.bold,
+                                                              12.0,
+                                                              null),
+                                                        ),
+                                                        TextSpan(
+                                                          text: 'Privacy Policy',
+                                                          style: commonTextStyle(
+                                                              Colors.black
+                                                                  .withOpacity(0.5),
+                                                              FontWeight.bold,
+                                                              12.0,
+                                                              TextDecoration
+                                                                  .underline),
+                                                          recognizer:
+                                                              TapGestureRecognizer()
+                                                                ..onTap = () {},
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    textAlign: TextAlign.center,
                                                   ),
-                                                  textAlign: TextAlign.center,
                                                 ),
-                                              ),
-                                              SizedBox(
-                                                height: 10.0,
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 30.0,
-                                                    vertical: 5.0),
-                                                width: double.infinity,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                  border: Border.all(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.3),
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(26),
+                                                SizedBox(
+                                                  height: 10.0,
                                                 ),
-                                                child: Row(
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Image.asset(
-                                                        "assets/logo/facebook.png",
-                                                        width: 24,
-                                                        height: 24,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 50,
-                                                    ),
-                                                    Text(
-                                                      "Continue with Facebook",
-                                                      style: commonTextStyle(
-                                                          Colors.black,
-                                                          FontWeight.bold,
-                                                          16.0,
-                                                          null),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 30.0,
-                                                    vertical: 5.0),
-                                                width: double.infinity,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                  border: Border.all(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.3),
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(26),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Image.asset(
-                                                        "assets/logo/google.png",
-                                                        width: 24,
-                                                        height: 24,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 55,
-                                                    ),
-                                                    Text(
-                                                      "Continue with Google",
-                                                      style: commonTextStyle(
-                                                          Colors.black,
-                                                          FontWeight.bold,
-                                                          16.0,
-                                                          null),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 30.0,
-                                                    vertical: 5.0),
-                                                width: double.infinity,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                  border: Border.all(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.3),
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(26),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Image.asset(
-                                                        "assets/logo/apple.png",
-                                                        width: 24,
-                                                        height: 24,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 60,
-                                                    ),
-                                                    Text(
-                                                      "Continue with Apple",
-                                                      style: commonTextStyle(
-                                                          Colors.black,
-                                                          FontWeight.bold,
-                                                          16.0,
-                                                          null),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              GestureDetector(
-                                                onTap: (){
-                                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignupPage()));
-                                                },
-                                                child: Container(
+                                                Container(
                                                   margin: EdgeInsets.symmetric(
                                                       horizontal: 30.0,
                                                       vertical: 5.0),
@@ -579,58 +449,221 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     borderRadius:
                                                         BorderRadius.circular(26),
                                                   ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      "Use email",
-                                                      style: commonTextStyle(
-                                                          Colors.black,
-                                                          FontWeight.bold,
-                                                          16.0,
-                                                          null),
-                                                    ),
+                                                  child: Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                                left: 10),
+                                                        child: Image.asset(
+                                                          "assets/logo/facebook.png",
+                                                          width: 24,
+                                                          height: 24,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 50,
+                                                      ),
+                                                      Text(
+                                                        "Continue with Facebook",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                              ),
-                                              SizedBox(
-                                                height: 30.0,
-                                              ),
-                                              GestureDetector(
-                                                onTap: (){
-                                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                                                },
-                                                child: Container(
+                                                Container(
                                                   margin: EdgeInsets.symmetric(
-                                                      horizontal: 60.0),
-                                                  child: RichText(
-                                                    text: TextSpan(
-                                                      children: <TextSpan>[
-                                                        TextSpan(
-                                                          text:
-                                                              "Already a number? ",
-                                                          style: commonTextStyle(
-                                                              Colors.black,
-                                                              FontWeight.bold,
-                                                              14.0,
-                                                              null),
-                                                        ),
-                                                        TextSpan(
-                                                          text: 'Log in',
-                                                          style: commonTextStyle(
-                                                              Colors.black,
-                                                              FontWeight.bold,
-                                                              14.0,
-                                                              null),
-                                                          recognizer:
-                                                              TapGestureRecognizer()
-                                                                ..onTap = () {},
-                                                        ),
-                                                      ],
+                                                      horizontal: 30.0,
+                                                      vertical: 5.0),
+                                                  width: double.infinity,
+                                                  height: 45,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.transparent,
+                                                    border: Border.all(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.3),
+                                                      width: 1,
                                                     ),
-                                                    textAlign: TextAlign.center,
+                                                    borderRadius:
+                                                        BorderRadius.circular(26),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                                left: 10),
+                                                        child: Image.asset(
+                                                          "assets/logo/google.png",
+                                                          width: 24,
+                                                          height: 24,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 55,
+                                                      ),
+                                                      Text(
+                                                        "Continue with Google",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(
+                                                      horizontal: 30.0,
+                                                      vertical: 5.0),
+                                                  width: double.infinity,
+                                                  height: 45,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.transparent,
+                                                    border: Border.all(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.3),
+                                                      width: 1,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(26),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                                left: 10),
+                                                        child: Image.asset(
+                                                          "assets/logo/apple.png",
+                                                          width: 24,
+                                                          height: 24,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 60,
+                                                      ),
+                                                      Text(
+                                                        "Continue with Apple",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                GestureDetector(
+                                                  onTap: (){
+                                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignupPage()));
+                                                  },
+                                                  child: Container(
+                                                    margin: EdgeInsets.symmetric(
+                                                        horizontal: 30.0,
+                                                        vertical: 5.0),
+                                                    width: double.infinity,
+                                                    height: 45,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.transparent,
+                                                      border: Border.all(
+                                                        color: Colors.grey
+                                                            .withOpacity(0.3),
+                                                        width: 1,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(26),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        "Use email",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                GestureDetector(
+                                                  onTap: (){
+                                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+                                                  },
+                                                  child: Container(
+                                                    margin: EdgeInsets.symmetric(
+                                                        horizontal: 30.0,
+                                                        vertical: 5.0),
+                                                    width: double.infinity,
+                                                    height: 45,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.transparent,
+                                                      border: Border.all(
+                                                        color: Colors.grey
+                                                            .withOpacity(0.3),
+                                                        width: 1,
+                                                      ),
+                                                      borderRadius:
+                                                      BorderRadius.circular(26),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        "Edit Profile",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 30.0,
+                                                ),
+                                                GestureDetector(
+                                                  onTap: (){
+                                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                                                  },
+                                                  child: Container(
+                                                    margin: EdgeInsets.symmetric(
+                                                        horizontal: 60.0),
+                                                    child: RichText(
+                                                      text: TextSpan(
+                                                        children: <TextSpan>[
+                                                          TextSpan(
+                                                            text:
+                                                                "Already a number? ",
+                                                            style: commonTextStyle(
+                                                                Colors.black,
+                                                                FontWeight.bold,
+                                                                14.0,
+                                                                null),
+                                                          ),
+                                                          TextSpan(
+                                                            text: 'Log in',
+                                                            style: commonTextStyle(
+                                                                Colors.black,
+                                                                FontWeight.bold,
+                                                                14.0,
+                                                                null),
+                                                            recognizer:
+                                                                TapGestureRecognizer()
+                                                                  ..onTap = () {},
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           );
                                         });
                                   },
@@ -711,260 +744,262 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           ),
                                         ),
                                         builder: (BuildContext context) {
-                                          return Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 30,
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 60.0),
-                                                child: RichText(
-                                                  text: TextSpan(
-                                                    children: <TextSpan>[
-                                                      TextSpan(
-                                                        text:
-                                                            "By continuing you agree to 9GAG's ",
-                                                        style: commonTextStyle(
-                                                            Colors.black
-                                                                .withOpacity(0.4),
-                                                            FontWeight.bold,
-                                                            12.0,
-                                                            null),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            'Terms of Services ',
-                                                        style: commonTextStyle(
-                                                            Colors.black
-                                                                .withOpacity(0.5),
-                                                            FontWeight.bold,
-                                                            12.0,
-                                                            TextDecoration
-                                                                .underline),
-                                                        recognizer:
-                                                            TapGestureRecognizer()
-                                                              ..onTap = () {},
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            "and acknowledge that you've read our ",
-                                                        style: commonTextStyle(
-                                                            Colors.black
-                                                                .withOpacity(0.4),
-                                                            FontWeight.bold,
-                                                            12.0,
-                                                            null),
-                                                      ),
-                                                      TextSpan(
-                                                        text: 'Privacy Policy',
-                                                        style: commonTextStyle(
-                                                            Colors.black
-                                                                .withOpacity(0.5),
-                                                            FontWeight.bold,
-                                                            12.0,
-                                                            TextDecoration
-                                                                .underline),
-                                                        recognizer:
-                                                            TapGestureRecognizer()
-                                                              ..onTap = () {},
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  textAlign: TextAlign.center,
+                                          return SingleChildScrollView(
+                                            child: Column(
+                                              children: [
+                                                SizedBox(
+                                                  height: 30,
                                                 ),
-                                              ),
-                                              SizedBox(
-                                                height: 10.0,
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 30.0,
-                                                    vertical: 5.0),
-                                                width: double.infinity,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                  border: Border.all(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.3),
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(26),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Image.asset(
-                                                        "assets/logo/facebook.png",
-                                                        width: 24,
-                                                        height: 24,
-                                                      ),
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(
+                                                      horizontal: 60.0),
+                                                  child: RichText(
+                                                    text: TextSpan(
+                                                      children: <TextSpan>[
+                                                        TextSpan(
+                                                          text:
+                                                              "By continuing you agree to 9GAG's ",
+                                                          style: commonTextStyle(
+                                                              Colors.black
+                                                                  .withOpacity(0.4),
+                                                              FontWeight.bold,
+                                                              12.0,
+                                                              null),
+                                                        ),
+                                                        TextSpan(
+                                                          text:
+                                                              'Terms of Services ',
+                                                          style: commonTextStyle(
+                                                              Colors.black
+                                                                  .withOpacity(0.5),
+                                                              FontWeight.bold,
+                                                              12.0,
+                                                              TextDecoration
+                                                                  .underline),
+                                                          recognizer:
+                                                              TapGestureRecognizer()
+                                                                ..onTap = () {},
+                                                        ),
+                                                        TextSpan(
+                                                          text:
+                                                              "and acknowledge that you've read our ",
+                                                          style: commonTextStyle(
+                                                              Colors.black
+                                                                  .withOpacity(0.4),
+                                                              FontWeight.bold,
+                                                              12.0,
+                                                              null),
+                                                        ),
+                                                        TextSpan(
+                                                          text: 'Privacy Policy',
+                                                          style: commonTextStyle(
+                                                              Colors.black
+                                                                  .withOpacity(0.5),
+                                                              FontWeight.bold,
+                                                              12.0,
+                                                              TextDecoration
+                                                                  .underline),
+                                                          recognizer:
+                                                              TapGestureRecognizer()
+                                                                ..onTap = () {},
+                                                        ),
+                                                      ],
                                                     ),
-                                                    SizedBox(
-                                                      width: 50,
-                                                    ),
-                                                    Text(
-                                                      "Continue with Facebook",
-                                                      style: commonTextStyle(
-                                                          Colors.black,
-                                                          FontWeight.bold,
-                                                          16.0,
-                                                          null),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 30.0,
-                                                    vertical: 5.0),
-                                                width: double.infinity,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                  border: Border.all(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.3),
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(26),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Image.asset(
-                                                        "assets/logo/google.png",
-                                                        width: 24,
-                                                        height: 24,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 55,
-                                                    ),
-                                                    Text(
-                                                      "Continue with Google",
-                                                      style: commonTextStyle(
-                                                          Colors.black,
-                                                          FontWeight.bold,
-                                                          16.0,
-                                                          null),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 30.0,
-                                                    vertical: 5.0),
-                                                width: double.infinity,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                  border: Border.all(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.3),
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(26),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Image.asset(
-                                                        "assets/logo/apple.png",
-                                                        width: 24,
-                                                        height: 24,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 60,
-                                                    ),
-                                                    Text(
-                                                      "Continue with Apple",
-                                                      style: commonTextStyle(
-                                                          Colors.black,
-                                                          FontWeight.bold,
-                                                          16.0,
-                                                          null),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 30.0,
-                                                    vertical: 5.0),
-                                                width: double.infinity,
-                                                height: 45,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                  border: Border.all(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.3),
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(26),
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    "Use email",
-                                                    style: commonTextStyle(
-                                                        Colors.black,
-                                                        FontWeight.bold,
-                                                        16.0,
-                                                        null),
+                                                    textAlign: TextAlign.center,
                                                   ),
                                                 ),
-                                              ),
-                                              SizedBox(
-                                                height: 30.0,
-                                              ),
-                                              Container(
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 60.0),
-                                                child: RichText(
-                                                  text: TextSpan(
-                                                    children: <TextSpan>[
-                                                      TextSpan(
-                                                        text:
-                                                            "Already a number? ",
+                                                SizedBox(
+                                                  height: 10.0,
+                                                ),
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(
+                                                      horizontal: 30.0,
+                                                      vertical: 5.0),
+                                                  width: double.infinity,
+                                                  height: 45,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.transparent,
+                                                    border: Border.all(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.3),
+                                                      width: 1,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(26),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                                left: 10),
+                                                        child: Image.asset(
+                                                          "assets/logo/facebook.png",
+                                                          width: 24,
+                                                          height: 24,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 50,
+                                                      ),
+                                                      Text(
+                                                        "Continue with Facebook",
                                                         style: commonTextStyle(
                                                             Colors.black,
                                                             FontWeight.bold,
-                                                            14.0,
+                                                            16.0,
                                                             null),
-                                                      ),
-                                                      TextSpan(
-                                                        text: 'Log in',
-                                                        style: commonTextStyle(
-                                                            Colors.black,
-                                                            FontWeight.bold,
-                                                            14.0,
-                                                            null),
-                                                        recognizer:
-                                                            TapGestureRecognizer()
-                                                              ..onTap = () {},
                                                       ),
                                                     ],
                                                   ),
-                                                  textAlign: TextAlign.center,
                                                 ),
-                                              ),
-                                            ],
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(
+                                                      horizontal: 30.0,
+                                                      vertical: 5.0),
+                                                  width: double.infinity,
+                                                  height: 45,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.transparent,
+                                                    border: Border.all(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.3),
+                                                      width: 1,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(26),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                                left: 10),
+                                                        child: Image.asset(
+                                                          "assets/logo/google.png",
+                                                          width: 24,
+                                                          height: 24,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 55,
+                                                      ),
+                                                      Text(
+                                                        "Continue with Google",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(
+                                                      horizontal: 30.0,
+                                                      vertical: 5.0),
+                                                  width: double.infinity,
+                                                  height: 45,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.transparent,
+                                                    border: Border.all(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.3),
+                                                      width: 1,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(26),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                                left: 10),
+                                                        child: Image.asset(
+                                                          "assets/logo/apple.png",
+                                                          width: 24,
+                                                          height: 24,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 60,
+                                                      ),
+                                                      Text(
+                                                        "Continue with Apple",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(
+                                                      horizontal: 30.0,
+                                                      vertical: 5.0),
+                                                  width: double.infinity,
+                                                  height: 45,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.transparent,
+                                                    border: Border.all(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.3),
+                                                      width: 1,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(26),
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      "Use email",
+                                                      style: commonTextStyle(
+                                                          Colors.black,
+                                                          FontWeight.bold,
+                                                          16.0,
+                                                          null),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 30.0,
+                                                ),
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(
+                                                      horizontal: 60.0),
+                                                  child: RichText(
+                                                    text: TextSpan(
+                                                      children: <TextSpan>[
+                                                        TextSpan(
+                                                          text:
+                                                              "Already a number? ",
+                                                          style: commonTextStyle(
+                                                              Colors.black,
+                                                              FontWeight.bold,
+                                                              14.0,
+                                                              null),
+                                                        ),
+                                                        TextSpan(
+                                                          text: 'Log in',
+                                                          style: commonTextStyle(
+                                                              Colors.black,
+                                                              FontWeight.bold,
+                                                              14.0,
+                                                              null),
+                                                          recognizer:
+                                                              TapGestureRecognizer()
+                                                                ..onTap = () {},
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           );
                                         });
                                   },
@@ -1005,38 +1040,42 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           Divider(
                             color: Colors.grey.withOpacity(0.3),
                           ),
-                          GestureDetector(
-                            child: Container(
+                          Container(
                               margin: EdgeInsets.symmetric(
                                   horizontal: 15.0, vertical: 20.0),
                               child: Column(
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.settings,
-                                                size: 25,
-                                                color: Colors.grey,
-                                              ),
-                                              SizedBox(
-                                                width: 30,
-                                              ),
-                                              Text(
-                                                "Setting",
-                                                style: commonTextStyle(Colors.black,
-                                                    FontWeight.bold, 16.0, null),
-                                              )
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                  GestureDetector(
+                                    onTap: (){
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SettingPage()));
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.settings,
+                                                  size: 25,
+                                                  color: Colors.grey,
+                                                ),
+                                                SizedBox(
+                                                  width: 30,
+                                                ),
+                                                Text(
+                                                  "Setting",
+                                                  style: commonTextStyle(Colors.black,
+                                                      FontWeight.bold, 16.0, null),
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                   SizedBox(height: 25.0),
                                   Row(
@@ -1067,11 +1106,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     ],
                                   ),
                                 ],
-                              ),
                             ),
-                            onTap: (){
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SettingPage()));
-                            },
+
                           ),
                           Divider(
                             color: Colors.grey.withOpacity(0.3),
