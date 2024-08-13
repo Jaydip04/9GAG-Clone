@@ -1,43 +1,106 @@
-import 'package:flick_video_player/flick_video_player.dart';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:gagclone/models/post_model.dart';
+import 'package:video_player/video_player.dart';
 
 class PostPage extends StatefulWidget {
-  final FlickManager flickManager;
-  const PostPage({super.key, required this.flickManager});
+  const PostPage({super.key});
 
   @override
   State<PostPage> createState() => _PostPageState();
 }
 
 class _PostPageState extends State<PostPage> {
-  final List<String> scrollview = [
-    "girl",
-    "funny",
-    "random",
-    "humor",
-    "no sound",
+
+  final List<PostModel> list = [
+    PostModel(
+      postHeading: "Humor",
+      postBottomScrollView: ["girl","funny","random","humor","no sound"],
+      postSubHeading: "Oh yes...let's the kid having fun...",
+      postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+      postLikeCount: "1.2",
+      postCommentCount: "143",
+      postHoursCount: "10",
+    ),
+    PostModel(
+      postHeading: "Humor",
+      postBottomScrollView: ["girl","humor","no sound"],
+      postSubHeading: "Oh yes...let's the kid having fun...",
+      postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
+      postLikeCount: "1.2",
+      postCommentCount: "143",
+      postHoursCount: "10",
+    ),
+    PostModel(
+      postHeading: "Humor",
+      postBottomScrollView: ["girl","funny","random"],
+      postSubHeading: "Oh yes...let's the kid having fun...",
+      postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+      postLikeCount: "1.2",
+      postCommentCount: "143",
+      postHoursCount: "10",
+    ),
+    PostModel(
+      postHeading: "Humor",
+      postBottomScrollView: ["funny",],
+      postSubHeading: "Oh yes...let's the kid having fun...",
+      postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
+      postLikeCount: "1.2",
+      postCommentCount: "143",
+      postHoursCount: "10",
+    ),
   ];
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Column(
-        children: [
-          postTitle(),
-          SizedBox(
-            height: 5,
-          ),
-          postVideo(widget.flickManager),
-          postSingleChildScrollView(),
-          postBottom(),
-          SizedBox(
-            height: 5.0,
-          ),
-          Divider(
-            thickness: 7.0,
-            color: Colors.grey.withOpacity(0.2),
-          ),
-        ],
+      margin: EdgeInsets.only(bottom: 20.0),
+      height: MediaQuery.sizeOf(context).height/1.3,
+      child: ListView.builder(
+        // shrinkWrap: true,
+          itemCount: list.length,
+          itemBuilder: (context, index) {
+            return postCard(
+              heading: list[index].postHeading,
+              subHeading: list[index].postSubHeading,
+              bottomScroll: list[index].postBottomScrollView,
+              videoURL: list[index].postVideoUrl,
+              likeCount: list[index].postLikeCount,
+              commentCount: list[index].postCommentCount,
+              postHours: list[index].postHoursCount,
+            );
+          },
       ),
+    );
+  }
+
+  Widget postCard({
+    required heading,
+    required subHeading,
+    required videoURL,
+    required likeCount,
+    required bottomScroll,
+    required commentCount,
+    required postHours,
+  }) {
+    return Container(
+        child: Column(
+          children: [
+            postTitle(heading: heading, subHeading: subHeading, hours: postHours),
+            SizedBox(
+              height: 5,
+            ),
+            PostVideo(videoURL: videoURL,),
+            postBottomScrollView(list: bottomScroll,listItem: bottomScroll,),
+            postBottom(likeCount: likeCount, commentCount: commentCount),
+            SizedBox(
+              height: 5.0,
+            ),
+            Divider(
+              thickness: 7.0,
+              color: Colors.grey.withOpacity(0.2),
+            ),
+          ],
+        ),
     );
   }
 
@@ -45,7 +108,7 @@ class _PostPageState extends State<PostPage> {
     return TextStyle(color: color, fontWeight: weight, fontSize: size);
   }
 
-  Container commonContainerBorder(name) {
+  Widget commonContainerBorder(name) {
     return Container(
       child: Text(
         name,
@@ -58,10 +121,14 @@ class _PostPageState extends State<PostPage> {
     );
   }
 
-  Container postTitle() {
+  Widget postTitle(
+      {required String heading,
+      required String subHeading,
+      required String hours}) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -85,12 +152,12 @@ class _PostPageState extends State<PostPage> {
                         width: 10,
                       ),
                       Text(
-                        "Humor",
+                        heading,
                         style: commonTextStyle(
                             Colors.black, FontWeight.bold, 14.00),
                       ),
                       Text(
-                        " . 10h",
+                        " . $hours" + "h",
                         style: commonTextStyle(
                             Colors.grey, FontWeight.bold, 12.00),
                       ),
@@ -124,46 +191,16 @@ class _PostPageState extends State<PostPage> {
           SizedBox(
             height: 5,
           ),
-          Row(
-            children: [
-              Text(
-                "Oh yes...let' see the kid having fun...",
-                style: commonTextStyle(Colors.black, FontWeight.bold, 14.00),
-              ),
-            ],
+          Text(
+            subHeading,
+            style: commonTextStyle(Colors.black, FontWeight.bold, 14.00),
           ),
         ],
       ),
     );
   }
 
-  Container postSingleChildScrollView() {
-    return Container(
-      height: 35.0,
-      margin: EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: scrollview.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 2.0),
-            child: Container(
-              child: Text(
-                scrollview[index],
-                style: commonTextStyle(Colors.black, FontWeight.bold, 14.00),
-              ),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.grey, width: 1)),
-              padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Container postBottom() {
+  Widget postBottom({required String likeCount, required String commentCount}) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 10.0),
       child: Row(
@@ -181,7 +218,7 @@ class _PostPageState extends State<PostPage> {
                   SizedBox(
                     width: 5,
                   ),
-                  Text("1.7k"),
+                  Text(likeCount),
                   SizedBox(
                     width: 5,
                   ),
@@ -206,7 +243,7 @@ class _PostPageState extends State<PostPage> {
                   SizedBox(
                     width: 5,
                   ),
-                  Text("138"),
+                  Text(commentCount),
                 ],
               ),
             ],
@@ -232,20 +269,94 @@ class _PostPageState extends State<PostPage> {
       ),
     );
   }
+}
+class PostVideo extends StatefulWidget {
+  final String videoURL;
+  const PostVideo({super.key,required this.videoURL});
 
-  Row postVideo(flickManager) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          height: 300,
-          width: MediaQuery.sizeOf(context).width / 1.12,
-          child: FlickVideoPlayer(
-            flickManager: flickManager,
-          ),
-        ),
-      ],
+  @override
+  _PostVideoState createState() => _PostVideoState();
+}
+
+class _PostVideoState extends State<PostVideo> {
+  late VideoPlayerController _videoPlayerController;
+  late ChewieController _chewieController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _videoPlayerController = VideoPlayerController.network(widget.videoURL);
+
+    _chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController,
+      autoPlay: true,
+      looping: true,
     );
   }
+
+  @override
+  void dispose() {
+    _videoPlayerController.dispose();
+    _chewieController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 300,
+        width: MediaQuery.sizeOf(context).width,
+        child: Center(
+          child: Chewie(
+            controller: _chewieController,
+          ),
+        ),
+      );
+  }
 }
+
+class postBottomScrollView extends StatefulWidget {
+  final List<String> list;
+  final List<String> listItem;
+  const postBottomScrollView({super.key,required this.list,required this.listItem});
+
+  @override
+  State<postBottomScrollView> createState() => _postBottomScrollViewState();
+}
+
+class _postBottomScrollViewState extends State<postBottomScrollView> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+            height: 35.0,
+            margin: EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.list.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 2.0),
+                  child: Container(
+                    child: Text(widget.listItem[index], style: commonTextStyle(Colors.black, FontWeight.bold, 14.00),
+                    ),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.grey, width: 1)),
+                    padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                  ),
+                );
+              },
+            ),
+          );
+  }
+  TextStyle commonTextStyle(color, weight, size) {
+    return TextStyle(
+        color: color,
+        fontWeight: weight,
+        fontSize: size,);
+  }
+}
+
+
+
