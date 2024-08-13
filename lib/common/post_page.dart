@@ -89,7 +89,7 @@ class _PostPageState extends State<PostPage> {
             SizedBox(
               height: 5,
             ),
-            PostVideo(videoURL: videoURL,),
+            // PostVideo(videoURL: videoURL,),
             postBottomScrollView(list: bottomScroll,listItem: bottomScroll,),
             postBottom(likeCount: likeCount, commentCount: commentCount),
             SizedBox(
