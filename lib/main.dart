@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gagclone/bloc/drawer_bloc/drawer_bloc.dart';
+import 'package:gagclone/create_post/create_post.dart';
+import 'package:gagclone/create_post/tags.dart';
 import 'package:gagclone/pages/home_page.dart';
 
 import 'bloc/video/video_bloc.dart';

@@ -290,8 +290,11 @@ class _PostVideoState extends State<PostVideo> {
 
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
-      autoPlay: true,
+      // autoPlay: true,
       looping: true,
+      allowMuting: true,
+      showControls: true,
+      autoInitialize: true,
     );
   }
 
