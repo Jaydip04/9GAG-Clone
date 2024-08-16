@@ -6,9 +6,9 @@ import 'package:gagclone/authentication/login_page.dart';
 import 'package:gagclone/authentication/signup_page.dart';
 import 'package:gagclone/create_post/create_post_form_link.dart';
 import 'package:gagclone/pages/notification_page.dart';
-import 'package:gagclone/pages/profile_page.dart';
 import 'package:gagclone/pages/search_page.dart';
 import 'package:gagclone/pages/setting%20_page.dart';
+import 'package:gagclone/profile/profile_page.dart';
 import 'package:gagclone/tabs/ask_tab.dart';
 import 'package:gagclone/tabs/fresh_tab.dart';
 import 'package:gagclone/tabs/home_tab.dart';
@@ -19,6 +19,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import '../bloc/drawer_bloc/drawer_bloc.dart';
 import '../bloc/drawer_bloc/drawer_state.dart';
+import '../bloc/video/video_bloc.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -87,7 +88,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => DrawerBloc()),
+        BlocProvider(create: (_) => VideoBloc()),
+      ], child:Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.grey),
@@ -156,7 +161,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   ),
                                   TextSpan(
                                     text:
-                                        "and acknowledge that you've read our ",
+                                    "and acknowledge that you've read our ",
                                     style: commonTextStyle(
                                         Colors.black.withOpacity(0.4),
                                         FontWeight.bold,
@@ -439,55 +444,55 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       children: <TextSpan>[
                                                         TextSpan(
                                                           text:
-                                                              "By continuing you agree to 9GAG's ",
+                                                          "By continuing you agree to 9GAG's ",
                                                           style: commonTextStyle(
                                                               Colors.black
                                                                   .withOpacity(
-                                                                      0.4),
+                                                                  0.4),
                                                               FontWeight.bold,
                                                               12.0,
                                                               null),
                                                         ),
                                                         TextSpan(
                                                           text:
-                                                              'Terms of Services ',
+                                                          'Terms of Services ',
                                                           style: commonTextStyle(
                                                               Colors.black
                                                                   .withOpacity(
-                                                                      0.5),
+                                                                  0.5),
                                                               FontWeight.bold,
                                                               12.0,
                                                               TextDecoration
                                                                   .underline),
                                                           recognizer:
-                                                              TapGestureRecognizer()
-                                                                ..onTap = () {},
+                                                          TapGestureRecognizer()
+                                                            ..onTap = () {},
                                                         ),
                                                         TextSpan(
                                                           text:
-                                                              "and acknowledge that you've read our ",
+                                                          "and acknowledge that you've read our ",
                                                           style: commonTextStyle(
                                                               Colors.black
                                                                   .withOpacity(
-                                                                      0.4),
+                                                                  0.4),
                                                               FontWeight.bold,
                                                               12.0,
                                                               null),
                                                         ),
                                                         TextSpan(
                                                           text:
-                                                              'Privacy Policy',
+                                                          'Privacy Policy',
                                                           style: commonTextStyle(
                                                               Colors.black
                                                                   .withOpacity(
-                                                                      0.5),
+                                                                  0.5),
                                                               FontWeight.bold,
                                                               12.0,
                                                               TextDecoration
                                                                   .underline),
                                                           recognizer:
-                                                              TapGestureRecognizer()
-                                                                ..onTap = () {},
+                                                          TapGestureRecognizer()
+                                                            ..onTap = () {},
                                                         ),
                                                       ],
                                                     ),
@@ -511,15 +516,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       width: 1,
                                                     ),
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            26),
+                                                    BorderRadius.circular(
+                                                        26),
                                                   ),
                                                   child: Row(
                                                     children: [
                                                       Padding(
                                                         padding:
-                                                            const EdgeInsets
-                                                                .only(left: 10),
+                                                        const EdgeInsets
+                                                            .only(left: 10),
                                                         child: Image.asset(
                                                           "assets/logo/facebook.png",
                                                           width: 24,
@@ -554,15 +559,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       width: 1,
                                                     ),
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            26),
+                                                    BorderRadius.circular(
+                                                        26),
                                                   ),
                                                   child: Row(
                                                     children: [
                                                       Padding(
                                                         padding:
-                                                            const EdgeInsets
-                                                                .only(left: 10),
+                                                        const EdgeInsets
+                                                            .only(left: 10),
                                                         child: Image.asset(
                                                           "assets/logo/google.png",
                                                           width: 24,
@@ -597,15 +602,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       width: 1,
                                                     ),
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            26),
+                                                    BorderRadius.circular(
+                                                        26),
                                                   ),
                                                   child: Row(
                                                     children: [
                                                       Padding(
                                                         padding:
-                                                            const EdgeInsets
-                                                                .only(left: 10),
+                                                        const EdgeInsets
+                                                            .only(left: 10),
                                                         child: Image.asset(
                                                           "assets/logo/apple.png",
                                                           width: 24,
@@ -636,9 +641,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   },
                                                   child: Container(
                                                     margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 30.0,
-                                                            vertical: 5.0),
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 30.0,
+                                                        vertical: 5.0),
                                                     width: double.infinity,
                                                     height: 45,
                                                     decoration: BoxDecoration(
@@ -649,8 +654,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                         width: 1,
                                                       ),
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              26),
+                                                      BorderRadius.circular(
+                                                          26),
                                                     ),
                                                     child: Center(
                                                       child: Text(
@@ -674,9 +679,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   },
                                                   child: Container(
                                                     margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 30.0,
-                                                            vertical: 5.0),
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 30.0,
+                                                        vertical: 5.0),
                                                     width: double.infinity,
                                                     height: 45,
                                                     decoration: BoxDecoration(
@@ -687,8 +692,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                         width: 1,
                                                       ),
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              26),
+                                                      BorderRadius.circular(
+                                                          26),
                                                     ),
                                                     child: Center(
                                                       child: Text(
@@ -715,42 +720,42 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   },
                                                   child: Container(
                                                     margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 60.0),
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 60.0),
                                                     child: RichText(
                                                       text: TextSpan(
                                                         children: <TextSpan>[
                                                           TextSpan(
                                                             text:
-                                                                "Already a number? ",
+                                                            "Already a number? ",
                                                             style:
-                                                                commonTextStyle(
-                                                                    Colors
-                                                                        .black,
-                                                                    FontWeight
-                                                                        .bold,
-                                                                    14.0,
-                                                                    null),
+                                                            commonTextStyle(
+                                                                Colors
+                                                                    .black,
+                                                                FontWeight
+                                                                    .bold,
+                                                                14.0,
+                                                                null),
                                                           ),
                                                           TextSpan(
                                                             text: 'Log in',
                                                             style:
-                                                                commonTextStyle(
-                                                                    Colors
-                                                                        .black,
-                                                                    FontWeight
-                                                                        .bold,
-                                                                    14.0,
-                                                                    null),
+                                                            commonTextStyle(
+                                                                Colors
+                                                                    .black,
+                                                                FontWeight
+                                                                    .bold,
+                                                                14.0,
+                                                                null),
                                                             recognizer:
-                                                                TapGestureRecognizer()
-                                                                  ..onTap =
-                                                                      () {},
+                                                            TapGestureRecognizer()
+                                                              ..onTap =
+                                                                  () {},
                                                           ),
                                                         ],
                                                       ),
                                                       textAlign:
-                                                          TextAlign.center,
+                                                      TextAlign.center,
                                                     ),
                                                   ),
                                                 ),
@@ -762,7 +767,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   child: Container(
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                       children: [
                                         Column(
                                           children: [
@@ -776,8 +781,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     fit: BoxFit.fill,
                                                   ),
                                                   borderRadius:
-                                                      BorderRadius.circular(
-                                                          30.0),
+                                                  BorderRadius.circular(
+                                                      30.0),
                                                 ),
                                                 SizedBox(
                                                   width: 30,
@@ -808,8 +813,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               decoration: BoxDecoration(
                                                   color: Colors.grey,
                                                   borderRadius:
-                                                      BorderRadius.circular(
-                                                          5.0)),
+                                                  BorderRadius.circular(
+                                                      5.0)),
                                               padding: EdgeInsets.symmetric(
                                                   horizontal: 3),
                                             )
@@ -852,55 +857,55 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       children: <TextSpan>[
                                                         TextSpan(
                                                           text:
-                                                              "By continuing you agree to 9GAG's ",
+                                                          "By continuing you agree to 9GAG's ",
                                                           style: commonTextStyle(
                                                               Colors.black
                                                                   .withOpacity(
-                                                                      0.4),
+                                                                  0.4),
                                                               FontWeight.bold,
                                                               12.0,
                                                               null),
                                                         ),
                                                         TextSpan(
                                                           text:
-                                                              'Terms of Services ',
+                                                          'Terms of Services ',
                                                           style: commonTextStyle(
                                                               Colors.black
                                                                   .withOpacity(
-                                                                      0.5),
+                                                                  0.5),
                                                               FontWeight.bold,
                                                               12.0,
                                                               TextDecoration
                                                                   .underline),
                                                           recognizer:
-                                                              TapGestureRecognizer()
-                                                                ..onTap = () {},
+                                                          TapGestureRecognizer()
+                                                            ..onTap = () {},
                                                         ),
                                                         TextSpan(
                                                           text:
-                                                              "and acknowledge that you've read our ",
+                                                          "and acknowledge that you've read our ",
                                                           style: commonTextStyle(
                                                               Colors.black
                                                                   .withOpacity(
-                                                                      0.4),
+                                                                  0.4),
                                                               FontWeight.bold,
                                                               12.0,
                                                               null),
                                                         ),
                                                         TextSpan(
                                                           text:
-                                                              'Privacy Policy',
+                                                          'Privacy Policy',
                                                           style: commonTextStyle(
                                                               Colors.black
                                                                   .withOpacity(
-                                                                      0.5),
+                                                                  0.5),
                                                               FontWeight.bold,
                                                               12.0,
                                                               TextDecoration
                                                                   .underline),
                                                           recognizer:
-                                                              TapGestureRecognizer()
-                                                                ..onTap = () {},
+                                                          TapGestureRecognizer()
+                                                            ..onTap = () {},
                                                         ),
                                                       ],
                                                     ),
@@ -924,15 +929,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       width: 1,
                                                     ),
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            26),
+                                                    BorderRadius.circular(
+                                                        26),
                                                   ),
                                                   child: Row(
                                                     children: [
                                                       Padding(
                                                         padding:
-                                                            const EdgeInsets
-                                                                .only(left: 10),
+                                                        const EdgeInsets
+                                                            .only(left: 10),
                                                         child: Image.asset(
                                                           "assets/logo/facebook.png",
                                                           width: 24,
@@ -967,15 +972,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       width: 1,
                                                     ),
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            26),
+                                                    BorderRadius.circular(
+                                                        26),
                                                   ),
                                                   child: Row(
                                                     children: [
                                                       Padding(
                                                         padding:
-                                                            const EdgeInsets
-                                                                .only(left: 10),
+                                                        const EdgeInsets
+                                                            .only(left: 10),
                                                         child: Image.asset(
                                                           "assets/logo/google.png",
                                                           width: 24,
@@ -1010,15 +1015,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       width: 1,
                                                     ),
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            26),
+                                                    BorderRadius.circular(
+                                                        26),
                                                   ),
                                                   child: Row(
                                                     children: [
                                                       Padding(
                                                         padding:
-                                                            const EdgeInsets
-                                                                .only(left: 10),
+                                                        const EdgeInsets
+                                                            .only(left: 10),
                                                         child: Image.asset(
                                                           "assets/logo/apple.png",
                                                           width: 24,
@@ -1053,8 +1058,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       width: 1,
                                                     ),
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            26),
+                                                    BorderRadius.circular(
+                                                        26),
                                                   ),
                                                   child: Center(
                                                     child: Text(
@@ -1078,27 +1083,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       children: <TextSpan>[
                                                         TextSpan(
                                                           text:
-                                                              "Already a number? ",
+                                                          "Already a number? ",
                                                           style:
-                                                              commonTextStyle(
-                                                                  Colors.black,
-                                                                  FontWeight
-                                                                      .bold,
-                                                                  14.0,
-                                                                  null),
+                                                          commonTextStyle(
+                                                              Colors.black,
+                                                              FontWeight
+                                                                  .bold,
+                                                              14.0,
+                                                              null),
                                                         ),
                                                         TextSpan(
                                                           text: 'Log in',
                                                           style:
-                                                              commonTextStyle(
-                                                                  Colors.black,
-                                                                  FontWeight
-                                                                      .bold,
-                                                                  14.0,
-                                                                  null),
+                                                          commonTextStyle(
+                                                              Colors.black,
+                                                              FontWeight
+                                                                  .bold,
+                                                              14.0,
+                                                              null),
                                                           recognizer:
-                                                              TapGestureRecognizer()
-                                                                ..onTap = () {},
+                                                          TapGestureRecognizer()
+                                                            ..onTap = () {},
                                                         ),
                                                       ],
                                                     ),
@@ -1112,7 +1117,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   },
                                   child: Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -1162,7 +1167,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   },
                                   child: Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -1194,7 +1199,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 SizedBox(height: 25.0),
                                 Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     Column(
                                       children: [
@@ -1235,7 +1240,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               children: [
                                 Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     Column(
                                       children: [
@@ -1303,7 +1308,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       bottom: BorderSide(
                                           width: 1.0,
                                           color:
-                                              Colors.grey.withOpacity(0.2)))),
+                                          Colors.grey.withOpacity(0.2)))),
                               child: const ListTile(
                                 title: Text('Home'),
                                 leading: Icon(Icons.home),
@@ -1869,6 +1874,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         backgroundColor: CupertinoColors.systemBlue,
         elevation: 5.0,
       ),
+    ),
     );
   }
 

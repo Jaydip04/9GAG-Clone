@@ -1,12 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:gagclone/profile/edit_profile_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
-
-import '../authentication/login_page.dart';
-import '../authentication/signup_page.dart';
 import '../create_post/create_post_form_link.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -97,7 +94,9 @@ class _ProfilePageState extends State<ProfilePage>
         ),
         actions: <Widget>[
           TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => EditProfilePage()));
+              },
               child: Text(
                 "Edit profile",
                 style: commonTextStyle(Colors.indigo, FontWeight.bold, 14.00),

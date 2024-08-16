@@ -49,6 +49,7 @@ class _CreatePostState extends State<CreatePost> {
                     backgroundColor: Colors.white,
                     content: Container(
                       height: 111.0,
+                      width: MediaQuery.sizeOf(context).width/1.3,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
