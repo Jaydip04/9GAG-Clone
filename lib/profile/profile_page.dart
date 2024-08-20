@@ -20,7 +20,7 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 4, vsync: this,animationDuration: Duration(milliseconds: 2000));
     requestPermission().then((_) {
       fetchGalleryMedia().then((media) {
         setState(() {

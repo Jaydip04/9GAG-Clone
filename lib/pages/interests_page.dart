@@ -41,7 +41,7 @@ class _InterestsPageState extends State<InterestsPage> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this,initialIndex: 1);
+    _tabController = TabController(length: 4, vsync: this,initialIndex: 1,animationDuration: Duration(milliseconds: 2000));
     requestPermission().then((_) {
       fetchGalleryMedia().then((media) {
         setState(() {

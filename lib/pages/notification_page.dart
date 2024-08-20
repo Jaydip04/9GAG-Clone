@@ -14,7 +14,7 @@ class _NotificationPageState extends State<NotificationPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 2, vsync: this,animationDuration: Duration(milliseconds: 2000));
   }
 
   @override
