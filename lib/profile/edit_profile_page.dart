@@ -544,6 +544,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 GestureDetector(
                   onTap: () {
                     showModalBottomSheet(
+                        transitionAnimationController: AnimationController(
+                          duration: const Duration(milliseconds: 1000),
+                          vsync: Navigator.of(context),
+                        ),
                         backgroundColor: Colors.white,
                         constraints: BoxConstraints.loose(Size(
                             MediaQuery.of(context).size.width,
@@ -1000,6 +1004,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 GestureDetector(
                   onTap: () {
                     showModalBottomSheet(
+                        transitionAnimationController: AnimationController(
+                          duration: const Duration(milliseconds: 1000),
+                          vsync: Navigator.of(context),
+                        ),
                         backgroundColor: Colors.white,
                         constraints: BoxConstraints.loose(Size(
                             MediaQuery.of(context).size.width,

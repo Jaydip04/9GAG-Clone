@@ -104,6 +104,10 @@ class _ProfilePageState extends State<ProfilePage>
           IconButton(
               onPressed: () {
                 showModalBottomSheet(
+                    transitionAnimationController: AnimationController(
+                      duration: const Duration(milliseconds: 1000),
+                      vsync: Navigator.of(context),
+                    ),
                     backgroundColor: Colors.white,
                     constraints: BoxConstraints.loose(Size(
                         MediaQuery.of(context).size.width,
@@ -316,6 +320,10 @@ class _ProfilePageState extends State<ProfilePage>
                         GestureDetector(
                           onTap: () {
                             showModalBottomSheet(
+                                transitionAnimationController: AnimationController(
+                                  duration: const Duration(milliseconds: 1000),
+                                  vsync: Navigator.of(context),
+                                ),
                                 backgroundColor: Colors.white,
                                 constraints: BoxConstraints.loose(Size(
                                     MediaQuery.of(context).size.width,

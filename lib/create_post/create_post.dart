@@ -95,10 +95,11 @@ class _CreatePostState extends State<CreatePost> {
                               ),
                               GestureDetector(
                                   onTap: () {
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (_) => HomePage()));
+                                    Navigator.of(context).push(_HomeRoute());
+                                    // Navigator.pushReplacement(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //         builder: (_) => HomePage()));
                                   },
                                   child: Text(
                                     "Discard",
@@ -147,7 +148,8 @@ class _CreatePostState extends State<CreatePost> {
             children: [
               GestureDetector(
                 onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => ChooseInterest()));
+                  Navigator.of(context).push(_ChooseInterestRoute());
+                  // Navigator.push(context, MaterialPageRoute(builder: (_) => ChooseInterest()));
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -205,7 +207,8 @@ class _CreatePostState extends State<CreatePost> {
               ),
               GestureDetector(
                 onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => Tags()));
+                  Navigator.of(context).push(_TagsRoute());
+                  // Navigator.push(context, MaterialPageRoute(builder: (_) => Tags()));
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -253,6 +256,72 @@ class _CreatePostState extends State<CreatePost> {
           ),
         ),
       ),
+    );
+  }
+  Route _HomeRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const HomePage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
+    );
+  }
+  Route _ChooseInterestRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const ChooseInterest(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
+    );
+  }
+  Route _TagsRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const Tags(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
     );
   }
 
@@ -310,4 +379,5 @@ class _PostVideoState extends State<PostVideo> {
       ),
     );
   }
+
 }

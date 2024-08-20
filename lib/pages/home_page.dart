@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this, initialIndex: 1);
+    _tabController = TabController(length: 5, vsync: this, initialIndex: 1,animationDuration: Duration(milliseconds: 2000));
     requestPermission().then((_) {
       fetchGalleryMedia().then((media) {
         setState(() {
@@ -107,8 +107,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         actions: <Widget>[
           IconButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SearchPage()));
+              Navigator.of(context).push(_SearchRoute());
+              // Navigator.push(context,
+              //     MaterialPageRoute(builder: (context) => ()));
             },
             icon: Icon(
               Icons.search,
@@ -117,6 +118,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           IconButton(
             onPressed: () {
               showModalBottomSheet(
+                  transitionAnimationController: AnimationController(
+                    duration: const Duration(milliseconds: 1000),
+                    vsync: Navigator.of(context),
+                  ),
                   backgroundColor: Colors.white,
                   constraints: BoxConstraints.loose(Size(
                       MediaQuery.of(context).size.width,
@@ -312,10 +317,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               ),
                             ),
                             onTap: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => SignupPage()));
+                              Navigator.of(context).push(_SignRoute());
+                              // Navigator.pushReplacement(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) => SignupPage()));
                             },
                           ),
                           GestureDetector(
@@ -341,11 +347,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               ),
                             ),
                             onTap: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          NotificationPage()));
+                              Navigator.of(context).push(_NotificationRoute());
+                              // Navigator.pushReplacement(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) =>
+                              //             NotificationPage()));
                             },
                           ),
                           SizedBox(
@@ -353,10 +360,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => LoginPage()));
+                              Navigator.of(context).push(_LoginRoute());
+                              // Navigator.pushReplacement(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) => LoginPage()));
                             },
                             child: Container(
                               margin: EdgeInsets.symmetric(horizontal: 60.0),
@@ -393,6 +401,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           IconButton(
               onPressed: () {
                 showModalBottomSheet(
+                  transitionAnimationController: AnimationController(
+                    duration: const Duration(milliseconds: 1000),
+                    vsync: Navigator.of(context),
+                  ),
                   backgroundColor: Colors.white,
                   constraints: BoxConstraints.loose(Size(
                       MediaQuery.of(context).size.width,
@@ -417,6 +429,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 GestureDetector(
                                   onTap: () {
                                     showModalBottomSheet(
+                                        transitionAnimationController: AnimationController(
+                                          duration: const Duration(milliseconds: 1000),
+                                          vsync: Navigator.of(context),
+                                        ),
                                         backgroundColor: Colors.white,
                                         constraints: BoxConstraints.loose(Size(
                                             MediaQuery.of(context).size.width,
@@ -634,11 +650,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 ),
                                                 GestureDetector(
                                                   onTap: () {
-                                                    Navigator.pushReplacement(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                SignupPage()));
+                                                    Navigator.of(context).push(_SignRoute());
+                                                    // Navigator.pushReplacement(
+                                                    //     context,
+                                                    //     MaterialPageRoute(
+                                                    //         builder: (context) =>
+                                                    //             SignupPage()));
                                                   },
                                                   child: Container(
                                                     margin:
@@ -672,11 +689,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 ),
                                                 GestureDetector(
                                                   onTap: () {
-                                                    Navigator.pushReplacement(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                ProfilePage()));
+                                                    Navigator.of(context).push(_ProfileRoute());
+                                                    // Navigator.pushReplacement(
+                                                    //     context,
+                                                    //     MaterialPageRoute(
+                                                    //         builder: (context) =>
+                                                    //             ProfilePage()));
                                                   },
                                                   child: Container(
                                                     margin:
@@ -713,11 +731,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 ),
                                                 GestureDetector(
                                                   onTap: () {
-                                                    Navigator.pushReplacement(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                LoginPage()));
+                                                    Navigator.of(context).push(_LoginRoute());
+                                                    // Navigator.pushReplacement(
+                                                    //     context,
+                                                    //     MaterialPageRoute(
+                                                    //         builder: (context) =>
+                                                    //             LoginPage()));
                                                   },
                                                   child: Container(
                                                     margin:
@@ -829,6 +848,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 GestureDetector(
                                   onTap: () {
                                     showModalBottomSheet(
+                                        transitionAnimationController: AnimationController(
+                                          duration: const Duration(milliseconds: 1000),
+                                          vsync: Navigator.of(context),
+                                        ),
                                         backgroundColor: Colors.white,
                                         constraints: BoxConstraints.loose(Size(
                                             MediaQuery.of(context).size.width,
@@ -1160,11 +1183,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                SettingPage()));
+                                    Navigator.of(context).push(_SettingRoute());
+                                    // Navigator.pushReplacement(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //         builder: (context) =>
+                                    //             SettingPage()));
                                   },
                                   child: Row(
                                     mainAxisAlignment:
@@ -1450,6 +1474,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
+              transitionAnimationController: AnimationController(
+                duration: const Duration(milliseconds: 1000),
+                vsync: Navigator.of(context),
+              ),
               backgroundColor: Colors.white,
               constraints: BoxConstraints.loose(Size(
                   MediaQuery.of(context).size.width,
@@ -1623,10 +1651,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SignupPage()));
+                          Navigator.of(context).push(_SignRoute());
+                          // Navigator.pushReplacement(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => SignupPage()));
                         },
                         child: Container(
                           margin: EdgeInsets.symmetric(
@@ -1653,6 +1682,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       GestureDetector(
                         onTap: () {
                           showModalBottomSheet(
+                              transitionAnimationController: AnimationController(
+                                duration: const Duration(milliseconds: 1000),
+                                vsync: Navigator.of(context),
+                              ),
                               backgroundColor: Colors.white,
                               constraints: BoxConstraints.loose(Size(
                                   MediaQuery.of(context).size.width,
@@ -1764,10 +1797,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       ),
                                       GestureDetector(
                                         onTap: (){
-                                          Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => CreatePostFormLink()));
+                                          Navigator.of(context).push(_CreatePostRoute());
+                                          // Navigator.pushReplacement(
+                                          //     context,
+                                          //     MaterialPageRoute(
+                                          //         builder: (context) => CreatePostFormLink()));
                                         },
                                         child: Container(
                                           margin: EdgeInsets.symmetric(
@@ -1832,10 +1866,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoginPage()));
+                          Navigator.of(context).push(_LoginRoute());
+                          // Navigator.pushReplacement(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => LoginPage()));
                         },
                         child: Container(
                           margin: EdgeInsets.symmetric(horizontal: 60.0),
@@ -1909,7 +1944,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         size: 20,
       ),
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => InterestsPage()));
+        Navigator.of(context).push(_InterestsRoute());
+        // Navigator.push(context, MaterialPageRoute(builder: (_) => InterestsPage()));
       },
     );
   }
@@ -1930,5 +1966,182 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     } else {
       return Image.memory(thumbnail!,fit: BoxFit.cover,width: 100,);
     }
+  }
+  Route _SearchRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => const SearchPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+          transitionDuration: Duration(milliseconds: 1000)
+    );
+  }
+  Route _LoginRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const LoginPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
+    );
+  }
+  Route _NotificationRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const NotificationPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
+    );
+  }
+  Route _SignRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const SignupPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
+    );
+  }
+  Route _ProfileRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const ProfilePage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
+    );
+  }
+
+  Route _SettingRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const SettingPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
+    );
+  }
+  Route _InterestsRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const InterestsPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
+    );
+  }
+  Route _CreatePostRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const CreatePostFormLink(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
+    );
   }
 }
