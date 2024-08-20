@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gagclone/authentication/login_page.dart';
 import 'package:gagclone/authentication/signup_page.dart';
 import 'package:gagclone/create_post/create_post_form_link.dart';
+import 'package:gagclone/pages/interests_page.dart';
 import 'package:gagclone/pages/notification_page.dart';
 import 'package:gagclone/pages/search_page.dart';
 import 'package:gagclone/pages/setting%20_page.dart';
@@ -119,7 +120,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   backgroundColor: Colors.white,
                   constraints: BoxConstraints.loose(Size(
                       MediaQuery.of(context).size.width,
-                      MediaQuery.of(context).size.height / 2.3)),
+                      MediaQuery.of(context).size.height / 2)),
                   context: context,
                   isScrollControlled: true,
                   shape: RoundedRectangleBorder(
@@ -1907,11 +1908,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         CupertinoIcons.pin,
         size: 20,
       ),
-      // selected: state is DrawerMenuSelected && state.selectMenuItem == 'Home',
-      // onTap: () {
-      //   context.read<DrawerBloc>().add(const SelectMenuItem('Home'));
-      //   Navigator.pop(context); // Close the drawer
-      // },
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => InterestsPage()));
+      },
     );
   }
 
