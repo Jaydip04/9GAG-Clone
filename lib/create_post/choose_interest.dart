@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gagclone/create_post/create_post.dart';
 
 class ChooseInterest extends StatefulWidget {
   const ChooseInterest({super.key});
@@ -8,9 +10,110 @@ class ChooseInterest extends StatefulWidget {
 }
 
 class _ChooseInterestState extends State<ChooseInterest> {
+  List<String> interest = [
+    "Anime & Manga",
+    "Latest News",
+    "Humor",
+    "Memes",
+    "Gaming",
+    "WTF",
+    "Relationship & Dating",
+    "Animals & Pets",
+    "Science & Tech",
+    "Comic",
+    "Wholesome",
+      "Sports",
+    "Movies & TV",
+    "Cat",
+    "Food & Drinks",
+    "Lifestyle",
+    "Superhero",
+    "Crypto",
+    "Random",
+    "Woah",
+    "Profile Only"
+
+  ];
+  List icon = [
+    Icons.ac_unit,
+    Icons.accessibility,
+    Icons.access_alarm,
+    Icons.accessibility,
+    Icons.ac_unit,
+    Icons.access_alarm,
+    Icons.access_time_filled_outlined,
+    Icons.ac_unit,
+    Icons.add_circle,
+    Icons.add_chart_sharp,
+    Icons.accessible,
+    Icons.add_call,
+    Icons.access_alarms_rounded,
+    Icons.add_business_rounded,
+    Icons.add_box_outlined,
+    Icons.add_alert_sharp,
+    Icons.add_alert_outlined,
+    Icons.add_a_photo_rounded,
+    Icons.adb_rounded,
+    Icons.ad_units_sharp,
+    Icons.account_tree_rounded,
+
+  ];
+  List iconColors = [
+    Colors.red,
+    Colors.orange,
+    Colors.white,
+    Colors.red,
+    Colors.grey,
+    Colors.white30,
+    Colors.pink,
+    Colors.green,
+    Colors.deepPurple,
+    Colors.purpleAccent,
+    Colors.lightGreenAccent,
+    Colors.cyanAccent,
+    Colors.amber,
+    Colors.pinkAccent,
+    Colors.purple,
+    Colors.lightGreenAccent,
+    Colors.redAccent,
+    Colors.teal,
+    Colors.greenAccent,
+    Colors.redAccent,
+    Colors.purple,
+    Colors.indigo,
+  ];
+  List back = [
+    Colors.yellow,
+    Colors.blueAccent,
+    Colors.black,
+    Colors.yellow,
+    Colors.white,
+    Colors.red,
+    Colors.yellow,
+    Colors.redAccent,
+    Colors.yellow,
+    Colors.yellow,
+    Colors.grey,
+    Colors.black,
+    Colors.blueAccent,
+    Colors.yellow,
+    Colors.yellow,
+    Colors.black,
+    Colors.yellow,
+    Colors.yellow,
+    Colors.yellow,
+    Colors.yellow,
+    Colors.yellow,
+  ];
+  @override
+  void initState() {
+    super.initState();
+    print(interest.length.toString());
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return
+      Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
@@ -31,67 +134,97 @@ class _ChooseInterestState extends State<ChooseInterest> {
           height: MediaQuery.sizeOf(context).height/1.1,
           padding: EdgeInsets.only(bottom: 20.0),
           color: Colors.white,
-          child: ListView(
-            children: <Widget>[
-              Container(
-                color: Colors.white,
-                child: SafeArea(
-                  child: Column(
-                    children: [
-                      commonListTile("Anime & Manga", Icons.ac_unit,
-                          Colors.yellow, Colors.red),
-                      commonListTile("Latest News", Icons.ac_unit,
-                          Colors.green, Colors.yellow),
-                      commonListTile("Humor", Icons.ac_unit,
-                          Colors.deepPurple, Colors.yellow),
-                      commonListTile("Memes", Icons.ac_unit,
-                          Colors.deepPurpleAccent, Colors.yellow),
-                      commonListTile("Gaming", Icons.ac_unit,
-                          Colors.orange, Colors.yellow),
-                      commonListTile("WTF", Icons.ac_unit,
-                          Colors.lightGreen, Colors.yellow),
-                      commonListTile(
-                          "Relationship & Dating",
-                          Icons.ac_unit,
-                          Colors.pinkAccent,
-                          Colors.yellow),
-                      commonListTile("Animals & Pets", Icons.ac_unit,
-                          Colors.deepPurple, Colors.yellow),
-                      commonListTile("Science & Tech", Icons.ac_unit,
-                          Colors.red, Colors.yellow),
-                      commonListTile("Comic", Icons.ac_unit, Colors.pink,
-                          Colors.yellow),
-                      commonListTile("Wholesome", Icons.ac_unit,
-                          Colors.yellowAccent, Colors.red),
-                      commonListTile("Sports", Icons.ac_unit,
-                          Colors.redAccent, Colors.yellow),
-                      commonListTile("Movies & TV", Icons.ac_unit,
-                          Colors.greenAccent, Colors.yellow),
-                      commonListTile("Cat", Icons.ac_unit,
-                          Colors.orangeAccent, Colors.yellow),
-                      commonListTile("Food & Drinks", Icons.ac_unit,
-                          Colors.red, Colors.yellow),
-                      commonListTile("Lifestyle", Icons.ac_unit,
-                          Colors.blueAccent, Colors.yellow),
-                      commonListTile("Superhero", Icons.ac_unit,
-                          Colors.red, Colors.yellow),
-                      commonListTile("Crypto", Icons.ac_unit, Colors.blue,
-                          Colors.yellow),
-                      commonListTile("Random", Icons.ac_unit, Colors.pink,
-                          Colors.yellow),
-                      commonListTile("Woah", Icons.ac_unit, Colors.orange,
-                          Colors.yellow),
-                      commonListTile("Profile Only", Icons.accessibility, Colors.black,
-                          Colors.white),
-                    ],
-                  ),
+          child: ListView.builder(
+            itemCount: interest.length,
+              itemBuilder: (context,index){
+            return ListTile(
+              visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
+              title: Text(
+                interest[index],
+                style: commonTextStyle(Colors.black, FontWeight.bold, 16.0, null),
+              ),
+              leading: Container(
+                margin: EdgeInsets.symmetric(vertical: 5.0),
+                padding: const EdgeInsets.all(5.0),
+                decoration: BoxDecoration(
+                    color: back[index], borderRadius: BorderRadius.circular(10.00)),
+                child: Icon(
+                  icon[index],
+                  color: iconColors[index],
+                  size: 24,
                 ),
-              )
-            ],
-          ),
+              ),
+              // onTap: () {
+              //   BlocProvider.of<ItemSelectionBloc>(context).add(SelectItemEvent(interest));
+              // },
+              // selected: state is DrawerMenuSelected && state.selectMenuItem == 'Home',
+              // onTap: () {
+              //   context.read<DrawerBloc>().add(const SelectMenuItem('Home'));
+              //   Navigator.pop(context); // Close the drawer
+              // },
+            );
+          })
+          // ListView(
+          //   children: <Widget>[
+          //     Container(
+          //       color: Colors.white,
+          //       child: SafeArea(
+          //         child: Column(
+          //           children: [
+          //             commonListTile("Anime & Manga", Icons.ac_unit,
+          //                 Colors.yellow, Colors.red),
+          //             commonListTile("Latest News", Icons.ac_unit,
+          //                 Colors.green, Colors.yellow),
+          //             commonListTile("Humor", Icons.ac_unit,
+          //                 Colors.deepPurple, Colors.yellow),
+          //             commonListTile("Memes", Icons.ac_unit,
+          //                 Colors.deepPurpleAccent, Colors.yellow),
+          //             commonListTile("Gaming", Icons.ac_unit,
+          //                 Colors.orange, Colors.yellow),
+          //             commonListTile("WTF", Icons.ac_unit,
+          //                 Colors.lightGreen, Colors.yellow),
+          //             commonListTile(
+          //                 "Relationship & Dating",
+          //                 Icons.ac_unit,
+          //                 Colors.pinkAccent,
+          //                 Colors.yellow),
+          //             commonListTile("Animals & Pets", Icons.ac_unit,
+          //                 Colors.deepPurple, Colors.yellow),
+          //             commonListTile("Science & Tech", Icons.ac_unit,
+          //                 Colors.red, Colors.yellow),
+          //             commonListTile("Comic", Icons.ac_unit, Colors.pink,
+          //                 Colors.yellow),
+          //             commonListTile("Wholesome", Icons.ac_unit,
+          //                 Colors.yellowAccent, Colors.red),
+          //             commonListTile("Sports", Icons.ac_unit,
+          //                 Colors.redAccent, Colors.yellow),
+          //             commonListTile("Movies & TV", Icons.ac_unit,
+          //                 Colors.greenAccent, Colors.yellow),
+          //             commonListTile("Cat", Icons.ac_unit,
+          //                 Colors.orangeAccent, Colors.yellow),
+          //             commonListTile("Food & Drinks", Icons.ac_unit,
+          //                 Colors.red, Colors.yellow),
+          //             commonListTile("Lifestyle", Icons.ac_unit,
+          //                 Colors.blueAccent, Colors.yellow),
+          //             commonListTile("Superhero", Icons.ac_unit,
+          //                 Colors.red, Colors.yellow),
+          //             commonListTile("Crypto", Icons.ac_unit, Colors.blue,
+          //                 Colors.yellow),
+          //             commonListTile("Random", Icons.ac_unit, Colors.pink,
+          //                 Colors.yellow),
+          //             commonListTile("Woah", Icons.ac_unit, Colors.orange,
+          //                 Colors.yellow),
+          //             commonListTile("Profile Only", Icons.accessibility, Colors.black,
+          //                 Colors.white),
+          //           ],
+          //         ),
+          //       ),
+          //     )
+          //   ],
+          // ),
         ),
       ),
-    );
+          );
   }
   ListTile commonListTile(name, icon, color, iconColor) {
     return ListTile(

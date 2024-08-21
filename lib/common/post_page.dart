@@ -18,8 +18,8 @@ class _PostPageState extends State<PostPage> {
       postBottomScrollView: ["girl","funny","random","humor","no sound"],
       postSubHeading: "Oh yes...let's the kid having fun...",
       postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
-      postLikeCount: "1.2",
-      postCommentCount: "143",
+      postLikeCount: "10K",
+      postCommentCount: "256",
       postHoursCount: "10",
     ),
     PostModel(
@@ -27,8 +27,8 @@ class _PostPageState extends State<PostPage> {
       postBottomScrollView: ["girl","humor","no sound"],
       postSubHeading: "Oh yes...let's the kid having fun...",
       postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
-      postLikeCount: "1.2",
-      postCommentCount: "143",
+      postLikeCount: "1.2M",
+      postCommentCount: "700",
       postHoursCount: "10",
     ),
     PostModel(
@@ -36,8 +36,8 @@ class _PostPageState extends State<PostPage> {
       postBottomScrollView: ["girl","funny","random"],
       postSubHeading: "Oh yes...let's the kid having fun...",
       postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
-      postLikeCount: "1.2",
-      postCommentCount: "143",
+      postLikeCount: "4K",
+      postCommentCount: "1K",
       postHoursCount: "10",
     ),
     PostModel(
@@ -45,8 +45,8 @@ class _PostPageState extends State<PostPage> {
       postBottomScrollView: ["funny",],
       postSubHeading: "Oh yes...let's the kid having fun...",
       postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
-      postLikeCount: "1.2",
-      postCommentCount: "143",
+      postLikeCount: "5.2",
+      postCommentCount: "5K",
       postHoursCount: "10",
     ),
   ];

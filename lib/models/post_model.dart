@@ -19,4 +19,17 @@ class PostModel {
     required this.postCommentCount,
     required this.postHoursCount,
   });
+
+}
+
+class PostList {
+  List<PostModel> posts;
+
+  PostList({
+    required this.posts,
+  });
+
+  void addPost(PostModel post) {
+    posts.add(post);
+  }
 }

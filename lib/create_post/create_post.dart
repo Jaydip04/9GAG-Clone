@@ -7,6 +7,8 @@ import 'package:gagclone/create_post/tags.dart';
 import 'package:gagclone/pages/home_page.dart';
 import 'package:video_player/video_player.dart';
 
+import '../models/post_model.dart';
+
 class CreatePost extends StatefulWidget {
   const CreatePost({super.key});
 
@@ -27,6 +29,9 @@ class _CreatePostState extends State<CreatePost> {
       });
     });
   }
+
+  PostModel post1 = PostModel(postHeading: "Humor1", postBottomScrollView: ["girl","funny","random","humor","no sound"], postSubHeading: "Oh yes...let's the kid having fun...", postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4", postLikeCount: "10K", postCommentCount: "256", postHoursCount: "10");
+  PostModel post2 = PostModel(postHeading: "Humor2", postBottomScrollView: ["girl","funny","random","humor","no sound"], postSubHeading: "Oh yes...let's the kid having fun...", postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4", postLikeCount: "10K", postCommentCount: "256", postHoursCount: "10");
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +54,7 @@ class _CreatePostState extends State<CreatePost> {
                     backgroundColor: Colors.white,
                     content: Container(
                       height: 111.0,
-                      width: MediaQuery.sizeOf(context).width/1.3,
+                      width: MediaQuery.sizeOf(context).width / 1.3,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -120,21 +125,38 @@ class _CreatePostState extends State<CreatePost> {
           style: commonTextStyle(Colors.black, FontWeight.bold, 18.00, null),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 5.0),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-              child: Text(
-                "Post",
-                style: commonTextStyle(
-                    _controller.text.isEmpty ? Colors.white : Colors.grey,
-                    FontWeight.bold,
-                    14.00,
-                    null),
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30.0),
-                color: Colors.indigo,
+          GestureDetector(
+            onTap: () {
+              PostList postList = PostList(posts: []);
+              // print(postList.category);
+              // for (var post in postList.posts) {
+              //   print('${post.postHeading}: ${post.postSubHeading}');
+              // }
+
+              PostModel post3 = PostModel(postHeading: "Humor3", postBottomScrollView: ["girl","funny","random","humor","no sound"], postSubHeading: "Oh yes...let's the kid having fun...", postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4", postLikeCount: "10K", postCommentCount: "256", postHoursCount: "10");
+
+              postList.addPost(post3);
+              postList.addPost(post1);
+              for (var post in postList.posts) {
+                print('[ ${post.postHeading}: ${post.postSubHeading} ]');
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5.0),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                child: Text(
+                  "Post",
+                  style: commonTextStyle(
+                      _controller.text.isEmpty ? Colors.white : Colors.grey,
+                      FontWeight.bold,
+                      14.00,
+                      null),
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30.0),
+                  color: Colors.indigo,
+                ),
               ),
             ),
           )
@@ -147,7 +169,7 @@ class _CreatePostState extends State<CreatePost> {
           child: Column(
             children: [
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   Navigator.of(context).push(_ChooseInterestRoute());
                   // Navigator.push(context, MaterialPageRoute(builder: (_) => ChooseInterest()));
                 },
@@ -159,7 +181,8 @@ class _CreatePostState extends State<CreatePost> {
                           color: Colors.grey.withOpacity(0.2), width: 1.0),
                     ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -186,7 +209,7 @@ class _CreatePostState extends State<CreatePost> {
                         color: Colors.grey.withOpacity(0.2), width: 1.0),
                   ),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
+                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
                 child: TextField(
                   keyboardType: TextInputType.multiline,
                   minLines: 4,
@@ -196,17 +219,19 @@ class _CreatePostState extends State<CreatePost> {
                   inputFormatters: [
                     LengthLimitingTextInputFormatter(280), // Max 280 characters
                   ],
-                  style: commonTextStyle(
-                      Colors.black, FontWeight.bold, 18.00,TextDecoration.underline),
+                  style: commonTextStyle(Colors.black, FontWeight.bold, 18.00,
+                      TextDecoration.underline),
                   cursorColor: Colors.indigo,
                   controller: _controller,
                   decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 0.0,vertical: 0.0),
-                      border: OutlineInputBorder(borderSide: BorderSide.none),),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+                    border: OutlineInputBorder(borderSide: BorderSide.none),
+                  ),
                 ),
               ),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   Navigator.of(context).push(_TagsRoute());
                   // Navigator.push(context, MaterialPageRoute(builder: (_) => Tags()));
                 },
@@ -218,7 +243,8 @@ class _CreatePostState extends State<CreatePost> {
                           color: Colors.grey.withOpacity(0.2), width: 1.0),
                     ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -232,7 +258,9 @@ class _CreatePostState extends State<CreatePost> {
                                 style: commonTextStyle(
                                     Colors.black, FontWeight.bold, 14.00, null),
                               ),
-                              SizedBox(width: 20.0,),
+                              SizedBox(
+                                width: 20.0,
+                              ),
                               Text(
                                 "Add at least 1 tag",
                                 style: commonTextStyle(
@@ -251,16 +279,21 @@ class _CreatePostState extends State<CreatePost> {
                   ),
                 ),
               ),
-              PostVideo(videoURL: "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",)
+              PostVideo(
+                videoURL:
+                    "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
+              )
             ],
           ),
         ),
       ),
     );
   }
+
   Route _HomeRoute() {
     return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const HomePage(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const HomePage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
@@ -277,12 +310,13 @@ class _CreatePostState extends State<CreatePost> {
             child: child,
           );
         },
-        transitionDuration: Duration(milliseconds: 1000)
-    );
+        transitionDuration: Duration(milliseconds: 1000));
   }
+
   Route _ChooseInterestRoute() {
     return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ChooseInterest(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const ChooseInterest(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
@@ -299,9 +333,9 @@ class _CreatePostState extends State<CreatePost> {
             child: child,
           );
         },
-        transitionDuration: Duration(milliseconds: 1000)
-    );
+        transitionDuration: Duration(milliseconds: 1000));
   }
+
   Route _TagsRoute() {
     return PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => const Tags(),
@@ -321,8 +355,7 @@ class _CreatePostState extends State<CreatePost> {
             child: child,
           );
         },
-        transitionDuration: Duration(milliseconds: 1000)
-    );
+        transitionDuration: Duration(milliseconds: 1000));
   }
 
   TextStyle commonTextStyle(color, weight, size, decoration) {
@@ -333,9 +366,10 @@ class _CreatePostState extends State<CreatePost> {
         decoration: decoration);
   }
 }
+
 class PostVideo extends StatefulWidget {
   final String videoURL;
-  const PostVideo({super.key,required this.videoURL});
+  const PostVideo({super.key, required this.videoURL});
 
   @override
   _PostVideoState createState() => _PostVideoState();
@@ -379,5 +413,4 @@ class _PostVideoState extends State<PostVideo> {
       ),
     );
   }
-
 }
