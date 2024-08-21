@@ -95,7 +95,8 @@ class _ProfilePageState extends State<ProfilePage>
         actions: <Widget>[
           TextButton(
               onPressed: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => EditProfilePage()));
+                Navigator.of(context).push(_EditProfilePageRoute());
+                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => EditProfilePage()));
               },
               child: Text(
                 "Edit profile",
@@ -457,11 +458,12 @@ class _ProfilePageState extends State<ProfilePage>
                                         ),
                                         GestureDetector(
                                           onTap: () {
-                                            Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        CreatePostFormLink()));
+                                            Navigator.of(context).push(_CreatePostFormLinkRoute());
+                                            // Navigator.pushReplacement(
+                                            //     context,
+                                            //     MaterialPageRoute(
+                                            //         builder: (context) =>
+                                            //             CreatePostFormLink()));
                                           },
                                           child: Container(
                                             margin: EdgeInsets.symmetric(
@@ -545,6 +547,50 @@ class _ProfilePageState extends State<ProfilePage>
           ),
         ),
       ),
+    );
+  }
+  Route _EditProfilePageRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const EditProfilePage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
+    );
+  }
+  Route _CreatePostFormLinkRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const CreatePostFormLink(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000)
     );
   }
 
