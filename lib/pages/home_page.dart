@@ -742,42 +742,52 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     margin:
                                                     EdgeInsets.symmetric(
                                                         horizontal: 60.0),
-                                                    child: RichText(
-                                                      text: TextSpan(
-                                                        children: <TextSpan>[
-                                                          TextSpan(
-                                                            text:
-                                                            "Already a number? ",
-                                                            style:
-                                                            commonTextStyle(
-                                                                Colors
-                                                                    .black,
-                                                                FontWeight
-                                                                    .bold,
-                                                                14.0,
-                                                                null),
-                                                          ),
-                                                          TextSpan(
-                                                            text: 'Log in',
-                                                            style:
-                                                            commonTextStyle(
-                                                                Colors
-                                                                    .black,
-                                                                FontWeight
-                                                                    .bold,
-                                                                14.0,
-                                                                null),
-                                                            recognizer:
-                                                            TapGestureRecognizer()
-                                                              ..onTap =
-                                                                  () {},
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      textAlign:
-                                                      TextAlign.center,
-                                                    ),
+                                                    child: Text("Already a number? Log in",style: commonTextStyle(
+                                                        Colors
+                                                            .black,
+                                                        FontWeight
+                                                            .bold,
+                                                        14.0,
+                                                        null),),
+                                                    // RichText(
+                                                    //   text: TextSpan(
+                                                    //     children: <TextSpan>[
+                                                    //       TextSpan(
+                                                    //         text:
+                                                    //         "",
+                                                    //         style:
+                                                    //         commonTextStyle(
+                                                    //             Colors
+                                                    //                 .grey,
+                                                    //             FontWeight
+                                                    //                 .bold,
+                                                    //             14.0,
+                                                    //             null),
+                                                    //       ),
+                                                    //       TextSpan(
+                                                    //         text: '',
+                                                    //         style:
+                                                    //         commonTextStyle(
+                                                    //             Colors
+                                                    //                 .black,
+                                                    //             FontWeight
+                                                    //                 .bold,
+                                                    //             14.0,
+                                                    //             null),
+                                                    //         recognizer:
+                                                    //         TapGestureRecognizer()
+                                                    //           ..onTap =
+                                                    //               () {},
+                                                    //       ),
+                                                    //     ],
+                                                    //   ),
+                                                    //   textAlign:
+                                                    //   TextAlign.center,
+                                                    // ),
                                                   ),
+                                                ),
+                                                SizedBox(
+                                                  height: 20,
                                                 ),
                                               ],
                                             ),

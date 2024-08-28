@@ -1,5 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:gagclone/authentication/services/firebase_auth_services.dart';
+
+import '../common/toast.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -9,6 +14,39 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+
+  final FirebaseAuthServices _auth = FirebaseAuthServices();
+
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+
+  bool isSigningUp = false;
+  bool _isButtonEnabled = false;
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(() {
+      setState(() {
+        _isButtonEnabled = _emailController.text.isNotEmpty;
+      });
+    });
+    _passwordController.addListener(() {
+      setState(() {
+        _isButtonEnabled = _passwordController.text.isNotEmpty;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,22 +76,36 @@ class _SignupPageState extends State<SignupPage> {
                 height: 10,
               ),
               TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.singleLineFormatter,
+                  ],
+                  keyboardType: TextInputType.name,
+                  controller: _usernameController,
                   cursorColor: Colors.blue,
                   style: commonTextStyle(Colors.black, FontWeight.bold, 16.00, null),
-                  keyboardType: TextInputType.name,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
                     fillColor: Colors.transparent,
                     filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                      const BorderSide(color: Color(0x1A090909), width: 1),
+                    ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide:
-                          const BorderSide(color: Color(0x1A090909), width: 1),
+                      const BorderSide(color: Color(0x1A090909), width: 1),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                      const BorderSide(color: Color(0x1A090909), width: 1),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide:
-                          const BorderSide(color: Color(0x1A090909), width: 1),
+                      const BorderSide(color: Color(0x1A090909), width: 1),
                     ),
                     hintText: "Full Name",
                     hintStyle:commonTextStyle(Colors.grey, FontWeight.bold, 16.00, null),
@@ -62,22 +114,36 @@ class _SignupPageState extends State<SignupPage> {
                 height: 10.0,
               ),
               TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.singleLineFormatter,
+                  ],
+                  keyboardType: TextInputType.emailAddress,
+                  controller: _emailController,
                   cursorColor: Colors.blue,
                   style: commonTextStyle(Colors.black, FontWeight.bold, 16.00, null),
-                  keyboardType: TextInputType.name,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
                     fillColor: Colors.transparent,
                     filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                      const BorderSide(color: Color(0x1A090909), width: 1),
+                    ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide:
-                          const BorderSide(color: Color(0x1A090909), width: 1),
+                      const BorderSide(color: Color(0x1A090909), width: 1),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                      const BorderSide(color: Color(0x1A090909), width: 1),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide:
-                          const BorderSide(color: Color(0x1A090909), width: 1),
+                      const BorderSide(color: Color(0x1A090909), width: 1),
                     ),
                     hintText: "Email address",
                     hintStyle: commonTextStyle(Colors.grey, FontWeight.bold, 16.00, null),
@@ -86,17 +152,31 @@ class _SignupPageState extends State<SignupPage> {
                 height: 10.0,
               ),
               TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.singleLineFormatter,
+                  ],
+                  keyboardType: TextInputType.text,
+                  controller: _passwordController,
                   cursorColor: Colors.blue,
                   style: commonTextStyle(Colors.black, FontWeight.bold, 16.00, null),
-                  keyboardType: TextInputType.name,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
                     fillColor: Colors.transparent,
                     filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                      const BorderSide(color: Color(0x1A090909), width: 1),
+                    ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide:
                           const BorderSide(color: Color(0x1A090909), width: 1),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                      const BorderSide(color: Color(0x1A090909), width: 1),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -123,9 +203,36 @@ class _SignupPageState extends State<SignupPage> {
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue.shade200,
+                          backgroundColor: _emailController.text.isEmpty && _passwordController.text.isEmpty ? Colors.blue.shade200 : Colors.blue,
                         ),
-                        onPressed: () {},
+                        onPressed: () async {
+                          setState(() {
+                            isSigningUp = true;
+                          });
+
+                          String username = _usernameController.text;
+                          String email = _emailController.text;
+                          String password = _passwordController.text;
+
+                          if(username.isEmpty){
+                            showToast(message: "User Name is empty");
+                          } else if(email.isEmpty){
+                            showToast(message: "Email is empty");
+                          }else if(password.isEmpty){
+                            showToast(message: "Password is empty");
+                          }else{
+                            User? user = await _auth.signUpWithEmailAndPassword(email, password);
+
+                            setState(() {
+                              isSigningUp = false;
+                            });
+                            if (user != null) {
+                              showToast(message: "User is successfully created");
+                            } else {
+                              showToast(message: "Some error happend");
+                            }
+                          }
+                        },
                         child: Text(
                           "Sign up",
                           style: commonTextStyle(
