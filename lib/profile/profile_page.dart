@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import '../create_post/create_post_form_link.dart';
+import '../tabs/saved_tab.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -155,25 +156,30 @@ class _ProfilePageState extends State<ProfilePage>
                             SizedBox(
                               height: 20.0,
                             ),
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 5.0),
-                              width: double.infinity,
-                              child: Row(
-                                children: [
-                                  Padding(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      child:
-                                          Icon(Icons.edit, color: Colors.grey)),
-                                  SizedBox(
-                                    width: 30.0,
-                                  ),
-                                  Text(
-                                    "Edit profile",
-                                    style: commonTextStyle(
-                                        Colors.black, FontWeight.bold, 14.00),
-                                  ),
-                                ],
+                            GestureDetector(
+                              onTap: (){
+                                Navigator.of(context).push(_EditProfilePageRoute());
+                              },
+                              child: Container(
+                                margin: EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                width: double.infinity,
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                        padding: const EdgeInsets.only(left: 10),
+                                        child:
+                                            Icon(Icons.edit, color: Colors.grey)),
+                                    SizedBox(
+                                      width: 30.0,
+                                    ),
+                                    Text(
+                                      "Edit profile",
+                                      style: commonTextStyle(
+                                          Colors.black, FontWeight.bold, 14.00),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             SizedBox(
@@ -537,9 +543,7 @@ class _ProfilePageState extends State<ProfilePage>
                     Center(
                       child: Text("No upvoted posts"),
                     ),
-                    Center(
-                      child: Text("No saved posts"),
-                    )
+                    SavedTab(),
                   ],
                 ),
               ),

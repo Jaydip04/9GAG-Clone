@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gagclone/authentication/services/firebase_auth_services.dart';
+import 'package:gagclone/pages/home_page.dart';
 
 import '../common/toast.dart';
 
@@ -81,7 +82,7 @@ class _SignupPageState extends State<SignupPage> {
                   ],
                   keyboardType: TextInputType.name,
                   controller: _usernameController,
-                  cursorColor: Colors.blue,
+                  cursorColor: Colors.indigo,
                   style: commonTextStyle(Colors.black, FontWeight.bold, 16.00, null),
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
@@ -119,7 +120,7 @@ class _SignupPageState extends State<SignupPage> {
                   ],
                   keyboardType: TextInputType.emailAddress,
                   controller: _emailController,
-                  cursorColor: Colors.blue,
+                  cursorColor: Colors.indigo,
                   style: commonTextStyle(Colors.black, FontWeight.bold, 16.00, null),
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
@@ -157,7 +158,7 @@ class _SignupPageState extends State<SignupPage> {
                   ],
                   keyboardType: TextInputType.text,
                   controller: _passwordController,
-                  cursorColor: Colors.blue,
+                  cursorColor: Colors.indigo,
                   style: commonTextStyle(Colors.black, FontWeight.bold, 16.00, null),
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
@@ -203,7 +204,7 @@ class _SignupPageState extends State<SignupPage> {
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _emailController.text.isEmpty && _passwordController.text.isEmpty ? Colors.blue.shade200 : Colors.blue,
+                          backgroundColor: _emailController.text.isEmpty && _passwordController.text.isEmpty ? Colors.indigo.shade200 : Colors.indigo,
                         ),
                         onPressed: () async {
                           setState(() {
@@ -228,6 +229,7 @@ class _SignupPageState extends State<SignupPage> {
                             });
                             if (user != null) {
                               showToast(message: "User is successfully created");
+                              Navigator.of(context).push(_HomeRoute());
                             } else {
                               showToast(message: "Some error happend");
                             }
@@ -256,5 +258,27 @@ class _SignupPageState extends State<SignupPage> {
         fontWeight: weight,
         fontSize: size,
         decoration: decoration);
+  }
+  Route _HomeRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+        const HomePage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000));
   }
 }

@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gagclone/pages/home_page.dart';
+
+import '../common/toast.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -588,6 +592,7 @@ class _SettingPageState extends State<SettingPage> {
                 ),
               ),
               Divider(color: Colors.grey.withOpacity(0.2),),
+
               SizedBox(height: 10.0,),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -805,8 +810,10 @@ class _SettingPageState extends State<SettingPage> {
                   ],
                 ),
               ),
+
               Divider(color: Colors.grey.withOpacity(0.2),),
               SizedBox(height: 10.0,),
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
@@ -918,10 +925,83 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(height: 15.0,),
                   ],
                 ),
               ),
+              Divider(color: Colors.grey.withOpacity(0.2),thickness: 15.00,),
+
+              GestureDetector(
+                onTap: (){
+                  showCupertinoDialog(
+                    context: context,
+                    // barrierDismissible: false,
+                    builder: (context) =>
+                        AlertDialog(
+                          title: Text(
+                            "Sign Out?",
+                            style: commonTextStyletitle(),
+                          ),
+                          content: Text(
+                            "Are You Sure?",
+                            style: commonTextStyle16(),
+                          ),
+                          actions: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.indigo,
+                                      minimumSize: Size(MediaQuery.of(context).size.width / 4, 40)),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text(
+                                    "Cancel",
+                                    style: commonTextStyle18(),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      minimumSize: Size(MediaQuery.of(context).size.width / 4, 40)),
+                                  onPressed: () {
+                                    FirebaseAuth.instance.signOut();
+                                    Navigator.of(context).push(_HomeRoute());
+                                    showToast(message: "Successfully signed out");
+                                  },
+                                  child: Text(
+                                      "Sign Out", style: commonTextStyle18()),
+                                ),
+                              ],
+                            )
+                          ],
+                          elevation: 24.0,
+                          backgroundColor: Colors.white,
+                        ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 10.00),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Sign Out",
+                        style: commonTextStyle(
+                            Colors.red, FontWeight.bold, 16.00, null),
+                      ),
+
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 30.00,),
+              Divider(color: Colors.grey.withOpacity(0.2),thickness: 45.00,),
             ],
           ),
         ),
@@ -935,5 +1015,43 @@ class _SettingPageState extends State<SettingPage> {
         fontWeight: weight,
         fontSize: size,
         decoration: decoration);
+  }
+  TextStyle commonTextStyletitle() {
+    return TextStyle(
+        fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black);
+  }
+
+  TextStyle commonTextStyle18() {
+    return TextStyle(
+        color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500);
+  }
+
+  TextStyle commonTextStyle16() {
+    return TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+    );
+  }
+  Route _HomeRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+        const HomePage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: curve,
+          );
+
+          return SlideTransition(
+            position: tween.animate(curvedAnimation),
+            child: child,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 1000));
   }
 }
