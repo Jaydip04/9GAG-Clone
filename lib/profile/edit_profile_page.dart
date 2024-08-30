@@ -1,3 +1,8 @@
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gagclone/profile/change_email.dart';
@@ -5,6 +10,8 @@ import 'package:gagclone/profile/change_password.dart';
 import 'package:gagclone/profile/profile_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+
+import '../common/toast.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -15,15 +22,19 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   bool _switchValue = false;
-  TextEditingController _controllerName =
-      TextEditingController(text: 'GENIXBIT');
-  TextEditingController _controllerEmail =
-      TextEditingController(text: 'genixbit2024');
+  TextEditingController _controllerName = TextEditingController();
+  TextEditingController _controllerEmail = TextEditingController();
   TextEditingController _controllerCollection =
       TextEditingController(text: 'My Funny Collection');
   TextEditingController _controllerDate =
       TextEditingController(text: "Birthday");
   bool _isButtonEnabled = false;
+  bool isLoggedIn = FirebaseAuth.instance.currentUser != null ? true : false;
+  String? userName;
+  String? userEmail;
+  String? profileName;
+  String? birthday;
+  DatabaseReference reference = FirebaseDatabase.instance.ref("Profile");
   @override
   void initState() {
     super.initState();
@@ -32,25 +43,138 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _isButtonEnabled = _controllerName.text.isNotEmpty;
       });
     });
+    listenToUserEmail();
+    listenToUserName();
+    listenToProfileName();
+    _fetchProfileImageUrl();
+    listenToBirthday();
   }
 
+  // final ImagePicker _picker = ImagePicker();
+
+  File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _openCamera() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      print('Picked image path: ${image.path}');
-    } else {
-      print('No image selected.');
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+      await _uploadImage();
     }
   }
 
-  Future<void> _openGallery() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      print('Picked image path: ${image.path}');
+  Future<void> _uploadImage() async {
+    if (_imageFile == null) return;
+
+    String fileName = _imageFile!.path;
+    Reference ref =
+        FirebaseStorage.instance.ref().child("profile_photos/$fileName");
+
+    try {
+      UploadTask uploadTask = ref.putFile(_imageFile!);
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      await FirebaseDatabase.instance
+          .ref(
+              'Profile Photo/${FirebaseAuth.instance.currentUser!.uid}/profile_photo')
+          .set(downloadUrl).then((_){
+          showToast(message: "Upload successful");
+          Navigator.pop(context);
+          print("Upload successful, URL: $downloadUrl");
+      });
+
+    } catch (e) {
+      print("Failed to upload image: $e");
+    }
+  }
+
+  String? imageUrl;
+  void _fetchProfileImageUrl() async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref(
+        'Profile Photo/${FirebaseAuth.instance.currentUser!.uid}/profile_photo');
+    DataSnapshot snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      setState(() {
+        imageUrl = snapshot.value as String?;
+      });
     } else {
-      print('No image selected.');
+      print('No image URL found');
+    }
+  }
+
+  void listenToProfileName() {
+    if (isLoggedIn) {
+      DatabaseReference reference = FirebaseDatabase.instance
+          .ref("Profile")
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .child("profileName");
+      reference.onValue.listen((DatabaseEvent event) {
+        final data = event.snapshot.value;
+        setState(() {
+          profileName = data as String?;
+          _controllerName.text = profileName.toString();
+        });
+      });
+    } else {
+      profileName = "9GAG" as String?;
+    }
+  }
+
+  void listenToBirthday() {
+    if (isLoggedIn) {
+      DatabaseReference reference = FirebaseDatabase.instance
+          .ref("Profile")
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .child("birthday");
+      reference.onValue.listen((DatabaseEvent event) {
+        final data = event.snapshot.value;
+        setState(() {
+          birthday = data as String?;
+          _controllerDate.text = birthday.toString();
+        });
+      });
+    } else {
+      birthday = "9GAG" as String?;
+    }
+  }
+
+  void listenToUserName() {
+    if (isLoggedIn) {
+      DatabaseReference reference = FirebaseDatabase.instance
+          .ref("Profile")
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .child("userName");
+      reference.onValue.listen((DatabaseEvent event) {
+        final data = event.snapshot.value;
+        setState(() {
+          userName = data as String?;
+          _controllerEmail.text =
+              userName.toString().isEmpty ? "Empty" : userName.toString();
+        });
+      });
+    } else {
+      userName = "9GAG" as String?;
+    }
+  }
+
+  void listenToUserEmail() {
+    if (isLoggedIn) {
+      DatabaseReference reference = FirebaseDatabase.instance
+          .ref("Profile")
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .child("email");
+      reference.onValue.listen((DatabaseEvent event) {
+        final data = event.snapshot.value;
+        setState(() {
+          userEmail = data as String?;
+        });
+      });
+    } else {
+      userEmail = "9GAG" as String?;
     }
   }
 
@@ -75,9 +199,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
           actions: <Widget>[
             TextButton(
                 onPressed: () {
-                  Navigator.of(context).push(_ProfilePageRoute());
-                  // Navigator.pushReplacement(context,
-                  //     MaterialPageRoute(builder: (_) => ProfilePage()));
+                  print(userEmail);
+                  String username = _controllerName.text;
+                  String email = _controllerEmail.text;
+                  final String date = DateTime.now().toString();
+                  if (username.isEmpty) {
+                    showToast(message: "User Name is empty");
+                  } else if (email.isEmpty) {
+                    showToast(message: "Email is empty");
+                  } else {
+                    Map<String, dynamic> userProfile = {
+                      "profileName": _controllerName.text.toString(),
+                      "userName": _controllerEmail.text.toString() == "null"
+                          ? _controllerName.text.toString()
+                          : _controllerEmail.text.toString(),
+                      "email": userEmail,
+                      "birthday" : _controllerDate.text.toString() == "Birthday" ? "$date" : _controllerDate.text.toString(),
+                      "uid": FirebaseAuth.instance.currentUser!.uid,
+                      "Date": date,
+                    };
+                    reference
+                        .child(FirebaseAuth.instance.currentUser!.uid)
+                        .set(userProfile)
+                        .then((_) {
+                      showToast(message: "Saved");
+                      Navigator.of(context).push(_ProfilePageRoute());
+                    }).catchError((error) {
+                      showToast(message: "Some error happend");
+                    });
+                  }
+                  // Navigator.of(context).push(_ProfilePageRoute());
                 },
                 child: Text(
                   "Save",
@@ -100,6 +251,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 GestureDetector(
                   onTap: () {
                     showDialog(
+                      barrierDismissible: false,
                         context: context,
                         builder: (context) {
                           return AlertDialog(
@@ -207,7 +359,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     height: 20.0,
                                   ),
                                   GestureDetector(
-                                    onTap: _openCamera,
+                                    onTap: () {
+                                      _pickImage(ImageSource.camera);
+                                    },
                                     child: Text(
                                       "Take a photo",
                                       style: commonTextStyle(
@@ -218,7 +372,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     height: 20.0,
                                   ),
                                   GestureDetector(
-                                    onTap: _openGallery,
+                                    onTap: () {
+                                      _pickImage(ImageSource.gallery);
+                                    },
                                     child: Text(
                                       "Choose from gallery",
                                       style: commonTextStyle(
@@ -252,18 +408,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         Padding(
                           padding: const EdgeInsets.all(5.0),
                           child: ClipRRect(
-                              borderRadius: BorderRadius.circular(30),
-                              child: _controllerName.text.isNotEmpty
-                                  ? Image.asset(
-                                      "assets/logo/app_logo.png",
-                                      width: 30,
-                                      height: 30,
-                                      fit: BoxFit.fill,
-                                    )
-                                  : Icon(
-                                      CupertinoIcons.person_alt_circle,
-                                      size: 40.0,
-                                    )),
+                            borderRadius: BorderRadius.circular(30),
+                            child: _imageFile != null
+                                ? Image.file(
+                                    _imageFile!,
+                                    width: 30,
+                                    height: 30,
+                                    fit: BoxFit.fill,
+                                  )
+                                : imageUrl != null
+                                    ? CircleAvatar(
+                                        radius: 17,
+                                        backgroundImage:
+                                            NetworkImage(imageUrl!),
+                                      )
+                                    : CircleAvatar(
+                                        radius: 18,
+                                        backgroundColor: Colors.grey,
+                                        child: Icon(Icons.person,
+                                            size: 30, color: Colors.white),
+                                      ),
+                          ),
                         ),
                         SizedBox(
                           width: 10.00,
@@ -574,7 +739,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       horizontal: 10.0, vertical: 10.0),
                                   width: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -585,7 +751,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                                 width: 35.0,
                                                 decoration: BoxDecoration(
                                                   border: Border.all(
-                                                      color: Colors.grey.withOpacity(0.2),
+                                                      color: Colors.grey
+                                                          .withOpacity(0.2),
                                                       width: 1.0),
                                                   color: Colors.white,
                                                   shape: BoxShape.circle,
@@ -596,14 +763,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               ),
                                               Text(
                                                 "Default",
-                                                style: commonTextStyle(Colors.black,
-                                                    FontWeight.bold, 16.00),
+                                                style: commonTextStyle(
+                                                    Colors.black,
+                                                    FontWeight.bold,
+                                                    16.00),
                                               ),
                                             ],
                                           ),
                                         ],
                                       ),
-                                      Icon(Icons.check,color: Colors.indigo,),
+                                      Icon(
+                                        Icons.check,
+                                        color: Colors.indigo,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -612,7 +784,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       horizontal: 10.0, vertical: 10.0),
                                   width: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -623,7 +796,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                                 width: 35.0,
                                                 decoration: BoxDecoration(
                                                   border: Border.all(
-                                                      color: Colors.grey.withOpacity(0.2),
+                                                      color: Colors.grey
+                                                          .withOpacity(0.2),
                                                       width: 1.0),
                                                   color: Colors.red,
                                                   shape: BoxShape.circle,
@@ -634,14 +808,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               ),
                                               Text(
                                                 "Orange",
-                                                style: commonTextStyle(Colors.black,
-                                                    FontWeight.bold, 16.00),
+                                                style: commonTextStyle(
+                                                    Colors.black,
+                                                    FontWeight.bold,
+                                                    16.00),
                                               ),
                                             ],
                                           ),
                                         ],
                                       ),
-                                      Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 20.00,),
+                                      Icon(
+                                        CupertinoIcons.lock_fill,
+                                        color: Colors.grey,
+                                        size: 20.00,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -650,7 +830,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       horizontal: 10.0, vertical: 10.0),
                                   width: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -661,7 +842,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                                 width: 35.0,
                                                 decoration: BoxDecoration(
                                                   border: Border.all(
-                                                      color: Colors.grey.withOpacity(0.2),
+                                                      color: Colors.grey
+                                                          .withOpacity(0.2),
                                                       width: 1.0),
                                                   color: Colors.deepPurple,
                                                   shape: BoxShape.circle,
@@ -672,14 +854,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               ),
                                               Text(
                                                 "Purple",
-                                                style: commonTextStyle(Colors.black,
-                                                    FontWeight.bold, 16.00),
+                                                style: commonTextStyle(
+                                                    Colors.black,
+                                                    FontWeight.bold,
+                                                    16.00),
                                               ),
                                             ],
                                           ),
                                         ],
                                       ),
-                                      Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 20.00,),
+                                      Icon(
+                                        CupertinoIcons.lock_fill,
+                                        color: Colors.grey,
+                                        size: 20.00,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -688,7 +876,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       horizontal: 10.0, vertical: 10.0),
                                   width: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -699,7 +888,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                                 width: 35.0,
                                                 decoration: BoxDecoration(
                                                   border: Border.all(
-                                                      color: Colors.grey.withOpacity(0.2),
+                                                      color: Colors.grey
+                                                          .withOpacity(0.2),
                                                       width: 1.0),
                                                   color: Colors.orange,
                                                   shape: BoxShape.circle,
@@ -710,14 +900,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               ),
                                               Text(
                                                 "Orange",
-                                                style: commonTextStyle(Colors.black,
-                                                    FontWeight.bold, 16.00),
+                                                style: commonTextStyle(
+                                                    Colors.black,
+                                                    FontWeight.bold,
+                                                    16.00),
                                               ),
                                             ],
                                           ),
                                         ],
                                       ),
-                                      Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 20.00,),
+                                      Icon(
+                                        CupertinoIcons.lock_fill,
+                                        color: Colors.grey,
+                                        size: 20.00,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -726,7 +922,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       horizontal: 10.0, vertical: 10.0),
                                   width: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -737,7 +934,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                                 width: 35.0,
                                                 decoration: BoxDecoration(
                                                   border: Border.all(
-                                                      color: Colors.grey.withOpacity(0.2),
+                                                      color: Colors.grey
+                                                          .withOpacity(0.2),
                                                       width: 1.0),
                                                   color: Colors.pink,
                                                   shape: BoxShape.circle,
@@ -748,14 +946,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               ),
                                               Text(
                                                 "Pink",
-                                                style: commonTextStyle(Colors.black,
-                                                    FontWeight.bold, 16.00),
+                                                style: commonTextStyle(
+                                                    Colors.black,
+                                                    FontWeight.bold,
+                                                    16.00),
                                               ),
                                             ],
                                           ),
                                         ],
                                       ),
-                                      Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 20.00,),
+                                      Icon(
+                                        CupertinoIcons.lock_fill,
+                                        color: Colors.grey,
+                                        size: 20.00,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -764,7 +968,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       horizontal: 10.0, vertical: 10.0),
                                   width: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -775,7 +980,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                                 width: 35.0,
                                                 decoration: BoxDecoration(
                                                   border: Border.all(
-                                                      color: Colors.grey.withOpacity(0.2),
+                                                      color: Colors.grey
+                                                          .withOpacity(0.2),
                                                       width: 1.0),
                                                   color: Colors.blue,
                                                   shape: BoxShape.circle,
@@ -786,14 +992,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               ),
                                               Text(
                                                 "Orange",
-                                                style: commonTextStyle(Colors.black,
-                                                    FontWeight.bold, 16.00),
+                                                style: commonTextStyle(
+                                                    Colors.black,
+                                                    FontWeight.bold,
+                                                    16.00),
                                               ),
                                             ],
                                           ),
                                         ],
                                       ),
-                                      Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 20.00,),
+                                      Icon(
+                                        CupertinoIcons.lock_fill,
+                                        color: Colors.grey,
+                                        size: 20.00,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -802,7 +1014,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       horizontal: 10.0, vertical: 10.0),
                                   width: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -813,7 +1026,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                                 width: 35.0,
                                                 decoration: BoxDecoration(
                                                   border: Border.all(
-                                                      color: Colors.grey.withOpacity(0.2),
+                                                      color: Colors.grey
+                                                          .withOpacity(0.2),
                                                       width: 1.0),
                                                   color: Colors.green,
                                                   shape: BoxShape.circle,
@@ -824,14 +1038,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               ),
                                               Text(
                                                 "Orange",
-                                                style: commonTextStyle(Colors.black,
-                                                    FontWeight.bold, 16.00),
+                                                style: commonTextStyle(
+                                                    Colors.black,
+                                                    FontWeight.bold,
+                                                    16.00),
                                               ),
                                             ],
                                           ),
                                         ],
                                       ),
-                                      Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 20.00,),
+                                      Icon(
+                                        CupertinoIcons.lock_fill,
+                                        color: Colors.grey,
+                                        size: 20.00,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -1034,7 +1254,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       horizontal: 10.0, vertical: 15.0),
                                   width: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
                                         children: [
@@ -1045,7 +1266,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                           ),
                                         ],
                                       ),
-                                      Icon(Icons.check,color: Colors.indigo,),
+                                      Icon(
+                                        Icons.check,
+                                        color: Colors.indigo,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -1054,7 +1278,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       horizontal: 10.0, vertical: 15.0),
                                   width: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         "Hide",
@@ -1071,21 +1296,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         builder: (context) {
                                           return AlertDialog(
                                             shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(15.0)),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        15.0)),
                                             backgroundColor: Colors.white,
                                             content: Container(
                                               height: 150.0,
                                               child: Expanded(
                                                 child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
                                                   children: [
                                                     Row(
                                                       children: [
                                                         Text(
                                                           "Looking for pro Plans?\nGood News!",
-                                                          style: commonTextStyle(Colors.black,
-                                                              FontWeight.bold, 18.00),
+                                                          style:
+                                                              commonTextStyle(
+                                                                  Colors.black,
+                                                                  FontWeight
+                                                                      .bold,
+                                                                  18.00),
                                                         )
                                                       ],
                                                     ),
@@ -1096,8 +1329,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                                       child: Center(
                                                         child: Text(
                                                           "We're building something more a premium and exciting in the nearest future. Stay tuned!",
-                                                          style: commonTextStyle(Colors.black,
-                                                              FontWeight.bold, 13.00),
+                                                          style:
+                                                              commonTextStyle(
+                                                                  Colors.black,
+                                                                  FontWeight
+                                                                      .bold,
+                                                                  13.00),
                                                         ),
                                                       ),
                                                     ),
@@ -1105,18 +1342,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                                       height: 10.0,
                                                     ),
                                                     Row(
-                                                      mainAxisAlignment: MainAxisAlignment.end,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.end,
                                                       children: [
                                                         GestureDetector(
                                                             onTap: () {
-                                                              Navigator.pop(context);
+                                                              Navigator.pop(
+                                                                  context);
                                                             },
                                                             child: Text(
                                                               "OK",
-                                                              style: commonTextStyle(
-                                                                  Colors.indigo,
-                                                                  FontWeight.bold,
-                                                                  14.00),
+                                                              style:
+                                                                  commonTextStyle(
+                                                                      Colors
+                                                                          .indigo,
+                                                                      FontWeight
+                                                                          .bold,
+                                                                      14.00),
                                                             ))
                                                       ],
                                                     )
@@ -1133,18 +1375,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         horizontal: 10.0, vertical: 15.0),
                                     width: double.infinity,
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Column(
                                           children: [
                                             Text(
                                               "Ninja mode",
-                                              style: commonTextStyle(Colors.black,
-                                                  FontWeight.bold, 14.00),
+                                              style: commonTextStyle(
+                                                  Colors.black,
+                                                  FontWeight.bold,
+                                                  14.00),
                                             ),
                                           ],
                                         ),
-                                        Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 20.00,),
+                                        Icon(
+                                          CupertinoIcons.lock_fill,
+                                          color: Colors.grey,
+                                          size: 20.00,
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -1207,7 +1456,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     Navigator.of(context).push(_EmailRoute());
                     // Navigator.push(context, MaterialPageRoute(builder: (_) => ChangeEmail()));
                   },
@@ -1229,9 +1478,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 5.00,),
+                SizedBox(
+                  height: 5.00,
+                ),
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     Navigator.of(context).push(_PasswordRoute());
                     // Navigator.push(context, MaterialPageRoute(builder: (_) => ChangePassword()));
                   },
@@ -1308,7 +1559,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Route _ProfilePageRoute() {
     return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ProfilePage(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const ProfilePage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
@@ -1325,12 +1577,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
             child: child,
           );
         },
-        transitionDuration: Duration(milliseconds: 1000)
-    );
+        transitionDuration: Duration(milliseconds: 1000));
   }
+
   Route _EmailRoute() {
     return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ChangeEmail(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const ChangeEmail(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
@@ -1347,12 +1600,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
             child: child,
           );
         },
-        transitionDuration: Duration(milliseconds: 1000)
-    );
+        transitionDuration: Duration(milliseconds: 1000));
   }
+
   Route _PasswordRoute() {
     return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ChangePassword(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const ChangePassword(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
@@ -1369,8 +1623,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             child: child,
           );
         },
-        transitionDuration: Duration(milliseconds: 1000)
-    );
+        transitionDuration: Duration(milliseconds: 1000));
   }
 
   TextStyle commonTextStyle(color, weight, size) {

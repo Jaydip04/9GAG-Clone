@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,22 +23,21 @@ class _SignupPageState extends State<SignupPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
-
+  DatabaseReference reference = FirebaseDatabase.instance.ref("Profile");
+  
   bool isSigningUp = false;
   bool _isButtonEnabled = false;
   @override
   void initState() {
     super.initState();
     _emailController.addListener(() {
-      setState(() {
-        _isButtonEnabled = _emailController.text.isNotEmpty;
+      _passwordController.addListener(() {
+        setState(() {
+          _isButtonEnabled = _passwordController.text.isNotEmpty;
+        });
       });
     });
-    _passwordController.addListener(() {
-      setState(() {
-        _isButtonEnabled = _passwordController.text.isNotEmpty;
-      });
-    });
+
   }
 
   @override
@@ -224,12 +224,24 @@ class _SignupPageState extends State<SignupPage> {
                           }else{
                             User? user = await _auth.signUpWithEmailAndPassword(email, password);
 
+                            final String date = DateTime.now().toString();
                             setState(() {
                               isSigningUp = false;
                             });
                             if (user != null) {
-                              showToast(message: "User is successfully created");
-                              Navigator.of(context).push(_HomeRoute());
+                              Map<String, dynamic> userProfile = {
+                                "profileName" : _usernameController.text.toString(),
+                                "email" : _emailController.text.toString(),
+                                "uid" : FirebaseAuth.instance.currentUser!.uid,
+                                "Date" : date,
+                              };
+                              reference.child(FirebaseAuth.instance.currentUser!.uid).set(userProfile).then((_) {
+                                // print("Profile Data successfully!");
+                                showToast(message: "User is successfully created");
+                                Navigator.of(context).push(_HomeRoute());
+                              }).catchError((error) {
+                                showToast(message: "Some error happend");
+                              });
                             } else {
                               showToast(message: "Some error happend");
                             }

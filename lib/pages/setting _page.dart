@@ -13,6 +13,7 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  bool isLoggedIn = FirebaseAuth.instance.currentUser != null ? true : false;
   bool _switchValue = false;
   @override
   Widget build(BuildContext context) {
@@ -39,8 +40,14 @@ class _SettingPageState extends State<SettingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("General",style: commonTextStyle(Colors.grey, FontWeight.bold, 18.00, null),),
-                    SizedBox(height: 15.0,),
+                    Text(
+                      "General",
+                      style: commonTextStyle(
+                          Colors.grey, FontWeight.bold, 18.00, null),
+                    ),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -50,13 +57,17 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Hide ads",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                                 SizedBox(
                                   width: 5.0,
                                 ),
-                                Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 18.00,)
+                                Icon(
+                                  CupertinoIcons.lock_fill,
+                                  color: Colors.grey,
+                                  size: 18.00,
+                                )
                               ],
                             ),
                           ],
@@ -68,20 +79,21 @@ class _SettingPageState extends State<SettingPage> {
                               child: FittedBox(
                                 fit: BoxFit.fill,
                                 child: Switch(
-                                  value: _switchValue,
+                                    value: _switchValue,
                                     onChanged: (value) {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 15.0,),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -91,13 +103,17 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Hide promoted posts",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                                 SizedBox(
                                   width: 5.0,
                                 ),
-                                Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 18.00,)
+                                Icon(
+                                  CupertinoIcons.lock_fill,
+                                  color: Colors.grey,
+                                  size: 18.00,
+                                )
                               ],
                             ),
                           ],
@@ -114,15 +130,16 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 15.0,),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -132,13 +149,17 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Show 'New Post' bubble",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                                 SizedBox(
                                   width: 5.0,
                                 ),
-                                Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 18.00,)
+                                Icon(
+                                  CupertinoIcons.lock_fill,
+                                  color: Colors.grey,
+                                  size: 18.00,
+                                )
                               ],
                             ),
                           ],
@@ -155,27 +176,35 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-
                   ],
                 ),
               ),
-              Divider(color: Colors.grey.withOpacity(0.2),),
-              SizedBox(height: 10.0,),
+              Divider(
+                color: Colors.grey.withOpacity(0.2),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Display",style: commonTextStyle(Colors.grey, FontWeight.bold, 18.00, null),),
-                    SizedBox(height: 15.0,),
+                    Text(
+                      "Display",
+                      style: commonTextStyle(
+                          Colors.grey, FontWeight.bold, 18.00, null),
+                    ),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -186,7 +215,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 15.0,),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -196,13 +227,17 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Hide promoted posts",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                                 SizedBox(
                                   width: 5.0,
                                 ),
-                                Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 18.00,)
+                                Icon(
+                                  CupertinoIcons.lock_fill,
+                                  color: Colors.grey,
+                                  size: 18.00,
+                                )
                               ],
                             ),
                           ],
@@ -219,27 +254,35 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-
                   ],
                 ),
               ),
-              Divider(color: Colors.grey.withOpacity(0.2),),
-              SizedBox(height: 10.0,),
+              Divider(
+                color: Colors.grey.withOpacity(0.2),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Contents you see",style: commonTextStyle(Colors.grey, FontWeight.bold, 18.00, null),),
-                    SizedBox(height: 15.0,),
+                    Text(
+                      "Contents you see",
+                      style: commonTextStyle(
+                          Colors.grey, FontWeight.bold, 18.00, null),
+                    ),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -264,15 +307,16 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 15.0,),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -297,15 +341,16 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 15.0,),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -330,28 +375,35 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-
-
                   ],
                 ),
               ),
-              Divider(color: Colors.grey.withOpacity(0.2),),
-              SizedBox(height: 10.0,),
+              Divider(
+                color: Colors.grey.withOpacity(0.2),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Account",style: commonTextStyle(Colors.grey, FontWeight.bold, 18.00, null),),
-                    SizedBox(height: 15.0,),
+                    Text(
+                      "Account",
+                      style: commonTextStyle(
+                          Colors.grey, FontWeight.bold, 18.00, null),
+                    ),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -362,7 +414,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -373,7 +427,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -384,7 +440,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -395,7 +453,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -409,15 +469,25 @@ class _SettingPageState extends State<SettingPage> {
                   ],
                 ),
               ),
-              Divider(color: Colors.grey.withOpacity(0.2),),
-              SizedBox(height: 10.0,),
+              Divider(
+                color: Colors.grey.withOpacity(0.2),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("General",style: commonTextStyle(Colors.grey, FontWeight.bold, 18.00, null),),
-                    SizedBox(height: 15.0,),
+                    Text(
+                      "General",
+                      style: commonTextStyle(
+                          Colors.grey, FontWeight.bold, 18.00, null),
+                    ),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -427,8 +497,8 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Autoplay GIF's",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                               ],
                             ),
@@ -445,7 +515,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -455,8 +527,8 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Autoplay videos",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                               ],
                             ),
@@ -473,7 +545,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20.0,),
+                    SizedBox(
+                      height: 20.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -483,13 +557,17 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Load GIF previews",
-                                  style: commonTextStyle(
-                                      Colors.grey, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.grey,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                                 SizedBox(
                                   width: 5.0,
                                 ),
-                                Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 18.00,)
+                                Icon(
+                                  CupertinoIcons.lock_fill,
+                                  color: Colors.grey,
+                                  size: 18.00,
+                                )
                               ],
                             ),
                           ],
@@ -506,15 +584,16 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 15.0,),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -524,13 +603,17 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Load video previews",
-                                  style: commonTextStyle(
-                                      Colors.grey, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.grey,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                                 SizedBox(
                                   width: 5.0,
                                 ),
-                                Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 18.00,)
+                                Icon(
+                                  CupertinoIcons.lock_fill,
+                                  color: Colors.grey,
+                                  size: 18.00,
+                                )
                               ],
                             ),
                           ],
@@ -547,15 +630,16 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 20.0,),
+                    SizedBox(
+                      height: 20.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -565,13 +649,17 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Autoload HD images",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                                 SizedBox(
                                   width: 5.0,
                                 ),
-                                Icon(CupertinoIcons.lock_fill,color: Colors.grey,size: 18.00,)
+                                Icon(
+                                  CupertinoIcons.lock_fill,
+                                  color: Colors.grey,
+                                  size: 18.00,
+                                )
                               ],
                             ),
                           ],
@@ -587,20 +675,28 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-
                   ],
                 ),
               ),
-              Divider(color: Colors.grey.withOpacity(0.2),),
-
-              SizedBox(height: 10.0,),
+              Divider(
+                color: Colors.grey.withOpacity(0.2),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Advanced",style: commonTextStyle(Colors.grey, FontWeight.bold, 18.00, null),),
-                    SizedBox(height: 15.0,),
+                    Text(
+                      "Advanced",
+                      style: commonTextStyle(
+                          Colors.grey, FontWeight.bold, 18.00, null),
+                    ),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -625,15 +721,16 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 15.0,),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -643,8 +740,8 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Rotation lock",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                               ],
                             ),
@@ -662,15 +759,16 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 20.0,),
+                    SizedBox(
+                      height: 20.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -680,8 +778,8 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Scroll with volume keys",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                               ],
                             ),
@@ -699,15 +797,16 @@ class _SettingPageState extends State<SettingPage> {
                                       setState(() {
                                         _switchValue = value;
                                       });
-                                    }
-                                ),
+                                    }),
                               ),
                             )
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -717,8 +816,8 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Language",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                               ],
                             ),
@@ -735,7 +834,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -745,8 +846,8 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Clear cache",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                               ],
                             ),
@@ -763,7 +864,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -773,8 +876,8 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "Maximum cache size",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                               ],
                             ),
@@ -791,7 +894,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -806,21 +911,28 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-
                   ],
                 ),
               ),
-
-              Divider(color: Colors.grey.withOpacity(0.2),),
-              SizedBox(height: 10.0,),
-
+              Divider(
+                color: Colors.grey.withOpacity(0.2),
+              ),
+              SizedBox(
+                height: 10.0,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("About",style: commonTextStyle(Colors.grey, FontWeight.bold, 18.00, null),),
-                    SizedBox(height: 15.0,),
+                    Text(
+                      "About",
+                      style: commonTextStyle(
+                          Colors.grey, FontWeight.bold, 18.00, null),
+                    ),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -831,7 +943,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -842,7 +956,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -853,7 +969,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -864,7 +982,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -875,7 +995,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -886,7 +1008,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -897,7 +1021,9 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25.0,),
+                    SizedBox(
+                      height: 25.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -907,8 +1033,8 @@ class _SettingPageState extends State<SettingPage> {
                               children: [
                                 Text(
                                   "App version",
-                                  style: commonTextStyle(
-                                      Colors.black, FontWeight.bold, 16.00, null),
+                                  style: commonTextStyle(Colors.black,
+                                      FontWeight.bold, 16.00, null),
                                 ),
                               ],
                             ),
@@ -925,68 +1051,81 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 15.0,),
+                    SizedBox(
+                      height: 15.0,
+                    ),
                   ],
                 ),
               ),
-              Divider(color: Colors.grey.withOpacity(0.2),thickness: 15.00,),
-
+              Divider(
+                color: Colors.grey.withOpacity(0.2),
+                thickness: 15.00,
+              ),
               GestureDetector(
-                onTap: (){
+                onTap: () {
+                  if(isLoggedIn){
                   showCupertinoDialog(
                     context: context,
                     // barrierDismissible: false,
-                    builder: (context) =>
-                        AlertDialog(
-                          title: Text(
-                            "Sign Out?",
-                            style: commonTextStyletitle(),
-                          ),
-                          content: Text(
-                            "Are You Sure?",
-                            style: commonTextStyle16(),
-                          ),
-                          actions: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.indigo,
-                                      minimumSize: Size(MediaQuery.of(context).size.width / 4, 40)),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text(
-                                    "Cancel",
-                                    style: commonTextStyle18(),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
-                                      minimumSize: Size(MediaQuery.of(context).size.width / 4, 40)),
-                                  onPressed: () {
-                                    FirebaseAuth.instance.signOut();
-                                    Navigator.of(context).push(_HomeRoute());
-                                    showToast(message: "Successfully signed out");
-                                  },
-                                  child: Text(
-                                      "Sign Out", style: commonTextStyle18()),
-                                ),
-                              ],
-                            )
+                    builder: (context) => AlertDialog(
+                      title: Text(
+                        "Sign Out?",
+                        style: commonTextStyletitle(),
+                      ),
+                      content: Text(
+                        "Are You Sure?",
+                        style: commonTextStyle16(),
+                      ),
+                      actions: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.indigo,
+                                  minimumSize: Size(
+                                      MediaQuery.of(context).size.width / 4,
+                                      40)),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                "Cancel",
+                                style: commonTextStyle18(),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  minimumSize: Size(
+                                      MediaQuery.of(context).size.width / 4,
+                                      40)),
+                              onPressed: () {
+                                FirebaseAuth.instance.signOut().then((onValue) {
+                                  Navigator.of(context).push(_HomeRoute());
+                                  showToast(message: "Successfully signed out");
+                                });
+                              },
+                              child:
+                                  Text("Sign Out", style: commonTextStyle18()),
+                            ),
                           ],
-                          elevation: 24.0,
-                          backgroundColor: Colors.white,
-                        ),
+                        )
+                      ],
+                      elevation: 24.0,
+                      backgroundColor: Colors.white,
+                    ),
                   );
+                  }else{
+                    showToast(message: "No User available");
+                  }
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 10.00),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 10.00),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -995,13 +1134,17 @@ class _SettingPageState extends State<SettingPage> {
                         style: commonTextStyle(
                             Colors.red, FontWeight.bold, 16.00, null),
                       ),
-
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 30.00,),
-              Divider(color: Colors.grey.withOpacity(0.2),thickness: 45.00,),
+              SizedBox(
+                height: 30.00,
+              ),
+              Divider(
+                color: Colors.grey.withOpacity(0.2),
+                thickness: 45.00,
+              ),
             ],
           ),
         ),
@@ -1016,6 +1159,7 @@ class _SettingPageState extends State<SettingPage> {
         fontSize: size,
         decoration: decoration);
   }
+
   TextStyle commonTextStyletitle() {
     return TextStyle(
         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black);
@@ -1032,10 +1176,11 @@ class _SettingPageState extends State<SettingPage> {
       fontWeight: FontWeight.w500,
     );
   }
+
   Route _HomeRoute() {
     return PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-        const HomePage(),
+            const HomePage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;

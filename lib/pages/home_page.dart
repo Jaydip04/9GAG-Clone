@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late TabController _tabController;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   bool isLoggedIn = FirebaseAuth.instance.currentUser != null ? true : false;
+  String? userName;
+  String? profileName;
   @override
   void initState() {
     super.initState();
@@ -53,6 +56,45 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         });
       });
     });
+    listenToUserName();
+    listenToProfileName();
+    _fetchProfileImageUrl();
+  }
+  void listenToProfileName() {
+    if (isLoggedIn) {
+      DatabaseReference reference = FirebaseDatabase.instance
+          .ref("Profile")
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .child("profileName");
+      reference.onValue.listen((DatabaseEvent event) {
+        final data = event.snapshot.value;
+        setState(() {
+          profileName = data as String?;
+        });
+      });
+    } else {
+      profileName = "9GAG" as String?;
+    }
+  }
+  void listenToUserName() {
+    if (isLoggedIn) {
+      DatabaseReference reference = FirebaseDatabase.instance.ref("Profile").child(FirebaseAuth.instance.currentUser!.uid).child("userName");
+      reference.onValue.listen((DatabaseEvent event) {
+        final data = event.snapshot.value;
+        setState(() {
+          userName = data as String?;
+        });
+        // if(userName == null){
+        //   userName = profileName.toString().toLowerCase().split(' ').reversed.join(' ');
+        //   setState(() {
+        //     userName = data as String?;
+        //   });
+        // }
+      });
+    } else {
+      userName = "Sign up or Log in" as String?;
+    }
+
   }
 
   @override
@@ -96,6 +138,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       print('Picked image path: ${image.path}');
     } else {
       print('No image selected.');
+    }
+  }
+
+  String? imageUrl;
+  Future<void> _fetchProfileImageUrl() async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref(
+        'Profile Photo/${FirebaseAuth.instance.currentUser!.uid}/profile_photo');
+    DataSnapshot snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      setState(() {
+        imageUrl = snapshot.value as String?;
+      });
+    } else {
+      print('No image URL found');
     }
   }
 
@@ -184,11 +241,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               Row(
                                                 children: [
                                                   ClipRRect(
-                                                    child: Image.asset(
-                                                      "assets/logo/app_logo.png",
-                                                      width: 30,
-                                                      height: 30,
-                                                      fit: BoxFit.fill,
+                                                    child: imageUrl != null
+                                                        ? CircleAvatar(
+                                                      radius: 15,
+                                                      backgroundImage:
+                                                      NetworkImage(imageUrl!),
+                                                    )
+                                                        : CircleAvatar(
+                                                      radius: 15,
+                                                      backgroundColor: Colors.grey,
+                                                      child: Icon(Icons.person,
+                                                          size: 20, color: Colors.white),
                                                     ),
                                                     borderRadius:
                                                         BorderRadius.circular(
@@ -198,7 +261,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     width: 30,
                                                   ),
                                                   Text(
-                                                    "GenixBit",
+                                                    userName == null ? profileName.toString().toLowerCase().split(' ').reversed.join(' ') : userName.toString(),
                                                     style: commonTextStyle(
                                                         Colors.black,
                                                         FontWeight.bold,
@@ -404,11 +467,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 },
                 icon: ClipRRect(
                   child: ClipRRect(
-                    child: Image.asset(
-                      "assets/logo/app_logo.png",
-                      width: 26,
-                      height: 26,
-                      fit: BoxFit.fill,
+                    child: imageUrl != null
+                        ? CircleAvatar(
+                      radius: 15,
+                      backgroundImage:
+                      NetworkImage(imageUrl!),
+                    )
+                        : CircleAvatar(
+                      radius: 15,
+                      backgroundColor: Colors.grey,
+                      child: Icon(Icons.person,
+                          size: 20, color: Colors.white),
                     ),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
