@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -370,255 +371,297 @@ class _ProfilePageState extends State<ProfilePage>
                     Tab(text: 'Saved'),
                   ],
                 ),
+
                 Container(
                   margin: EdgeInsets.only(bottom: 20.0),
                   height: MediaQuery.sizeOf(context).height / 1.4,
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      Column(
-                        children: [
-                          Text(
-                            'No Posts',
-                            style: commonTextStyle(
-                                Colors.black, FontWeight.bold, 16.00),
-                          ),
-                          SizedBox(
-                            height: 10.0,
-                          ),
-                          Text(
-                            "Let's make something creative for fun!",
-                            style: commonTextStyle(
-                                Colors.grey, FontWeight.bold, 14.00),
-                          ),
-                          SizedBox(
-                            height: 15.0,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              showModalBottomSheet(
-                                  transitionAnimationController:
-                                      AnimationController(
-                                    duration: const Duration(milliseconds: 1000),
-                                    vsync: Navigator.of(context),
-                                  ),
-                                  backgroundColor: Colors.white,
-                                  constraints: BoxConstraints.loose(Size(
-                                      MediaQuery.of(context).size.width,
-                                      MediaQuery.of(context).size.height / 2.3)),
-                                  context: context,
-                                  isScrollControlled: true,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(0.0),
-                                      topRight: Radius.circular(0.0),
+                      Container(
+                        color: Colors.white,
+                        child: StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('posts')
+                                .doc(FirebaseAuth.instance.currentUser!.uid)
+                                .collection("posts")
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return Center(child: CircularProgressIndicator());
+                              }
+                              List<DocumentSnapshot> docs = snapshot.data!.docs;
+                              return ListView.builder(
+                                itemCount: docs.length,
+                                itemBuilder: (context, index) {
+                                  Map<String, dynamic> data =
+                                  docs[index].data() as Map<String, dynamic>;
+                                  return Container(
+                                    child: postCard(
+                                      heading: data['postHeading'],
+                                      subHeading: data['postSubHeading'],
+                                      // bottomScroll: data['postBottomScrollView'],
+                                      videoURL: data['postVideoUrl'],
+                                      likeCount: data['postLikeCount'],
+                                      commentCount: data['postCommentCount'],
+                                      postHours: data['postHoursCount'],
                                     ),
-                                  ),
-                                  builder: (BuildContext context) {
-                                    return SingleChildScrollView(
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            height: 100.0,
-                                            child: mediaList.isEmpty
-                                                ? Center(
-                                                    child:
-                                                        CircularProgressIndicator())
-                                                : ListView.builder(
-                                                    scrollDirection:
-                                                        Axis.horizontal,
-                                                    itemCount: mediaList.length,
-                                                    itemBuilder:
-                                                        (context, index) {
-                                                      return FutureBuilder<
-                                                          Widget>(
-                                                        future:
-                                                            _buildMediaThumbnail(
-                                                                mediaList[index]),
-                                                        builder:
-                                                            (context, snapshot) {
-                                                          if (snapshot
-                                                                  .connectionState ==
-                                                              ConnectionState
-                                                                  .done) {
-                                                            return Container(
-                                                              margin: EdgeInsets
-                                                                  .symmetric(
-                                                                      horizontal:
-                                                                          2.0,
-                                                                      vertical:
-                                                                          4.0),
-                                                              child:
-                                                                  snapshot.data,
-                                                            );
-                                                          } else {
-                                                            return Container(
-                                                              width: 100.0,
-                                                              height: 100.0,
-                                                              child: Center(
-                                                                  child:
-                                                                      CircularProgressIndicator()),
-                                                            );
-                                                          }
-                                                        },
-                                                      );
-                                                    },
-                                                  ),
-                                          ),
-                                          SizedBox(
-                                            height: 20,
-                                          ),
-                                          GestureDetector(
-                                            onTap: _openCamera,
-                                            child: Container(
-                                              margin: EdgeInsets.symmetric(
-                                                  horizontal: 10.0,
-                                                  vertical: 5.0),
-                                              width: double.infinity,
-                                              child: Row(
-                                                children: [
-                                                  Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Icon(
-                                                          Icons.camera_alt,
-                                                          color: Colors.grey)),
-                                                  SizedBox(
-                                                    width: 30.0,
-                                                  ),
-                                                  Text(
-                                                    "Use Camera",
-                                                    style: commonTextStyle(
-                                                      Colors.black,
-                                                      FontWeight.bold,
-                                                      14.00,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 20.0,
-                                          ),
-                                          GestureDetector(
-                                            onTap: _openGallery,
-                                            child: Container(
-                                              margin: EdgeInsets.symmetric(
-                                                  horizontal: 10.0,
-                                                  vertical: 5.0),
-                                              width: double.infinity,
-                                              child: Row(
-                                                children: [
-                                                  Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Icon(Icons.image,
-                                                          color: Colors.grey)),
-                                                  SizedBox(
-                                                    width: 30.0,
-                                                  ),
-                                                  Text(
-                                                    "Choose Form Gallery",
-                                                    style: commonTextStyle(
-                                                      Colors.black,
-                                                      FontWeight.bold,
-                                                      14.00,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 20.0,
-                                          ),
-                                          GestureDetector(
-                                            onTap: () {
-                                              Navigator.of(context).push(
-                                                  _CreatePostFormLinkRoute());
-                                              // Navigator.pushReplacement(
-                                              //     context,
-                                              //     MaterialPageRoute(
-                                              //         builder: (context) =>
-                                              //             CreatePostFormLink()));
-                                            },
-                                            child: Container(
-                                              margin: EdgeInsets.symmetric(
-                                                  horizontal: 10.0,
-                                                  vertical: 5.0),
-                                              width: double.infinity,
-                                              child: Row(
-                                                children: [
-                                                  Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      child: Icon(
-                                                        Icons.link,
-                                                        color: Colors.grey,
-                                                      )),
-                                                  SizedBox(
-                                                    width: 30.0,
-                                                  ),
-                                                  Text(
-                                                    "Create Post Form Link",
-                                                    style: commonTextStyle(
-                                                      Colors.black,
-                                                      FontWeight.bold,
-                                                      14.00,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 5.0),
-                              width: 90.0,
-                              height: 40.0,
-                              decoration: BoxDecoration(
-                                  color: Colors.indigo,
-                                  borderRadius: BorderRadius.circular(5.0)),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.edit,
-                                    color: Colors.white,
-                                  ),
-                                  Text(
-                                    "Post",
-                                    style: commonTextStyle(
-                                        Colors.white, FontWeight.bold, 14.00),
-                                  )
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                                  );
+                                  //   ListTile(
+                                  //   title: Text(data['postHeading']),
+                                  //   subtitle: Text(data['postSubHeading']),
+                                  // );
+                                },
+                              );
+                            }),
                       ),
+                      // Column(
+                      //   children: [
+                      //     Text(
+                      //       'No Posts',
+                      //       style: commonTextStyle(
+                      //           Colors.black, FontWeight.bold, 16.00),
+                      //     ),
+                      //     SizedBox(
+                      //       height: 10.0,
+                      //     ),
+                      //     Text(
+                      //       "Let's make something creative for fun!",
+                      //       style: commonTextStyle(
+                      //           Colors.grey, FontWeight.bold, 14.00),
+                      //     ),
+                      //     SizedBox(
+                      //       height: 15.0,
+                      //     ),
+                      //     GestureDetector(
+                      //       onTap: () {
+                      //         showModalBottomSheet(
+                      //             transitionAnimationController:
+                      //                 AnimationController(
+                      //               duration: const Duration(milliseconds: 1000),
+                      //               vsync: Navigator.of(context),
+                      //             ),
+                      //             backgroundColor: Colors.white,
+                      //             constraints: BoxConstraints.loose(Size(
+                      //                 MediaQuery.of(context).size.width,
+                      //                 MediaQuery.of(context).size.height / 2.3)),
+                      //             context: context,
+                      //             isScrollControlled: true,
+                      //             shape: RoundedRectangleBorder(
+                      //               borderRadius: BorderRadius.only(
+                      //                 topLeft: Radius.circular(0.0),
+                      //                 topRight: Radius.circular(0.0),
+                      //               ),
+                      //             ),
+                      //             builder: (BuildContext context) {
+                      //               return SingleChildScrollView(
+                      //                 child: Column(
+                      //                   children: [
+                      //                     Container(
+                      //                       height: 100.0,
+                      //                       child: mediaList.isEmpty
+                      //                           ? Center(
+                      //                               child:
+                      //                                   CircularProgressIndicator())
+                      //                           : ListView.builder(
+                      //                               scrollDirection:
+                      //                                   Axis.horizontal,
+                      //                               itemCount: mediaList.length,
+                      //                               itemBuilder:
+                      //                                   (context, index) {
+                      //                                 return FutureBuilder<
+                      //                                     Widget>(
+                      //                                   future:
+                      //                                       _buildMediaThumbnail(
+                      //                                           mediaList[index]),
+                      //                                   builder:
+                      //                                       (context, snapshot) {
+                      //                                     if (snapshot
+                      //                                             .connectionState ==
+                      //                                         ConnectionState
+                      //                                             .done) {
+                      //                                       return Container(
+                      //                                         margin: EdgeInsets
+                      //                                             .symmetric(
+                      //                                                 horizontal:
+                      //                                                     2.0,
+                      //                                                 vertical:
+                      //                                                     4.0),
+                      //                                         child:
+                      //                                             snapshot.data,
+                      //                                       );
+                      //                                     } else {
+                      //                                       return Container(
+                      //                                         width: 100.0,
+                      //                                         height: 100.0,
+                      //                                         child: Center(
+                      //                                             child:
+                      //                                                 CircularProgressIndicator()),
+                      //                                       );
+                      //                                     }
+                      //                                   },
+                      //                                 );
+                      //                               },
+                      //                             ),
+                      //                     ),
+                      //                     SizedBox(
+                      //                       height: 20,
+                      //                     ),
+                      //                     GestureDetector(
+                      //                       onTap: _openCamera,
+                      //                       child: Container(
+                      //                         margin: EdgeInsets.symmetric(
+                      //                             horizontal: 10.0,
+                      //                             vertical: 5.0),
+                      //                         width: double.infinity,
+                      //                         child: Row(
+                      //                           children: [
+                      //                             Padding(
+                      //                                 padding:
+                      //                                     const EdgeInsets.only(
+                      //                                         left: 10),
+                      //                                 child: Icon(
+                      //                                     Icons.camera_alt,
+                      //                                     color: Colors.grey)),
+                      //                             SizedBox(
+                      //                               width: 30.0,
+                      //                             ),
+                      //                             Text(
+                      //                               "Use Camera",
+                      //                               style: commonTextStyle(
+                      //                                 Colors.black,
+                      //                                 FontWeight.bold,
+                      //                                 14.00,
+                      //                               ),
+                      //                             ),
+                      //                           ],
+                      //                         ),
+                      //                       ),
+                      //                     ),
+                      //                     SizedBox(
+                      //                       height: 20.0,
+                      //                     ),
+                      //                     GestureDetector(
+                      //                       onTap: _openGallery,
+                      //                       child: Container(
+                      //                         margin: EdgeInsets.symmetric(
+                      //                             horizontal: 10.0,
+                      //                             vertical: 5.0),
+                      //                         width: double.infinity,
+                      //                         child: Row(
+                      //                           children: [
+                      //                             Padding(
+                      //                                 padding:
+                      //                                     const EdgeInsets.only(
+                      //                                         left: 10),
+                      //                                 child: Icon(Icons.image,
+                      //                                     color: Colors.grey)),
+                      //                             SizedBox(
+                      //                               width: 30.0,
+                      //                             ),
+                      //                             Text(
+                      //                               "Choose Form Gallery",
+                      //                               style: commonTextStyle(
+                      //                                 Colors.black,
+                      //                                 FontWeight.bold,
+                      //                                 14.00,
+                      //                               ),
+                      //                             ),
+                      //                           ],
+                      //                         ),
+                      //                       ),
+                      //                     ),
+                      //                     SizedBox(
+                      //                       height: 20.0,
+                      //                     ),
+                      //                     GestureDetector(
+                      //                       onTap: () {
+                      //                         Navigator.of(context).push(
+                      //                             _CreatePostFormLinkRoute());
+                      //                         // Navigator.pushReplacement(
+                      //                         //     context,
+                      //                         //     MaterialPageRoute(
+                      //                         //         builder: (context) =>
+                      //                         //             CreatePostFormLink()));
+                      //                       },
+                      //                       child: Container(
+                      //                         margin: EdgeInsets.symmetric(
+                      //                             horizontal: 10.0,
+                      //                             vertical: 5.0),
+                      //                         width: double.infinity,
+                      //                         child: Row(
+                      //                           children: [
+                      //                             Padding(
+                      //                                 padding:
+                      //                                     const EdgeInsets.only(
+                      //                                         left: 10),
+                      //                                 child: Icon(
+                      //                                   Icons.link,
+                      //                                   color: Colors.grey,
+                      //                                 )),
+                      //                             SizedBox(
+                      //                               width: 30.0,
+                      //                             ),
+                      //                             Text(
+                      //                               "Create Post Form Link",
+                      //                               style: commonTextStyle(
+                      //                                 Colors.black,
+                      //                                 FontWeight.bold,
+                      //                                 14.00,
+                      //                               ),
+                      //                             ),
+                      //                           ],
+                      //                         ),
+                      //                       ),
+                      //                     ),
+                      //                     SizedBox(
+                      //                       height: 10.0,
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //               );
+                      //             });
+                      //       },
+                      //       child: Container(
+                      //         padding: EdgeInsets.symmetric(
+                      //             horizontal: 10.0, vertical: 5.0),
+                      //         width: 90.0,
+                      //         height: 40.0,
+                      //         decoration: BoxDecoration(
+                      //             color: Colors.indigo,
+                      //             borderRadius: BorderRadius.circular(5.0)),
+                      //         child: Row(
+                      //           mainAxisAlignment: MainAxisAlignment.center,
+                      //           crossAxisAlignment: CrossAxisAlignment.center,
+                      //           children: [
+                      //             Icon(
+                      //               Icons.edit,
+                      //               color: Colors.white,
+                      //             ),
+                      //             Text(
+                      //               "Post",
+                      //               style: commonTextStyle(
+                      //                   Colors.white, FontWeight.bold, 14.00),
+                      //             )
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     )
+                      //   ],
+                      //   crossAxisAlignment: CrossAxisAlignment.center,
+                      //   mainAxisAlignment: MainAxisAlignment.center,
+                      // ),
                       Center(
                         child: Text("No commented posts"),
                       ),
                       Center(
                         child: Text("No upvoted posts"),
                       ),
-                      SavedTab(),
+                      Center(
+                        child: Text("No saved posts"),
+                      ),
+
+                      // SavedTab(),
                     ],
                   ),
                 ),
@@ -709,5 +752,192 @@ class _ProfilePageState extends State<ProfilePage>
         width: 100,
       );
     }
+  }
+
+  Widget postCard({
+    required heading,
+    required subHeading,
+    required videoURL,
+    required likeCount,
+    // required bottomScroll,
+    required commentCount,
+    required postHours,
+  }) {
+    return Container(
+      child: Column(
+        children: [
+          postTitle(heading: heading, subHeading: subHeading, hours: postHours),
+          SizedBox(
+            height: 5,
+          ),
+          // isLoggedIn ?
+          Image.network(videoURL,height: 300,width: MediaQuery.sizeOf(context).width,fit: BoxFit.fill,),
+          // PostVideo(videoURL: videoURL,),
+          // postBottomScrollView(
+          //   list: bottomScroll,
+          //   listItem: bottomScroll,
+          // ),
+          SizedBox(
+            height: 5.0,
+          ),
+          postBottom(likeCount: likeCount, commentCount: commentCount),
+          SizedBox(
+            height: 5.0,
+          ),
+          Divider(
+            thickness: 7.0,
+            color: Colors.grey.withOpacity(0.2),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget postTitle(
+      {required String heading,
+        required String subHeading,
+        required String hours}) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(3.0),
+                        decoration: BoxDecoration(
+                            color: Colors.purple,
+                            borderRadius: BorderRadius.circular(5.00)),
+                        child: Icon(
+                          Icons.ac_unit_outlined,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        heading,
+                        style: commonTextStyle(
+                            Colors.black, FontWeight.bold, 14.00),
+                      ),
+                      Text(
+                        " . $hours" + "h",
+                        style: commonTextStyle(
+                            Colors.grey, FontWeight.bold, 12.00),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.more_vert_outlined,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        Icons.close,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
+            subHeading,
+            style: commonTextStyle(Colors.black, FontWeight.bold, 14.00),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget postBottom({required String likeCount, required String commentCount}) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            children: [
+              Row(
+                children: [
+                  Image.asset(
+                    "assets/post/arrow_upper.png",
+                    width: 20,
+                    height: 20,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(likeCount),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Image.asset(
+                    "assets/post/arrow_down.png",
+                    width: 20,
+                    height: 20,
+                  ),
+                ],
+              )
+            ],
+          ),
+          Column(
+            children: [
+              Row(
+                children: [
+                  Image.asset(
+                    "assets/post/comment.png",
+                    width: 20,
+                    height: 20,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(commentCount),
+                ],
+              ),
+            ],
+          ),
+          Column(
+            children: [
+              Row(
+                children: [
+                  Image.asset(
+                    "assets/post/share.png",
+                    width: 20,
+                    height: 20,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text("Share"),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

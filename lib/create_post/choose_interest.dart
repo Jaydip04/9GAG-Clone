@@ -105,11 +105,15 @@ class _ChooseInterestState extends State<ChooseInterest> {
     Colors.yellow,
     Colors.yellow,
   ];
+
   @override
   void initState() {
     super.initState();
     print(interest.length.toString());
   }
+  String _interest = "";
+  String _icon = "";
+  String _url = "assets/logo/app_logo.png";
   @override
   Widget build(BuildContext context) {
     return
@@ -154,6 +158,14 @@ class _ChooseInterestState extends State<ChooseInterest> {
                   size: 24,
                 ),
               ),
+              onTap: (){
+                  _interest = interest[index];
+
+                  Navigator.pop(context, {
+                    'interestText': _interest,
+                    'imageUrl': _url,
+                  });
+              },
               // onTap: () {
               //   BlocProvider.of<ItemSelectionBloc>(context).add(SelectItemEvent(interest));
               // },

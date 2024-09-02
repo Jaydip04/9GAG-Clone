@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gagclone/authentication/login_page.dart';
 import 'package:gagclone/authentication/signup_page.dart';
+import 'package:gagclone/create_post/create_post.dart';
 import 'package:gagclone/create_post/create_post_form_link.dart';
 import 'package:gagclone/pages/interests_page.dart';
 import 'package:gagclone/pages/notification_page.dart';
@@ -15,7 +18,6 @@ import 'package:gagclone/profile/profile_page.dart';
 import 'package:gagclone/tabs/ask_tab.dart';
 import 'package:gagclone/tabs/fresh_tab.dart';
 import 'package:gagclone/tabs/home_tab.dart';
-import 'package:gagclone/tabs/saved_tab.dart';
 import 'package:gagclone/tabs/top_tab.dart';
 import 'package:gagclone/tabs/trending_tab.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -122,20 +124,31 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   final ImagePicker _picker = ImagePicker();
+  File? _image;
 
   Future<void> _openCamera() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      print('Picked image path: ${image.path}');
+    final pickedFile  = await _picker.pickImage(source: ImageSource.camera);
+    if (pickedFile  != null) {
+      print('Picked image path: ${pickedFile.path}');
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+      Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
     } else {
       print('No image selected.');
     }
   }
 
   Future<void> _openGallery() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      print('Picked image path: ${image.path}');
+    final pickedFile  = await _picker.pickImage(source: ImageSource.gallery);
+    // final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      print('Picked image path: ${pickedFile.path}');
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+      Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
     } else {
       print('No image selected.');
     }
@@ -175,6 +188,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 height: 40,
               )),
           actions: <Widget>[
+            // search page
             IconButton(
               onPressed: () {
                 Navigator.of(context).push(_SearchRoute());
@@ -183,6 +197,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 Icons.search,
               ),
             ),
+            // notification page
             IconButton(
               onPressed: () {
                 if (isLoggedIn) {
@@ -195,6 +210,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 Icons.notifications,
               ),
             ),
+            // profile page
             IconButton(
                 onPressed: () {
                   showModalBottomSheet(
@@ -484,6 +500,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ))
           ],
         ),
+        // drawer
         drawer: BlocBuilder<DrawerBloc, DrawerState>(
           builder: (context, state) {
             return Container(
@@ -641,9 +658,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             );
           },
         ),
+
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             if (isLoggedIn) {
+              // create post page
               show_bottom_sheet_add_post();
             } else {
               show_bottom_sheet();
@@ -700,8 +719,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<Widget> _buildMediaThumbnail(AssetEntity asset) async {
-    final thumbnail =
-        await asset.thumbnailDataWithSize(ThumbnailSize(100, 100));
+    final thumbnail = await asset.thumbnailDataWithSize(ThumbnailSize(100, 100));
     if (asset.type == AssetType.video) {
       return Stack(
         children: [
@@ -1153,6 +1171,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           return SingleChildScrollView(
             child: Column(
               children: [
+                // horizontal scroll view
                 Container(
                   height: 100.0,
                   child: mediaList.isEmpty
@@ -1187,6 +1206,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 SizedBox(
                   height: 20,
                 ),
+                // use camera
                 GestureDetector(
                   onTap: _openCamera,
                   child: Container(
@@ -1213,6 +1233,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 SizedBox(
                   height: 20.0,
                 ),
+                // choose gallery
                 GestureDetector(
                   onTap: _openGallery,
                   child: Container(
@@ -1239,6 +1260,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 SizedBox(
                   height: 20.0,
                 ),
+                // create post form link
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(_CreatePostRoute());

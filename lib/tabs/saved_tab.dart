@@ -11,8 +11,11 @@ class _SavedTabState extends State<SavedTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text("No saved posts"),
+      body: Container(
+        child: Center(
+
+          child: Text("No saved posts")
+        ),
       ),
     );
   }

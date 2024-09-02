@@ -1,16 +1,23 @@
+import 'dart:io';
+
 import 'package:chewie/chewie.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gagclone/create_post/choose_interest.dart';
 import 'package:gagclone/create_post/tags.dart';
 import 'package:gagclone/pages/home_page.dart';
+import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 
 import '../models/post_model.dart';
 
 class CreatePost extends StatefulWidget {
-  const CreatePost({super.key});
+  final File imageFile;
+  const CreatePost({super.key, required this.imageFile,});
 
   @override
   State<CreatePost> createState() => _CreatePostState();
@@ -19,6 +26,9 @@ class CreatePost extends StatefulWidget {
 class _CreatePostState extends State<CreatePost> {
   final TextEditingController _controller = TextEditingController();
   bool _isButtonEnabled = false;
+  String _tags = 'Add at least 1 tag';
+  String _interest = 'Choose interest';
+  String _url= 'assets/logo/apple.png';
 
   @override
   void initState() {
@@ -29,9 +39,19 @@ class _CreatePostState extends State<CreatePost> {
       });
     });
   }
+  Future<String> uploadImage(File imageFile) async {
+    FirebaseStorage storage = FirebaseStorage.instance;
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference ref = storage.ref().child('posts/$fileName');
+    UploadTask uploadTask = ref.putFile(imageFile);
 
-  PostModel post1 = PostModel(postHeading: "Humor1", postBottomScrollView: ["girl","funny","random","humor","no sound"], postSubHeading: "Oh yes...let's the kid having fun...", postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4", postLikeCount: "10K", postCommentCount: "256", postHoursCount: "10");
-  PostModel post2 = PostModel(postHeading: "Humor2", postBottomScrollView: ["girl","funny","random","humor","no sound"], postSubHeading: "Oh yes...let's the kid having fun...", postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4", postLikeCount: "10K", postCommentCount: "256", postHoursCount: "10");
+    TaskSnapshot taskSnapshot = await uploadTask;
+    return await taskSnapshot.ref.getDownloadURL();
+  }
+  Future<void> addPost(PostModel post) async {
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -126,19 +146,33 @@ class _CreatePostState extends State<CreatePost> {
         ),
         actions: [
           GestureDetector(
-            onTap: () {
-              PostList postList = PostList(posts: []);
-              // print(postList.category);
-              // for (var post in postList.posts) {
-              //   print('${post.postHeading}: ${post.postSubHeading}');
-              // }
+            onTap: () async{
+              var uuid = Uuid();
+              String postId = uuid.v4();
 
-              PostModel post3 = PostModel(postHeading: "Humor3", postBottomScrollView: ["girl","funny","random","humor","no sound"], postSubHeading: "Oh yes...let's the kid having fun...", postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4", postLikeCount: "10K", postCommentCount: "256", postHoursCount: "10");
+              List<String> words = _tags.split(' ');
+              if (words.length >= 5) {
+                String word_1 = words[0];
+                String word_2 = words[1];
+                String word_3 = words[2];
+                String word_4 = words[3];
+                String word_5 = words[4];
 
-              postList.addPost(post3);
-              postList.addPost(post1);
-              for (var post in postList.posts) {
-                print('[ ${post.postHeading}: ${post.postSubHeading} ]');
+                // String imageUrl = await uploadImage(widget.imageFile);
+                try {
+                  // Upload the image to Firebase Storage
+                  String imageUrl = await uploadImage(widget.imageFile);
+                  String postSubHeading = _controller.text.toString();
+                  PostModel post = PostModel(id: postId,postHeading: _interest, postBottomScrollView: [word_1,word_2,word_3,word_4,word_5], postSubHeading: postSubHeading, postVideoUrl: imageUrl, postLikeCount: "0", postCommentCount: "0", postHoursCount: "0", timestamp: DateTime.now(),);
+                  FirebaseFirestore firestore = FirebaseFirestore.instance;
+                  await firestore.collection('posts').doc(FirebaseAuth.instance.currentUser!.uid).collection("posts").doc(postId).set(post.toMap());
+
+                  print('Post added successfully!');
+                } catch (e) {
+                  print('Error adding post: $e');
+                }
+              } else {
+                print('The input does not contain enough words.');
               }
             },
             child: Padding(
@@ -148,7 +182,7 @@ class _CreatePostState extends State<CreatePost> {
                 child: Text(
                   "Post",
                   style: commonTextStyle(
-                      _controller.text.isEmpty ? Colors.white : Colors.grey,
+                      _controller.text.isNotEmpty ? Colors.white : Colors.white.withOpacity(0.4),
                       FontWeight.bold,
                       14.00,
                       null),
@@ -169,8 +203,18 @@ class _CreatePostState extends State<CreatePost> {
           child: Column(
             children: [
               GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(_ChooseInterestRoute());
+                onTap: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ChooseInterest()),
+                  );
+                  if (result != null) {
+                    setState(() {
+                      _interest = result['interestText'];
+                      _url = result['imageUrl'];
+                    });
+                  }
+                  // Navigator.of(context).push(_ChooseInterestRoute());
                   // Navigator.push(context, MaterialPageRoute(builder: (_) => ChooseInterest()));
                 },
                 child: Container(
@@ -187,10 +231,22 @@ class _CreatePostState extends State<CreatePost> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        "Choose an interest",
-                        style: commonTextStyle(
-                            Colors.black, FontWeight.bold, 14.00, null),
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              Image.asset(_url,width: 30.00,height: 30.00,),
+                              SizedBox(
+                                width: 20.00,
+                              ),
+                              Text(
+                                "$_interest",
+                                style: commonTextStyle(
+                                    Colors.black, FontWeight.bold, 14.00, null),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                       Icon(
                         CupertinoIcons.chevron_right,
@@ -231,8 +287,17 @@ class _CreatePostState extends State<CreatePost> {
                 ),
               ),
               GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(_TagsRoute());
+                onTap: () async{
+                  final tags = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Tags()),
+                  );
+                  if (tags != null) {
+                    setState(() {
+                      _tags = tags;
+                    });
+                  }
+                  // Navigator.of(context).push(_TagsRoute());
                   // Navigator.push(context, MaterialPageRoute(builder: (_) => Tags()));
                 },
                 child: Container(
@@ -253,6 +318,11 @@ class _CreatePostState extends State<CreatePost> {
                         children: [
                           Row(
                             children: [
+                              // TextField(
+                              //   decoration: InputDecoration(labelText: 'Tags'),
+                              //   controller: TextEditingController(text: _tags),
+                              //   readOnly: true,
+                              // ),
                               Text(
                                 "Tags",
                                 style: commonTextStyle(
@@ -262,7 +332,7 @@ class _CreatePostState extends State<CreatePost> {
                                 width: 20.0,
                               ),
                               Text(
-                                "Add at least 1 tag",
+                                _tags != null ? _tags : "Add at least 1 tag",
                                 style: commonTextStyle(
                                     Colors.grey, FontWeight.bold, 14.00, null),
                               ),
@@ -279,6 +349,8 @@ class _CreatePostState extends State<CreatePost> {
                   ),
                 ),
               ),
+              SizedBox(height: 20.00,),
+              widget.imageFile != null ? Image.file(widget.imageFile,width: MediaQuery.sizeOf(context).width,height: 400.00,fit: BoxFit.fill,):
               PostVideo(
                 videoURL:
                     "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",

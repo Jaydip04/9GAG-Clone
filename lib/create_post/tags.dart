@@ -15,6 +15,7 @@ class _TagsState extends State<Tags> {
   TextEditingController controller4 = TextEditingController();
   TextEditingController controller5 = TextEditingController();
   bool _isButtonEnabled = false;
+  String tag = "";
 
   @override
   void initState() {
@@ -57,8 +58,25 @@ class _TagsState extends State<Tags> {
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (_) => CreatePost())),
+                onPressed: (){
+                 String tag_1 = controller1.text.toString();
+                 String result_1 = tag_1.split(' ').join();
+                 String tag_2 = controller2.text.toString();
+                 String result_2 = tag_2.split(' ').join();
+                 String tag_3 = controller3.text.toString();
+                 String result_3 = tag_3.split(' ').join();
+                 String tag_4 = controller4.text.toString();
+                 String result_4 = tag_4.split(' ').join();
+                 String tag_5 = controller5.text.toString();
+                 String result_5 = tag_5.split(' ').join();
+
+
+                  tag = "$result_1 $result_2 $result_3 $result_4 $result_5";
+
+                  Navigator.pop(context,  tag);
+                },
+                // => Navigator.pushReplacement(
+                //     context, MaterialPageRoute(builder: (_) => CreatePost())),
                 child: Text(
                   "OK",
                   style: commonTextStyle(

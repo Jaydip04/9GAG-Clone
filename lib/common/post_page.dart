@@ -1,4 +1,6 @@
 import 'package:chewie/chewie.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gagclone/models/post_model.dart';
 import 'package:video_player/video_player.dart';
@@ -11,66 +13,113 @@ class PostPage extends StatefulWidget {
 }
 
 class _PostPageState extends State<PostPage> {
-
   final List<PostModel> list = [
     PostModel(
+      id: '1',
       postHeading: "Humor",
-      postBottomScrollView: ["girl","funny","random","humor","no sound"],
+      postBottomScrollView: ["girl", "funny", "random", "humor", "no sound"],
       postSubHeading: "Oh yes...let's the kid having fun...",
-      postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+      postVideoUrl:
+          "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
       postLikeCount: "10K",
       postCommentCount: "256",
       postHoursCount: "10",
+      timestamp: DateTime.now(),
     ),
     PostModel(
+      id: '2',
       postHeading: "Humor",
-      postBottomScrollView: ["girl","humor","no sound"],
+      postBottomScrollView: ["girl", "humor", "no sound"],
       postSubHeading: "Oh yes...let's the kid having fun...",
-      postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
+      postVideoUrl:
+          "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
       postLikeCount: "1.2M",
       postCommentCount: "700",
       postHoursCount: "10",
+      timestamp: DateTime.now(),
     ),
     PostModel(
+      id: '3',
       postHeading: "Humor",
-      postBottomScrollView: ["girl","funny","random"],
+      postBottomScrollView: ["girl", "funny", "random"],
       postSubHeading: "Oh yes...let's the kid having fun...",
-      postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+      postVideoUrl:
+          "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
       postLikeCount: "4K",
       postCommentCount: "1K",
       postHoursCount: "10",
+      timestamp: DateTime.now(),
     ),
     PostModel(
+      id: '4',
       postHeading: "Humor",
-      postBottomScrollView: ["funny",],
+      postBottomScrollView: [
+        "funny",
+      ],
       postSubHeading: "Oh yes...let's the kid having fun...",
-      postVideoUrl: "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
+      postVideoUrl:
+          "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
       postLikeCount: "5.2",
       postCommentCount: "5K",
       postHoursCount: "10",
+      timestamp: DateTime.now(),
     ),
   ];
+  bool isLoggedIn = FirebaseAuth.instance.currentUser != null ? true : false;
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 20.0),
-      height: MediaQuery.sizeOf(context).height/1.3,
-      child: ListView.builder(
-        // shrinkWrap: true,
-          itemCount: list.length,
-          itemBuilder: (context, index) {
-            return postCard(
-              heading: list[index].postHeading,
-              subHeading: list[index].postSubHeading,
-              bottomScroll: list[index].postBottomScrollView,
-              videoURL: list[index].postVideoUrl,
-              likeCount: list[index].postLikeCount,
-              commentCount: list[index].postCommentCount,
-              postHours: list[index].postHoursCount,
-            );
-          },
-      ),
-    );
+        margin: EdgeInsets.only(bottom: 20.0),
+        height: MediaQuery.sizeOf(context).height / 1.3,
+        child: isLoggedIn ?
+        StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('posts')
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .collection("posts")
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
+              List<DocumentSnapshot> docs = snapshot.data!.docs;
+              return ListView.builder(
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> data =
+                      docs[index].data() as Map<String, dynamic>;
+                  return postCard(
+                    heading: data['postHeading'],
+                    subHeading: data['postSubHeading'],
+                    // bottomScroll: data['postBottomScrollView'],
+                    videoURL: data['postVideoUrl'],
+                    likeCount: data['postLikeCount'],
+                    commentCount: data['postCommentCount'],
+                    postHours: data['postHoursCount'],
+                  );
+                  //   ListTile(
+                  //   title: Text(data['postHeading']),
+                  //   subtitle: Text(data['postSubHeading']),
+                  // );
+                },
+              );
+            }) :
+        ListView.builder(
+          // shrinkWrap: true,
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              return postCard(
+                heading: list[index].postHeading,
+                subHeading: list[index].postSubHeading,
+                // bottomScroll: list[index].postBottomScrollView,
+                videoURL: list[index].postVideoUrl,
+                likeCount: list[index].postLikeCount,
+                commentCount: list[index].postCommentCount,
+                postHours: list[index].postHoursCount,
+              );
+            },
+        ),
+        );
   }
 
   Widget postCard({
@@ -78,29 +127,37 @@ class _PostPageState extends State<PostPage> {
     required subHeading,
     required videoURL,
     required likeCount,
-    required bottomScroll,
+    // required bottomScroll,
     required commentCount,
     required postHours,
   }) {
     return Container(
-        child: Column(
-          children: [
-            postTitle(heading: heading, subHeading: subHeading, hours: postHours),
-            SizedBox(
-              height: 5,
-            ),
-            PostVideo(videoURL: videoURL,),
-            postBottomScrollView(list: bottomScroll,listItem: bottomScroll,),
-            postBottom(likeCount: likeCount, commentCount: commentCount),
-            SizedBox(
-              height: 5.0,
-            ),
-            Divider(
-              thickness: 7.0,
-              color: Colors.grey.withOpacity(0.2),
-            ),
-          ],
-        ),
+      child: Column(
+        children: [
+          postTitle(heading: heading, subHeading: subHeading, hours: postHours),
+          SizedBox(
+            height: 5,
+          ),
+          isLoggedIn ?
+          Image.network(videoURL,height: 300,width: MediaQuery.sizeOf(context).width,fit: BoxFit.fill,) :
+          PostVideo(videoURL: videoURL,),
+          // postBottomScrollView(
+          //   list: bottomScroll,
+          //   listItem: bottomScroll,
+          // ),
+          SizedBox(
+            height: 5.0,
+          ),
+          postBottom(likeCount: likeCount, commentCount: commentCount),
+          SizedBox(
+            height: 5.0,
+          ),
+          Divider(
+            thickness: 7.0,
+            color: Colors.grey.withOpacity(0.2),
+          ),
+        ],
+      ),
     );
   }
 
@@ -270,9 +327,10 @@ class _PostPageState extends State<PostPage> {
     );
   }
 }
+
 class PostVideo extends StatefulWidget {
   final String videoURL;
-  const PostVideo({super.key,required this.videoURL});
+  const PostVideo({super.key, required this.videoURL});
 
   @override
   _PostVideoState createState() => _PostVideoState();
@@ -308,21 +366,22 @@ class _PostVideoState extends State<PostVideo> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: 300,
-        width: MediaQuery.sizeOf(context).width,
-        child: Center(
-          child: Chewie(
-            controller: _chewieController,
-          ),
+      height: 300,
+      width: MediaQuery.sizeOf(context).width,
+      child: Center(
+        child: Chewie(
+          controller: _chewieController,
         ),
-      );
+      ),
+    );
   }
 }
 
 class postBottomScrollView extends StatefulWidget {
   final List<String> list;
   final List<String> listItem;
-  const postBottomScrollView({super.key,required this.list,required this.listItem});
+  const postBottomScrollView(
+      {super.key, required this.list, required this.listItem});
 
   @override
   State<postBottomScrollView> createState() => _postBottomScrollViewState();
@@ -332,34 +391,35 @@ class _postBottomScrollViewState extends State<postBottomScrollView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-            height: 35.0,
-            margin: EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: widget.list.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 2.0),
-                  child: Container(
-                    child: Text(widget.listItem[index], style: commonTextStyle(Colors.black, FontWeight.bold, 14.00),
-                    ),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.grey, width: 1)),
-                    padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                  ),
-                );
-              },
+      height: 35.0,
+      margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: widget.list.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+            child: Container(
+              child: Text(
+                widget.listItem[index],
+                style: commonTextStyle(Colors.black, FontWeight.bold, 14.00),
+              ),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.grey, width: 1)),
+              padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
             ),
           );
+        },
+      ),
+    );
   }
+
   TextStyle commonTextStyle(color, weight, size) {
     return TextStyle(
-        color: color,
-        fontWeight: weight,
-        fontSize: size,);
+      color: color,
+      fontWeight: weight,
+      fontSize: size,
+    );
   }
 }
-
-
-

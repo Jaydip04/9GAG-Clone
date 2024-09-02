@@ -44,7 +44,7 @@ class _CreatePostFormLinkState extends State<CreatePostFormLink> {
           TextButton(
               onPressed: _isButtonEnabled
                   ? () {
-                Navigator.of(context).push(_CreatePostRoute());
+                // Navigator.of(context).push(_CreatePostRoute());
                       // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => CreatePost()));
                     }
                   : null,
@@ -96,28 +96,28 @@ class _CreatePostFormLinkState extends State<CreatePostFormLink> {
       ),
     );
   }
-  Route _CreatePostRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const CreatePost(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000)
-    );
-  }
+  // Route _CreatePostRoute() {
+  //   return PageRouteBuilder(
+  //       pageBuilder: (context, animation, secondaryAnimation) => const CreatePost(),
+  //       transitionsBuilder: (context, animation, secondaryAnimation, child) {
+  //         const begin = Offset(0.0, 1.0);
+  //         const end = Offset.zero;
+  //         const curve = Curves.ease;
+  //
+  //         final tween = Tween(begin: begin, end: end);
+  //         final curvedAnimation = CurvedAnimation(
+  //           parent: animation,
+  //           curve: curve,
+  //         );
+  //
+  //         return SlideTransition(
+  //           position: tween.animate(curvedAnimation),
+  //           child: child,
+  //         );
+  //       },
+  //       transitionDuration: Duration(milliseconds: 1000)
+  //   );
+  // }
   TextStyle commonTextStyle(color, weight, size, decoration) {
     return TextStyle(
         color: color,
