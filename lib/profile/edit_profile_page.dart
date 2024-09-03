@@ -35,6 +35,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String? profileName;
   String? birthday;
   DatabaseReference reference = FirebaseDatabase.instance.ref("Profile");
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -50,8 +51,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     listenToBirthday();
   }
 
-  // final ImagePicker _picker = ImagePicker();
-
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
@@ -66,6 +65,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _uploadImage() async {
+
     if (_imageFile == null) return;
 
     String fileName = _imageFile!.path;
@@ -81,6 +81,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           .ref(
               'Profile Photo/${FirebaseAuth.instance.currentUser!.uid}/profile_photo')
           .set(downloadUrl).then((_){
+            // _isLoading = false;
           showToast(message: "Upload successful");
           Navigator.pop(context);
           print("Upload successful, URL: $downloadUrl");
@@ -199,6 +200,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           actions: <Widget>[
             TextButton(
                 onPressed: () {
+                  setState(() {
+                    _isLoading = true;
+                  });
                   print(userEmail);
                   String username = _controllerName.text;
                   String email = _controllerEmail.text;
@@ -222,6 +226,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         .child(FirebaseAuth.instance.currentUser!.uid)
                         .set(userProfile)
                         .then((_) {
+                          setState(() {
+                            _isLoading = false;
+                          });
                       showToast(message: "Saved");
                       Navigator.of(context).push(_ProfilePageRoute());
                     }).catchError((error) {
@@ -239,7 +246,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
         body: SingleChildScrollView(
           child: Container(
             color: Colors.white,
-            child: Column(
+            child: _isLoading ? Container(
+              height: MediaQuery.sizeOf(context).height,
+              child: Center(child: CircularProgressIndicator(color: Colors.black,strokeWidth: 4.0,)),
+            ) :  Column(
               children: [
                 Divider(
                   color: Colors.grey.withOpacity(0.1),
@@ -373,7 +383,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   ),
                                   GestureDetector(
                                     onTap: () {
+                                      setState(() {
+                                      _isLoading = true;
+                                      });
                                       _pickImage(ImageSource.gallery);
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
                                     },
                                     child: Text(
                                       "Choose from gallery",

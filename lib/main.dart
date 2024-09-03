@@ -2,10 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gagclone/authentication/login_page.dart';
 import 'package:gagclone/authentication/signup_page.dart';
 import 'package:gagclone/bloc/drawer_bloc/drawer_bloc.dart';
 import 'package:gagclone/pages/home_page.dart';
 import 'package:gagclone/pages/setting%20_page.dart';
+import 'package:gagclone/profile/edit_profile_page.dart';
 
 import 'bloc/video/video_bloc.dart';
 

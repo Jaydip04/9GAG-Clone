@@ -27,6 +27,7 @@ class _SignupPageState extends State<SignupPage> {
   
   bool isSigningUp = false;
   bool _isButtonEnabled = false;
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -204,11 +205,13 @@ class _SignupPageState extends State<SignupPage> {
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _emailController.text.isEmpty && _passwordController.text.isEmpty ? Colors.indigo.shade200 : Colors.indigo,
+                          backgroundColor: _passwordController.text.isEmpty ? Colors.indigo.shade200 : Colors.indigo,
                         ),
                         onPressed: () async {
                           setState(() {
                             isSigningUp = true;
+                            _isLoading = true;
+
                           });
 
                           String username = _usernameController.text;
@@ -227,6 +230,7 @@ class _SignupPageState extends State<SignupPage> {
                             final String date = DateTime.now().toString();
                             setState(() {
                               isSigningUp = false;
+                              _isLoading = false;
                             });
                             if (user != null) {
                               Map<String, dynamic> userProfile = {
@@ -247,7 +251,7 @@ class _SignupPageState extends State<SignupPage> {
                             }
                           }
                         },
-                        child: Text(
+                        child: _isLoading ? CircularProgressIndicator(color: Colors.white,strokeWidth: 4.0,) :  Text(
                           "Sign up",
                           style: commonTextStyle(
                               Colors.white, FontWeight.bold, 14.00, null),

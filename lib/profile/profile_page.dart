@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -8,7 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import '../create_post/create_post_form_link.dart';
-import '../tabs/saved_tab.dart';
+import 'package:video_player/video_player.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -50,6 +53,36 @@ class _ProfilePageState extends State<ProfilePage>
     super.dispose();
   }
 
+  final ImagePicker _picker = ImagePicker();
+  File? _image;
+
+  Future<void> _openCamera() async {
+    final pickedFile  = await _picker.pickImage(source: ImageSource.camera);
+    if (pickedFile  != null) {
+      print('Picked image path: ${pickedFile.path}');
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+      // Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
+    } else {
+      print('No image selected.');
+    }
+  }
+
+  Future<void> _openGallery() async {
+    final pickedFile  = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      print('Picked image path: ${pickedFile.path}');
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+      // Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
+    } else {
+      print('No image selected.');
+    }
+  }
+
   String? imageUrl;
   Future<void> _fetchProfileImageUrl() async {
     DatabaseReference ref = FirebaseDatabase.instance.ref(
@@ -83,25 +116,25 @@ class _ProfilePageState extends State<ProfilePage>
     return media;
   }
 
-  final ImagePicker _picker = ImagePicker();
-
-  Future<void> _openCamera() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      print('Picked image path: ${image.path}');
-    } else {
-      print('No image selected.');
-    }
-  }
-
-  Future<void> _openGallery() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      print('Picked image path: ${image.path}');
-    } else {
-      print('No image selected.');
-    }
-  }
+  // final ImagePicker _picker = ImagePicker();
+  //
+  // Future<void> _openCamera() async {
+  //   final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+  //   if (image != null) {
+  //     print('Picked image path: ${image.path}');
+  //   } else {
+  //     print('No image selected.');
+  //   }
+  // }
+  //
+  // Future<void> _openGallery() async {
+  //   final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  //   if (image != null) {
+  //     print('Picked image path: ${image.path}');
+  //   } else {
+  //     print('No image selected.');
+  //   }
+  // }
 
   void listenToUserName() {
     if (isLoggedIn) {
@@ -391,7 +424,244 @@ class _ProfilePageState extends State<ProfilePage>
                                 return Center(child: CircularProgressIndicator());
                               }
                               List<DocumentSnapshot> docs = snapshot.data!.docs;
-                              return ListView.builder(
+                              return docs.length == 0 ?
+                              Column(
+                                children: [
+                                  Text(
+                                    'No Posts',
+                                    style: commonTextStyle(
+                                        Colors.black, FontWeight.bold, 16.00),
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Text(
+                                    "Let's make something creative for fun!",
+                                    style: commonTextStyle(
+                                        Colors.grey, FontWeight.bold, 14.00),
+                                  ),
+                                  SizedBox(
+                                    height: 15.0,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                          transitionAnimationController:
+                                          AnimationController(
+                                            duration: const Duration(milliseconds: 1000),
+                                            vsync: Navigator.of(context),
+                                          ),
+                                          backgroundColor: Colors.white,
+                                          constraints: BoxConstraints.loose(Size(
+                                              MediaQuery.of(context).size.width,
+                                              MediaQuery.of(context).size.height / 2.3)),
+                                          context: context,
+                                          isScrollControlled: true,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(0.0),
+                                              topRight: Radius.circular(0.0),
+                                            ),
+                                          ),
+                                          builder: (BuildContext context) {
+                                            return SingleChildScrollView(
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    height: 100.0,
+                                                    child: mediaList.isEmpty
+                                                        ? Center(
+                                                        child:
+                                                        CircularProgressIndicator())
+                                                        : ListView.builder(
+                                                      scrollDirection:
+                                                      Axis.horizontal,
+                                                      itemCount: mediaList.length,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        return FutureBuilder<
+                                                            Widget>(
+                                                          future:
+                                                          _buildMediaThumbnail(
+                                                              mediaList[index]),
+                                                          builder:
+                                                              (context, snapshot) {
+                                                            if (snapshot
+                                                                .connectionState ==
+                                                                ConnectionState
+                                                                    .done) {
+                                                              return Container(
+                                                                margin: EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                    2.0,
+                                                                    vertical:
+                                                                    4.0),
+                                                                child:
+                                                                snapshot.data,
+                                                              );
+                                                            } else {
+                                                              return Container(
+                                                                width: 100.0,
+                                                                height: 100.0,
+                                                                child: Center(
+                                                                    child:
+                                                                    CircularProgressIndicator()),
+                                                              );
+                                                            }
+                                                          },
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 20,
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: _openCamera,
+                                                    child: Container(
+                                                      margin: EdgeInsets.symmetric(
+                                                          horizontal: 10.0,
+                                                          vertical: 5.0),
+                                                      width: double.infinity,
+                                                      child: Row(
+                                                        children: [
+                                                          Padding(
+                                                              padding:
+                                                              const EdgeInsets.only(
+                                                                  left: 10),
+                                                              child: Icon(
+                                                                  Icons.camera_alt,
+                                                                  color: Colors.grey)),
+                                                          SizedBox(
+                                                            width: 30.0,
+                                                          ),
+                                                          Text(
+                                                            "Use Camera",
+                                                            style: commonTextStyle(
+                                                              Colors.black,
+                                                              FontWeight.bold,
+                                                              14.00,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 20.0,
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: _openGallery,
+                                                    child: Container(
+                                                      margin: EdgeInsets.symmetric(
+                                                          horizontal: 10.0,
+                                                          vertical: 5.0),
+                                                      width: double.infinity,
+                                                      child: Row(
+                                                        children: [
+                                                          Padding(
+                                                              padding:
+                                                              const EdgeInsets.only(
+                                                                  left: 10),
+                                                              child: Icon(Icons.image,
+                                                                  color: Colors.grey)),
+                                                          SizedBox(
+                                                            width: 30.0,
+                                                          ),
+                                                          Text(
+                                                            "Choose Form Gallery",
+                                                            style: commonTextStyle(
+                                                              Colors.black,
+                                                              FontWeight.bold,
+                                                              14.00,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 20.0,
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.of(context).push(
+                                                          _CreatePostFormLinkRoute());
+                                                      // Navigator.pushReplacement(
+                                                      //     context,
+                                                      //     MaterialPageRoute(
+                                                      //         builder: (context) =>
+                                                      //             CreatePostFormLink()));
+                                                    },
+                                                    child: Container(
+                                                      margin: EdgeInsets.symmetric(
+                                                          horizontal: 10.0,
+                                                          vertical: 5.0),
+                                                      width: double.infinity,
+                                                      child: Row(
+                                                        children: [
+                                                          Padding(
+                                                              padding:
+                                                              const EdgeInsets.only(
+                                                                  left: 10),
+                                                              child: Icon(
+                                                                Icons.link,
+                                                                color: Colors.grey,
+                                                              )),
+                                                          SizedBox(
+                                                            width: 30.0,
+                                                          ),
+                                                          Text(
+                                                            "Create Post Form Link",
+                                                            style: commonTextStyle(
+                                                              Colors.black,
+                                                              FontWeight.bold,
+                                                              14.00,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 10.0,
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          });
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10.0, vertical: 5.0),
+                                      width: 90.0,
+                                      height: 40.0,
+                                      decoration: BoxDecoration(
+                                          color: Colors.indigo,
+                                          borderRadius: BorderRadius.circular(5.0)),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.edit,
+                                            color: Colors.white,
+                                          ),
+                                          Text(
+                                            "Post",
+                                            style: commonTextStyle(
+                                                Colors.white, FontWeight.bold, 14.00),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                ],
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                              ) :
+                                ListView.builder(
                                 itemCount: docs.length,
                                 itemBuilder: (context, index) {
                                   Map<String, dynamic> data =
@@ -415,242 +685,8 @@ class _ProfilePageState extends State<ProfilePage>
                               );
                             }),
                       ),
-                      // Column(
-                      //   children: [
-                      //     Text(
-                      //       'No Posts',
-                      //       style: commonTextStyle(
-                      //           Colors.black, FontWeight.bold, 16.00),
-                      //     ),
-                      //     SizedBox(
-                      //       height: 10.0,
-                      //     ),
-                      //     Text(
-                      //       "Let's make something creative for fun!",
-                      //       style: commonTextStyle(
-                      //           Colors.grey, FontWeight.bold, 14.00),
-                      //     ),
-                      //     SizedBox(
-                      //       height: 15.0,
-                      //     ),
-                      //     GestureDetector(
-                      //       onTap: () {
-                      //         showModalBottomSheet(
-                      //             transitionAnimationController:
-                      //                 AnimationController(
-                      //               duration: const Duration(milliseconds: 1000),
-                      //               vsync: Navigator.of(context),
-                      //             ),
-                      //             backgroundColor: Colors.white,
-                      //             constraints: BoxConstraints.loose(Size(
-                      //                 MediaQuery.of(context).size.width,
-                      //                 MediaQuery.of(context).size.height / 2.3)),
-                      //             context: context,
-                      //             isScrollControlled: true,
-                      //             shape: RoundedRectangleBorder(
-                      //               borderRadius: BorderRadius.only(
-                      //                 topLeft: Radius.circular(0.0),
-                      //                 topRight: Radius.circular(0.0),
-                      //               ),
-                      //             ),
-                      //             builder: (BuildContext context) {
-                      //               return SingleChildScrollView(
-                      //                 child: Column(
-                      //                   children: [
-                      //                     Container(
-                      //                       height: 100.0,
-                      //                       child: mediaList.isEmpty
-                      //                           ? Center(
-                      //                               child:
-                      //                                   CircularProgressIndicator())
-                      //                           : ListView.builder(
-                      //                               scrollDirection:
-                      //                                   Axis.horizontal,
-                      //                               itemCount: mediaList.length,
-                      //                               itemBuilder:
-                      //                                   (context, index) {
-                      //                                 return FutureBuilder<
-                      //                                     Widget>(
-                      //                                   future:
-                      //                                       _buildMediaThumbnail(
-                      //                                           mediaList[index]),
-                      //                                   builder:
-                      //                                       (context, snapshot) {
-                      //                                     if (snapshot
-                      //                                             .connectionState ==
-                      //                                         ConnectionState
-                      //                                             .done) {
-                      //                                       return Container(
-                      //                                         margin: EdgeInsets
-                      //                                             .symmetric(
-                      //                                                 horizontal:
-                      //                                                     2.0,
-                      //                                                 vertical:
-                      //                                                     4.0),
-                      //                                         child:
-                      //                                             snapshot.data,
-                      //                                       );
-                      //                                     } else {
-                      //                                       return Container(
-                      //                                         width: 100.0,
-                      //                                         height: 100.0,
-                      //                                         child: Center(
-                      //                                             child:
-                      //                                                 CircularProgressIndicator()),
-                      //                                       );
-                      //                                     }
-                      //                                   },
-                      //                                 );
-                      //                               },
-                      //                             ),
-                      //                     ),
-                      //                     SizedBox(
-                      //                       height: 20,
-                      //                     ),
-                      //                     GestureDetector(
-                      //                       onTap: _openCamera,
-                      //                       child: Container(
-                      //                         margin: EdgeInsets.symmetric(
-                      //                             horizontal: 10.0,
-                      //                             vertical: 5.0),
-                      //                         width: double.infinity,
-                      //                         child: Row(
-                      //                           children: [
-                      //                             Padding(
-                      //                                 padding:
-                      //                                     const EdgeInsets.only(
-                      //                                         left: 10),
-                      //                                 child: Icon(
-                      //                                     Icons.camera_alt,
-                      //                                     color: Colors.grey)),
-                      //                             SizedBox(
-                      //                               width: 30.0,
-                      //                             ),
-                      //                             Text(
-                      //                               "Use Camera",
-                      //                               style: commonTextStyle(
-                      //                                 Colors.black,
-                      //                                 FontWeight.bold,
-                      //                                 14.00,
-                      //                               ),
-                      //                             ),
-                      //                           ],
-                      //                         ),
-                      //                       ),
-                      //                     ),
-                      //                     SizedBox(
-                      //                       height: 20.0,
-                      //                     ),
-                      //                     GestureDetector(
-                      //                       onTap: _openGallery,
-                      //                       child: Container(
-                      //                         margin: EdgeInsets.symmetric(
-                      //                             horizontal: 10.0,
-                      //                             vertical: 5.0),
-                      //                         width: double.infinity,
-                      //                         child: Row(
-                      //                           children: [
-                      //                             Padding(
-                      //                                 padding:
-                      //                                     const EdgeInsets.only(
-                      //                                         left: 10),
-                      //                                 child: Icon(Icons.image,
-                      //                                     color: Colors.grey)),
-                      //                             SizedBox(
-                      //                               width: 30.0,
-                      //                             ),
-                      //                             Text(
-                      //                               "Choose Form Gallery",
-                      //                               style: commonTextStyle(
-                      //                                 Colors.black,
-                      //                                 FontWeight.bold,
-                      //                                 14.00,
-                      //                               ),
-                      //                             ),
-                      //                           ],
-                      //                         ),
-                      //                       ),
-                      //                     ),
-                      //                     SizedBox(
-                      //                       height: 20.0,
-                      //                     ),
-                      //                     GestureDetector(
-                      //                       onTap: () {
-                      //                         Navigator.of(context).push(
-                      //                             _CreatePostFormLinkRoute());
-                      //                         // Navigator.pushReplacement(
-                      //                         //     context,
-                      //                         //     MaterialPageRoute(
-                      //                         //         builder: (context) =>
-                      //                         //             CreatePostFormLink()));
-                      //                       },
-                      //                       child: Container(
-                      //                         margin: EdgeInsets.symmetric(
-                      //                             horizontal: 10.0,
-                      //                             vertical: 5.0),
-                      //                         width: double.infinity,
-                      //                         child: Row(
-                      //                           children: [
-                      //                             Padding(
-                      //                                 padding:
-                      //                                     const EdgeInsets.only(
-                      //                                         left: 10),
-                      //                                 child: Icon(
-                      //                                   Icons.link,
-                      //                                   color: Colors.grey,
-                      //                                 )),
-                      //                             SizedBox(
-                      //                               width: 30.0,
-                      //                             ),
-                      //                             Text(
-                      //                               "Create Post Form Link",
-                      //                               style: commonTextStyle(
-                      //                                 Colors.black,
-                      //                                 FontWeight.bold,
-                      //                                 14.00,
-                      //                               ),
-                      //                             ),
-                      //                           ],
-                      //                         ),
-                      //                       ),
-                      //                     ),
-                      //                     SizedBox(
-                      //                       height: 10.0,
-                      //                     ),
-                      //                   ],
-                      //                 ),
-                      //               );
-                      //             });
-                      //       },
-                      //       child: Container(
-                      //         padding: EdgeInsets.symmetric(
-                      //             horizontal: 10.0, vertical: 5.0),
-                      //         width: 90.0,
-                      //         height: 40.0,
-                      //         decoration: BoxDecoration(
-                      //             color: Colors.indigo,
-                      //             borderRadius: BorderRadius.circular(5.0)),
-                      //         child: Row(
-                      //           mainAxisAlignment: MainAxisAlignment.center,
-                      //           crossAxisAlignment: CrossAxisAlignment.center,
-                      //           children: [
-                      //             Icon(
-                      //               Icons.edit,
-                      //               color: Colors.white,
-                      //             ),
-                      //             Text(
-                      //               "Post",
-                      //               style: commonTextStyle(
-                      //                   Colors.white, FontWeight.bold, 14.00),
-                      //             )
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     )
-                      //   ],
-                      //   crossAxisAlignment: CrossAxisAlignment.center,
-                      //   mainAxisAlignment: MainAxisAlignment.center,
-                      // ),
+
+
                       Center(
                         child: Text("No commented posts"),
                       ),
@@ -771,8 +807,8 @@ class _ProfilePageState extends State<ProfilePage>
             height: 5,
           ),
           // isLoggedIn ?
-          Image.network(videoURL,height: 300,width: MediaQuery.sizeOf(context).width,fit: BoxFit.fill,),
-          // PostVideo(videoURL: videoURL,),
+          // Image.network(videoURL,height: 300,width: MediaQuery.sizeOf(context).width,fit: BoxFit.fill,),
+          PostVideo(videoURL: videoURL,),
           // postBottomScrollView(
           //   list: bottomScroll,
           //   listItem: bottomScroll,
@@ -940,4 +976,54 @@ class _ProfilePageState extends State<ProfilePage>
       ),
     );
   }
+
 }
+class PostVideo extends StatefulWidget {
+  final String videoURL;
+  const PostVideo({super.key, required this.videoURL});
+
+  @override
+  _PostVideoState createState() => _PostVideoState();
+}
+
+class _PostVideoState extends State<PostVideo> {
+  late VideoPlayerController _videoPlayerController;
+  late ChewieController _chewieController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _videoPlayerController = VideoPlayerController.network(widget.videoURL);
+
+    _chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController,
+      // autoPlay: true,
+      looping: true,
+      allowMuting: true,
+      showControls: true,
+      autoInitialize: true,
+    );
+  }
+
+  @override
+  void dispose() {
+    _videoPlayerController.dispose();
+    _chewieController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 300,
+      width: MediaQuery.sizeOf(context).width,
+      child: Center(
+        child: Chewie(
+          controller: _chewieController,
+        ),
+      ),
+    );
+  }
+}
+

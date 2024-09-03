@@ -7,17 +7,20 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gagclone/common/toast.dart';
 import 'package:gagclone/create_post/choose_interest.dart';
 import 'package:gagclone/create_post/tags.dart';
 import 'package:gagclone/pages/home_page.dart';
+import 'package:gagclone/profile/profile_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 
 import '../models/post_model.dart';
 
 class CreatePost extends StatefulWidget {
-  final File imageFile;
-  const CreatePost({super.key, required this.imageFile,});
+  // final File imageFile;
+  final File videoUrl;
+  const CreatePost({super.key, required this.videoUrl,});
 
   @override
   State<CreatePost> createState() => _CreatePostState();
@@ -29,6 +32,7 @@ class _CreatePostState extends State<CreatePost> {
   String _tags = 'Add at least 1 tag';
   String _interest = 'Choose interest';
   String _url= 'assets/logo/apple.png';
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -40,17 +44,24 @@ class _CreatePostState extends State<CreatePost> {
     });
   }
   Future<String> uploadImage(File imageFile) async {
-    FirebaseStorage storage = FirebaseStorage.instance;
+    // FirebaseStorage storage = FirebaseStorage.instance;
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference ref = storage.ref().child('posts/$fileName');
-    UploadTask uploadTask = ref.putFile(imageFile);
-
+    Reference storageReference = FirebaseStorage.instance.ref().child("videos/$fileName");
+    UploadTask uploadTask = storageReference.putFile(File(imageFile.path));
     TaskSnapshot taskSnapshot = await uploadTask;
-    return await taskSnapshot.ref.getDownloadURL();
-  }
-  Future<void> addPost(PostModel post) async {
+    String downloadURL = await taskSnapshot.ref.getDownloadURL();
 
+    return downloadURL;
+
+    // Reference ref = storage.ref().child('posts/$fileName');
+    // UploadTask uploadTask = ref.putFile(imageFile);
+    //
+    // TaskSnapshot taskSnapshot = await uploadTask;
+    // return await taskSnapshot.ref.getDownloadURL();
   }
+  // Future<void> addPost(PostModel post) async {
+  //
+  // }
 
 
   @override
@@ -146,7 +157,11 @@ class _CreatePostState extends State<CreatePost> {
         ),
         actions: [
           GestureDetector(
+
             onTap: () async{
+              setState(() {
+                _isLoading = true;
+              });
               var uuid = Uuid();
               String postId = uuid.v4();
 
@@ -161,13 +176,19 @@ class _CreatePostState extends State<CreatePost> {
                 // String imageUrl = await uploadImage(widget.imageFile);
                 try {
                   // Upload the image to Firebase Storage
-                  String imageUrl = await uploadImage(widget.imageFile);
+                  // String imageUrl = await uploadImage(widget.videoUrl as File);
+                  String? downloadURL = await uploadImage(widget.videoUrl);
                   String postSubHeading = _controller.text.toString();
-                  PostModel post = PostModel(id: postId,postHeading: _interest, postBottomScrollView: [word_1,word_2,word_3,word_4,word_5], postSubHeading: postSubHeading, postVideoUrl: imageUrl, postLikeCount: "0", postCommentCount: "0", postHoursCount: "0", timestamp: DateTime.now(),);
+                  PostModel post = PostModel(id: postId,postHeading: _interest, postBottomScrollView: [word_1,word_2,word_3,word_4,word_5], postSubHeading: postSubHeading, postVideoUrl: downloadURL, postLikeCount: "0", postCommentCount: "0", postHoursCount: "0", timestamp: DateTime.now(),);
                   FirebaseFirestore firestore = FirebaseFirestore.instance;
-                  await firestore.collection('posts').doc(FirebaseAuth.instance.currentUser!.uid).collection("posts").doc(postId).set(post.toMap());
-
+                  await firestore.collection('posts').doc(FirebaseAuth.instance.currentUser!.uid).collection("posts").doc(postId).set(post.toMap()).then((onValue){
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProfilePage()));
+                    showToast(message: "Post added successfully!");
+                  });
                   print('Post added successfully!');
+                  setState(() {
+                    _isLoading = false;
+                  });
                 } catch (e) {
                   print('Error adding post: $e');
                 }
@@ -178,14 +199,18 @@ class _CreatePostState extends State<CreatePost> {
             child: Padding(
               padding: const EdgeInsets.only(right: 5.0),
               child: Container(
+                width: 80.00,
+                height: 45.00,
                 padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                child: Text(
-                  "Post",
-                  style: commonTextStyle(
-                      _controller.text.isNotEmpty ? Colors.white : Colors.white.withOpacity(0.4),
-                      FontWeight.bold,
-                      14.00,
-                      null),
+                child:Center(
+                  child: Text(
+                    "Post",
+                    style: commonTextStyle(
+                        _controller.text.isNotEmpty ? Colors.white : Colors.white.withOpacity(0.4),
+                        FontWeight.bold,
+                        14.00,
+                        null),
+                  ),
                 ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
@@ -200,7 +225,7 @@ class _CreatePostState extends State<CreatePost> {
         child: Container(
           height: MediaQuery.sizeOf(context).height,
           color: Colors.white,
-          child: Column(
+          child: _isLoading ? Center(child: CircularProgressIndicator(color: Colors.black,strokeWidth: 4.0,)) :  Column(
             children: [
               GestureDetector(
                 onTap: () async {
@@ -350,11 +375,8 @@ class _CreatePostState extends State<CreatePost> {
                 ),
               ),
               SizedBox(height: 20.00,),
-              widget.imageFile != null ? Image.file(widget.imageFile,width: MediaQuery.sizeOf(context).width,height: 400.00,fit: BoxFit.fill,):
-              PostVideo(
-                videoURL:
-                    "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
-              )
+              // widget.imageFile != null ? Image.file(widget.imageFile,width: MediaQuery.sizeOf(context).width,height: 400.00,fit: BoxFit.fill,):
+              PostVideo(videoURL: widget.videoUrl.path,)
             ],
           ),
         ),

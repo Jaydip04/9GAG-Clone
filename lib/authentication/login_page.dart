@@ -19,27 +19,18 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
-  bool _isSigning = false;
   final FirebaseAuthServices _auth = FirebaseAuthServices();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   bool _isButtonEnabled = false;
+  bool _isSigning = false;
+  bool _isLoading = false;
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+
   @override
   void initState() {
     super.initState();
-    _emailController.addListener(() {
-      setState(() {
-        _isButtonEnabled = _emailController.text.isNotEmpty;
-      });
-    });
     _passwordController.addListener(() {
       setState(() {
         _isButtonEnabled = _passwordController.text.isNotEmpty;
@@ -77,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
+  User? user;
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
         padding: EdgeInsets.symmetric(horizontal: 20.0),
         child: SingleChildScrollView(
           child: Container(
-            child: Column(
+            child:Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 GestureDetector(
@@ -338,6 +330,7 @@ class _LoginPageState extends State<LoginPage> {
                   onTap: () async{
                     setState(() {
                       _isSigning = true;
+                      _isLoading = true;
                     });
 
                     String email = _emailController.text;
@@ -348,9 +341,10 @@ class _LoginPageState extends State<LoginPage> {
                     }else if(password.isEmpty){
                       showToast(message: "Password is empty");
                     }else{
-                      User? user = await  _auth.signInWithEmailAndPAssword(email, password);
+                      user = await  _auth.signInWithEmailAndPAssword(email, password);
                       setState(() {
                         _isSigning = false;
+                        _isLoading = false;
                       });
 
                       if (user != null) {
@@ -365,11 +359,11 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     height: 45,
                     decoration: BoxDecoration(
-                      color: _emailController.text.isEmpty && _passwordController.text.isEmpty ? Colors.indigo.shade200 : Colors.indigo,
+                      color: _passwordController.text.isEmpty ? Colors.indigo.shade200 : Colors.indigo,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Center(
-                      child: Text("Log in",style: commonTextStyle(Colors.white, FontWeight.bold, 16.00, null),),
+                      child: _isLoading ? CircularProgressIndicator(color: Colors.white,strokeWidth: 4.0,) : Text("Log in",style: commonTextStyle(Colors.white, FontWeight.bold, 16.00, null),),
                     ),
                   ),
                 ),

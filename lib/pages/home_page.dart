@@ -125,6 +125,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   final ImagePicker _picker = ImagePicker();
   File? _image;
+  File? _video;
+  // String? _videoPath;
 
   Future<void> _openCamera() async {
     final pickedFile  = await _picker.pickImage(source: ImageSource.camera);
@@ -133,25 +135,35 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       setState(() {
         _image = File(pickedFile.path);
       });
-      Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
+      // Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
     } else {
       print('No image selected.');
     }
   }
 
   Future<void> _openGallery() async {
-    final pickedFile  = await _picker.pickImage(source: ImageSource.gallery);
-    // final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    // final pickedFile  = await _picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await _picker.pickVideo(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      print('Picked image path: ${pickedFile.path}');
       setState(() {
-        _image = File(pickedFile.path);
+        // _videoPath = video.path;
+        // print("Video Path : $_videoPath");
+        _video = File(pickedFile.path);
+        Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(videoUrl: _video!,)));
       });
-      Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
     } else {
-      print('No image selected.');
+      print('No video selected.');
     }
+    // if (pickedFile != null) {
+    //   print('Picked image path: ${pickedFile.path}');
+    //   setState(() {
+    //     _image = File(pickedFile.path);
+    //   });
+    //   Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
+    // } else {
+    //   print('No image selected.');
+    // }
   }
 
   String? imageUrl;

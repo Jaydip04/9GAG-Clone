@@ -71,55 +71,71 @@ class _PostPageState extends State<PostPage> {
     return Container(
         margin: EdgeInsets.only(bottom: 20.0),
         height: MediaQuery.sizeOf(context).height / 1.3,
-        child: isLoggedIn ?
-        StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('posts')
-                .doc(FirebaseAuth.instance.currentUser!.uid)
-                .collection("posts")
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
-              }
-              List<DocumentSnapshot> docs = snapshot.data!.docs;
-              return ListView.builder(
-                itemCount: docs.length,
-                itemBuilder: (context, index) {
-                  Map<String, dynamic> data =
-                      docs[index].data() as Map<String, dynamic>;
-                  return postCard(
-                    heading: data['postHeading'],
-                    subHeading: data['postSubHeading'],
-                    // bottomScroll: data['postBottomScrollView'],
-                    videoURL: data['postVideoUrl'],
-                    likeCount: data['postLikeCount'],
-                    commentCount: data['postCommentCount'],
-                    postHours: data['postHoursCount'],
+        child: isLoggedIn
+            ? StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('posts')
+                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                    .collection("posts")
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  List<DocumentSnapshot> docs = snapshot.data!.docs;
+                  return
+                  //   docs.length == 0 ?
+                    ListView.builder(
+                    // shrinkWrap: true,
+                    itemCount: list.length,
+                    itemBuilder: (context, index) {
+                      return postCard(
+                        heading: list[index].postHeading,
+                        subHeading: list[index].postSubHeading,
+                        // bottomScroll: list[index].postBottomScrollView,
+                        videoURL: list[index].postVideoUrl,
+                        likeCount: list[index].postLikeCount,
+                        commentCount: list[index].postCommentCount,
+                        postHours: list[index].postHoursCount,
+                      );
+                    },
                   );
-                  //   ListTile(
-                  //   title: Text(data['postHeading']),
-                  //   subtitle: Text(data['postSubHeading']),
+                  //   ListView.builder(
+                  //   itemCount: docs.length,
+                  //   itemBuilder: (context, index) {
+                  //     Map<String, dynamic> data =
+                  //         docs[index].data() as Map<String, dynamic>;
+                  //     return postCard(
+                  //       heading: data['postHeading'],
+                  //       subHeading: data['postSubHeading'],
+                  //       // bottomScroll: data['postBottomScrollView'],
+                  //       videoURL: data['postVideoUrl'],
+                  //       likeCount: data['postLikeCount'],
+                  //       commentCount: data['postCommentCount'],
+                  //       postHours: data['postHoursCount'],
+                  //     );
+                  //     //   ListTile(
+                  //     //   title: Text(data['postHeading']),
+                  //     //   subtitle: Text(data['postSubHeading']),
+                  //     // );
+                  //   },
                   // );
+                })
+            : ListView.builder(
+                // shrinkWrap: true,
+                itemCount: list.length,
+                itemBuilder: (context, index) {
+                  return postCard(
+                    heading: list[index].postHeading,
+                    subHeading: list[index].postSubHeading,
+                    // bottomScroll: list[index].postBottomScrollView,
+                    videoURL: list[index].postVideoUrl,
+                    likeCount: list[index].postLikeCount,
+                    commentCount: list[index].postCommentCount,
+                    postHours: list[index].postHoursCount,
+                  );
                 },
-              );
-            }) :
-        ListView.builder(
-          // shrinkWrap: true,
-            itemCount: list.length,
-            itemBuilder: (context, index) {
-              return postCard(
-                heading: list[index].postHeading,
-                subHeading: list[index].postSubHeading,
-                // bottomScroll: list[index].postBottomScrollView,
-                videoURL: list[index].postVideoUrl,
-                likeCount: list[index].postLikeCount,
-                commentCount: list[index].postCommentCount,
-                postHours: list[index].postHoursCount,
-              );
-            },
-        ),
-        );
+              ));
   }
 
   Widget postCard({
@@ -138,15 +154,17 @@ class _PostPageState extends State<PostPage> {
           SizedBox(
             height: 5,
           ),
-          isLoggedIn ?
-          Image.network(videoURL,height: 300,width: MediaQuery.sizeOf(context).width,fit: BoxFit.fill,) :
-          PostVideo(videoURL: videoURL,),
+          // isLoggedIn ?
+          // Image.network(videoURL,height: 300,width: MediaQuery.sizeOf(context).width,fit: BoxFit.fill,) :
+          PostVideo(
+            videoURL: videoURL,
+          ),
           // postBottomScrollView(
           //   list: bottomScroll,
           //   listItem: bottomScroll,
           // ),
           SizedBox(
-            height: 5.0,
+            height: 10.0,
           ),
           postBottom(likeCount: likeCount, commentCount: commentCount),
           SizedBox(
