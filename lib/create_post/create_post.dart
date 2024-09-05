@@ -181,11 +181,17 @@ class _CreatePostState extends State<CreatePost> {
                   String postSubHeading = _controller.text.toString();
                   PostModel post = PostModel(id: postId,postHeading: _interest, postBottomScrollView: [word_1,word_2,word_3,word_4,word_5], postSubHeading: postSubHeading, postVideoUrl: downloadURL, postLikeCount: "0", postCommentCount: "0", postHoursCount: "0", timestamp: DateTime.now(),);
                   FirebaseFirestore firestore = FirebaseFirestore.instance;
-                  await firestore.collection('posts').doc(FirebaseAuth.instance.currentUser!.uid).collection("posts").doc(postId).set(post.toMap()).then((onValue){
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProfilePage()));
-                    showToast(message: "Post added successfully!");
+                  await firestore.collection('posts').doc(FirebaseAuth.instance.currentUser!.uid).collection("posts").doc(postId).set(post.toMap()).then((onValue) async {
+                    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProfilePage()));
+                    FirebaseFirestore firestoreUser = FirebaseFirestore.instance;
+                    await firestoreUser.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).set({"currentUserUid" : FirebaseAuth.instance.currentUser!.uid
+                    }).then((onValue){
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProfilePage()));
+                      showToast(message: "Post added successfully!");
+                    });
+                    print('Post added successfully!');
                   });
-                  print('Post added successfully!');
+
                   setState(() {
                     _isLoading = false;
                   });

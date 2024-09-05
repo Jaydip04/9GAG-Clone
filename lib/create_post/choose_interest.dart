@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gagclone/create_post/create_post.dart';
@@ -135,47 +136,64 @@ class _ChooseInterestState extends State<ChooseInterest> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          height: MediaQuery.sizeOf(context).height/1.1,
+          height: MediaQuery.sizeOf(context).height/1.06,
           padding: EdgeInsets.only(bottom: 20.0),
           color: Colors.white,
-          child: ListView.builder(
-            itemCount: interest.length,
-              itemBuilder: (context,index){
-            return ListTile(
-              visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
-              title: Text(
-                interest[index],
-                style: commonTextStyle(Colors.black, FontWeight.bold, 16.0, null),
-              ),
-              leading: Container(
-                margin: EdgeInsets.symmetric(vertical: 5.0),
-                padding: const EdgeInsets.all(5.0),
-                decoration: BoxDecoration(
-                    color: back[index], borderRadius: BorderRadius.circular(10.00)),
-                child: Icon(
-                  icon[index],
-                  color: iconColors[index],
-                  size: 24,
-                ),
-              ),
-              onTap: (){
-                  _interest = interest[index];
+          child: StreamBuilder<QuerySnapshot>(stream: FirebaseFirestore.instance
+              .collection('interest')
+              .doc("1")
+              .collection("interest")
+              .snapshots(), builder: (context,snapshot){
+            if (!snapshot.hasData) {
+              return Center(child: CircularProgressIndicator());
+            }
+            List<DocumentSnapshot> docs = snapshot.data!.docs;
+            return docs.length == 0 ?
+                Center(
+                  child: Text("no intersets"),
+                ) : ListView.builder(
+                itemCount: docs.length,
+                itemBuilder: (context,index){
+                  Map<String, dynamic> data =
+                  docs[index].data() as Map<String, dynamic>;
+                  return ListTile(
+                    visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
+                    title: Text(
+                      data["interest"],
+                      style: commonTextStyle(Colors.black, FontWeight.bold, 16.0, null),
+                    ),
+                    leading: Container(
+                      margin: EdgeInsets.symmetric(vertical: 5.0),
+                      padding: const EdgeInsets.all(5.0),
+                      decoration: BoxDecoration(
+                          color: back[index], borderRadius: BorderRadius.circular(10.00)),
+                      child: Icon(
+                        icon[index],
+                        color: iconColors[index],
+                        size: 24,
+                      ),
+                    ),
+                    onTap: (){
+                      _interest = data["interest"];
 
-                  Navigator.pop(context, {
-                    'interestText': _interest,
-                    'imageUrl': _url,
-                  });
-              },
-              // onTap: () {
-              //   BlocProvider.of<ItemSelectionBloc>(context).add(SelectItemEvent(interest));
-              // },
-              // selected: state is DrawerMenuSelected && state.selectMenuItem == 'Home',
-              // onTap: () {
-              //   context.read<DrawerBloc>().add(const SelectMenuItem('Home'));
-              //   Navigator.pop(context); // Close the drawer
-              // },
-            );
+                      Navigator.pop(context, {
+                        'interestText': _interest,
+                        'imageUrl': _url,
+                      });
+                    },
+                    // onTap: () {
+                    //   BlocProvider.of<ItemSelectionBloc>(context).add(SelectItemEvent(interest));
+                    // },
+                    // selected: state is DrawerMenuSelected && state.selectMenuItem == 'Home',
+                    // onTap: () {
+                    //   context.read<DrawerBloc>().add(const SelectMenuItem('Home'));
+                    //   Navigator.pop(context); // Close the drawer
+                    // },
+                  );
+                });
           })
+
+
           // ListView(
           //   children: <Widget>[
           //     Container(

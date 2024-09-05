@@ -15,63 +15,66 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:SingleChildScrollView(
-          child: Container(
-            color: Colors.white,
-            child: Column(
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 20,
-                        ),
-                        commonContainerBG("olympics"),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        commonContainerBG("deadpool"),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        commonContainerBG("wolverine"),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        commonContainerBG("trump"),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        commonContainerBG("biden"),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        commonContainerBG("stellar blade"),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        commonContainerBG("latest news"),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        commonContainerBG("most commented"),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        commonContainerBG("weekly highlights"),
-                      ],
-                    ),
+      body: SingleChildScrollView(
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                      ),
+                      commonContainerBG("olympics"),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      commonContainerBG("deadpool"),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      commonContainerBG("wolverine"),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      commonContainerBG("trump"),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      commonContainerBG("biden"),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      commonContainerBG("stellar blade"),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      commonContainerBG("latest news"),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      commonContainerBG("most commented"),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      commonContainerBG("weekly highlights"),
+                    ],
                   ),
                 ),
-                PostPage(),
-              ],
-            ),
+              ),
+              Container(
+                height: MediaQuery.sizeOf(context).height/1.2,
+                child: PostPage(),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 
   TextStyle commonTextStyle(color, weight, size) {

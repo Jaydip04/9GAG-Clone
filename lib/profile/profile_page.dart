@@ -685,8 +685,6 @@ class _ProfilePageState extends State<ProfilePage>
                               );
                             }),
                       ),
-
-
                       Center(
                         child: Text("No commented posts"),
                       ),

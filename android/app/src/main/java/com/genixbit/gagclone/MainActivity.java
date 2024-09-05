@@ -3,6 +3,7 @@ package com.genixbit.gagclone;
 import io.flutter.embedding.android.FlutterActivity;
 
 public class MainActivity extends FlutterActivity {
+
 //    private static final String CHANNEL = "com.example.notification";
 //    private static final String NOTIFICATION_CHANNEL_ID = "10001";
 //

@@ -65,77 +65,152 @@ class _PostPageState extends State<PostPage> {
       timestamp: DateTime.now(),
     ),
   ];
+  // Future<List<dynamic>> fetchAllUserUIDs() async {
+  //   QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('users').get();
+  //
+  //   List<dynamic> userUIDs = querySnapshot.docs.map((doc) => doc.id).toList();
+  //   return userUIDs;
+  // }
+  Future<List<dynamic>> fetchAllUserUIDs() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('users').get();
+      List<dynamic> userUIDs = querySnapshot.docs.map((doc) => doc.id).toList();
+      return userUIDs;
+    } catch (e) {
+      print('Error fetching user UIDs: $e');
+      return [];
+    }
+  }
+
+  Future<List<PostModel>> fetchAllPosts() async {
+    List<PostModel> allPosts = [];
+
+    List<dynamic> userUIDs = await fetchAllUserUIDs();
+    for (dynamic uid in userUIDs) {
+      QuerySnapshot userPostsSnapshot = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(uid)
+          .collection('posts')
+          .get();
+
+      List<PostModel> userPosts = userPostsSnapshot.docs
+          .map((doc) => PostModel.fromFirestore(doc))
+          .toList();
+      allPosts.addAll(userPosts);
+    }
+
+    return allPosts;
+  }
+
   bool isLoggedIn = FirebaseAuth.instance.currentUser != null ? true : false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: EdgeInsets.only(bottom: 20.0),
-        height: MediaQuery.sizeOf(context).height / 1.3,
-        child: isLoggedIn
-            ? StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('posts')
-                    .doc(FirebaseAuth.instance.currentUser!.uid)
-                    .collection("posts")
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  List<DocumentSnapshot> docs = snapshot.data!.docs;
-                  return
-                  //   docs.length == 0 ?
-                    ListView.builder(
-                    // shrinkWrap: true,
-                    itemCount: list.length,
-                    itemBuilder: (context, index) {
-                      return postCard(
-                        heading: list[index].postHeading,
-                        subHeading: list[index].postSubHeading,
-                        // bottomScroll: list[index].postBottomScrollView,
-                        videoURL: list[index].postVideoUrl,
-                        likeCount: list[index].postLikeCount,
-                        commentCount: list[index].postCommentCount,
-                        postHours: list[index].postHoursCount,
-                      );
-                    },
-                  );
-                  //   ListView.builder(
-                  //   itemCount: docs.length,
-                  //   itemBuilder: (context, index) {
-                  //     Map<String, dynamic> data =
-                  //         docs[index].data() as Map<String, dynamic>;
-                  //     return postCard(
-                  //       heading: data['postHeading'],
-                  //       subHeading: data['postSubHeading'],
-                  //       // bottomScroll: data['postBottomScrollView'],
-                  //       videoURL: data['postVideoUrl'],
-                  //       likeCount: data['postLikeCount'],
-                  //       commentCount: data['postCommentCount'],
-                  //       postHours: data['postHoursCount'],
-                  //     );
-                  //     //   ListTile(
-                  //     //   title: Text(data['postHeading']),
-                  //     //   subtitle: Text(data['postSubHeading']),
-                  //     // );
-                  //   },
-                  // );
-                })
-            : ListView.builder(
-                // shrinkWrap: true,
-                itemCount: list.length,
-                itemBuilder: (context, index) {
-                  return postCard(
-                    heading: list[index].postHeading,
-                    subHeading: list[index].postSubHeading,
-                    // bottomScroll: list[index].postBottomScrollView,
-                    videoURL: list[index].postVideoUrl,
-                    likeCount: list[index].postLikeCount,
-                    commentCount: list[index].postCommentCount,
-                    postHours: list[index].postHoursCount,
-                  );
-                },
-              ));
+      margin: EdgeInsets.only(bottom: 20.0),
+      // height: MediaQuery.sizeOf(context).height/1.25,
+      child: FutureBuilder<List<PostModel>>(
+        future: fetchAllPosts(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No posts found'));
+          } else {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                PostModel post = snapshot.data![index];
+                return postCard(
+                  heading: post.postHeading,
+                  subHeading: post.postSubHeading,
+                  // bottomScroll: data['postBottomScrollView'],
+                  videoURL: post.postVideoUrl,
+                  likeCount: post.postLikeCount,
+                  commentCount: post.postCommentCount,
+                  postHours: post.postHoursCount,
+                );
+
+                //   ListTile(
+                //   title: Text(post.postHeading),
+                //   subtitle: Text(post.postSubHeading),
+                //   trailing: Text(post.postHoursCount),
+                // );
+              },
+            );
+          }
+        },
+      ),
+    );
+    // isLoggedIn
+    //     ? StreamBuilder<QuerySnapshot>(
+    //         stream: FirebaseFirestore.instance
+    //             .collection('posts')
+    //             .doc()
+    //             .collection("posts")
+    //             .snapshots(),
+    //         builder: (context, snapshot) {
+    //           if (!snapshot.hasData) {
+    //             return Center(child: CircularProgressIndicator());
+    //           }
+    //           List<DocumentSnapshot> docs = snapshot.data!.docs;
+    //           return
+    //             docs.length == 0 ?
+    //             ListView.builder(
+    //             // shrinkWrap: true,
+    //             itemCount: list.length,
+    //             itemBuilder: (context, index) {
+    //               return postCard(
+    //                 heading: list[index].postHeading,
+    //                 subHeading: list[index].postSubHeading,
+    //                 // bottomScroll: list[index].postBottomScrollView,
+    //                 videoURL: list[index].postVideoUrl,
+    //                 likeCount: list[index].postLikeCount,
+    //                 commentCount: list[index].postCommentCount,
+    //                 postHours: list[index].postHoursCount,
+    //               );
+    //             },
+    //           ) :
+    //             ListView.builder(
+    //             itemCount: docs.length,
+    //             itemBuilder: (context, index) {
+    //               Map<String, dynamic> data =
+    //                   docs[index].data() as Map<String, dynamic>;
+    //               return
+    //               postCard(
+    //                 heading: data['postHeading'],
+    //                 subHeading: data['postSubHeading'],
+    //                 // bottomScroll: data['postBottomScrollView'],
+    //                 videoURL: data['postVideoUrl'],
+    //                 likeCount: data['postLikeCount'],
+    //                 commentCount: data['postCommentCount'],
+    //                 postHours: data['postHoursCount'],
+    //               );
+    //               //   ListTile(
+    //               //   title: Text(data['postHeading']),
+    //               //   subtitle: Text(data['postSubHeading']),
+    //               // );
+    //             },
+    //           );
+    //         })
+    //     : ListView.builder(
+    //         // shrinkWrap: true,
+    //         itemCount: list.length,
+    //         itemBuilder: (context, index) {
+    //           return postCard(
+    //             heading: list[index].postHeading,
+    //             subHeading: list[index].postSubHeading,
+    //             // bottomScroll: list[index].postBottomScrollView,
+    //             videoURL: list[index].postVideoUrl,
+    //             likeCount: list[index].postLikeCount,
+    //             commentCount: list[index].postCommentCount,
+    //             postHours: list[index].postHoursCount,
+    //           );
+    //         },
+    //       ));
   }
 
   Widget postCard({

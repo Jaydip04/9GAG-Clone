@@ -1,15 +1,16 @@
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gagclone/authentication/login_page.dart';
-import 'package:gagclone/authentication/signup_page.dart';
 import 'package:gagclone/bloc/drawer_bloc/drawer_bloc.dart';
 import 'package:gagclone/pages/home_page.dart';
-import 'package:gagclone/pages/setting%20_page.dart';
-import 'package:gagclone/profile/edit_profile_page.dart';
-
 import 'bloc/video/video_bloc.dart';
+import 'create_post/choose_interest.dart';
+import 'fetchAllUseruid.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,13 +28,16 @@ Future main() async {
     await Firebase.initializeApp();
   }
   runApp(MyApp());
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
+    // final PushNotificationService _notificationService =
+    //     PushNotificationService();
+    // _notificationService.initialize();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
@@ -41,8 +45,29 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(create: (_) => DrawerBloc()),
           BlocProvider(create: (_) => VideoBloc()),
-        ], child: HomePage(),
-      )
+        ],
+        child: HomePage(),
+      ),
     );
   }
 }
+
+// class PushNotificationService {
+//   FirebaseMessaging _fcm = FirebaseMessaging.instance;
+//   Future initialize() async {
+//       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+//       print('Got a message whilst in the foreground!');
+//       print('Message data: ${message.data}');
+//
+//       if (message.notification != null) {
+//         print('Message also contained a notification: ${message.notification}');
+//       }
+//     });
+//   }
+//
+//   Future<String?> getToken() async {
+//     String? token = await _fcm.getToken();
+//     print('Token: $token');
+//     return token;
+//   }
+// }

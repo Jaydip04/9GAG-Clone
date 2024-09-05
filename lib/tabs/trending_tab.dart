@@ -21,7 +21,10 @@ class _TrendingTabState extends State<TrendingTab> {
             child: Column(
               children: [
                 SizedBox(height: 5.0,),
-                PostPage(),
+                Container(
+                  height: MediaQuery.sizeOf(context).height/1.13,
+                  child: PostPage(),
+                ),
               ],
             ),
           ),

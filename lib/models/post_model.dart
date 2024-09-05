@@ -1,4 +1,5 @@
 import 'package:chewie/chewie.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:video_player/video_player.dart';
 
 class PostModel {
@@ -9,7 +10,7 @@ class PostModel {
   final String postLikeCount;
   final String postCommentCount;
   final String postHoursCount;
-  final List<String> postBottomScrollView;
+  final List<dynamic> postBottomScrollView;
   DateTime timestamp;
 
   PostModel({
@@ -51,6 +52,21 @@ class PostModel {
       postCommentCount: map["postCommentCount"],
       postHoursCount: map["postHoursCount"],
       timestamp: DateTime.parse(map['timestamp']),
+    );
+  }
+
+  factory PostModel.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data() as Map<String, dynamic>;
+    return PostModel(
+      id: data["id"],
+      postHeading: data["postHeading"],
+      postSubHeading: data["postSubHeading"],
+      postVideoUrl: data["postVideoUrl"],
+      postBottomScrollView: data["postBottomScrollView"],
+      postLikeCount: data["postLikeCount"],
+      postCommentCount: data["postCommentCount"],
+      postHoursCount: data["postHoursCount"],
+      timestamp: DateTime.parse(data['timestamp']),
     );
   }
 }
