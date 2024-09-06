@@ -349,7 +349,7 @@ class _LoginPageState extends State<LoginPage> {
 
                       if (user != null) {
                         showToast(message: "User is successfully signed in");
-                        Navigator.of(context).push(_HomeRoute());
+                        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                       } else {
                         showToast(message: "some error occured");
                       }
@@ -400,7 +400,7 @@ class _LoginPageState extends State<LoginPage> {
         );
         await _firebaseAuth.signInWithCredential(credential);
         showToast(message: "User is successfully signed in");
-        Navigator.of(context).push(_HomeRoute());
+        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
       }
 
     }catch(e) {
@@ -408,27 +408,5 @@ class _LoginPageState extends State<LoginPage> {
     }
 
 
-  }
-  Route _HomeRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-        const HomePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
   }
 }

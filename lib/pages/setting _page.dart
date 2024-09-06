@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gagclone/pages/home_page.dart';
-
 import '../common/toast.dart';
 
 class SettingPage extends StatefulWidget {
@@ -1105,7 +1103,7 @@ class _SettingPageState extends State<SettingPage> {
                                       40)),
                               onPressed: () {
                                 FirebaseAuth.instance.signOut().then((onValue) {
-                                  Navigator.of(context).push(_HomeRoute());
+                                  Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                                   showToast(message: "Successfully signed out");
                                 });
                               },
@@ -1175,28 +1173,5 @@ class _SettingPageState extends State<SettingPage> {
       fontSize: 16,
       fontWeight: FontWeight.w500,
     );
-  }
-
-  Route _HomeRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const HomePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
   }
 }

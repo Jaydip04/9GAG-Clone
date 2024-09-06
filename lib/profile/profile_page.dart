@@ -12,11 +12,7 @@ import 'package:gagclone/profile/edit_profile_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
-import '../create_post/create_post.dart';
-import '../create_post/create_post_form_link.dart';
 import 'package:video_player/video_player.dart';
-
-import '../models/post_model.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -67,10 +63,12 @@ class _ProfilePageState extends State<ProfilePage>
     if (pickedFile != null) {
       print('Picked image path: ${pickedFile.path}');
       setState(() {
-        _cameraVideo = File(pickedFile.path);
-        Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(videoUrl: _cameraVideo!,)));
+        _cameraVideo = File(pickedFile.path);Navigator.pushNamed(
+          context,
+          '/createPost',
+          arguments: _cameraVideo!,
+        );
       });
-      // Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
     } else {
       print('No image selected.');
     }
@@ -83,9 +81,12 @@ class _ProfilePageState extends State<ProfilePage>
       print('Picked image path: ${pickedFile.path}');
       setState(() {
         _galleryVideo = File(pickedFile.path);
-        Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(videoUrl: _galleryVideo!,)));
+        Navigator.pushNamed(
+          context,
+          '/createPost',
+          arguments: _galleryVideo!,
+        );
       });
-      // Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
     } else {
       print('No image selected.');
     }
@@ -206,8 +207,7 @@ class _ProfilePageState extends State<ProfilePage>
         actions: <Widget>[
           TextButton(
               onPressed: () {
-                Navigator.of(context).push(_EditProfilePageRoute());
-                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => EditProfilePage()));
+                Navigator.pushNamed(context, '/profile/editProfile');
               },
               child: Text(
                 "Edit profile",
@@ -268,8 +268,7 @@ class _ProfilePageState extends State<ProfilePage>
                             ),
                             GestureDetector(
                               onTap: () {
-                                Navigator.of(context)
-                                    .push(_EditProfilePageRoute());
+                                Navigator.pushNamed(context, '/profile/editProfile');
                               },
                               child: Container(
                                 margin: EdgeInsets.symmetric(
@@ -635,15 +634,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                         ),
                                                         GestureDetector(
                                                           onTap: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .push(
-                                                                    _CreatePostFormLinkRoute());
-                                                            // Navigator.pushReplacement(
-                                                            //     context,
-                                                            //     MaterialPageRoute(
-                                                            //         builder: (context) =>
-                                                            //             CreatePostFormLink()));
+                                                            Navigator.pushNamed(context, '/createPostFormLink');
                                                           },
                                                           child: Container(
                                                             margin: EdgeInsets
@@ -801,28 +792,6 @@ class _ProfilePageState extends State<ProfilePage>
         transitionDuration: Duration(milliseconds: 1000));
   }
 
-  Route _CreatePostFormLinkRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const CreatePostFormLink(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
 
   TextStyle commonTextStyle(color, weight, size) {
     return TextStyle(

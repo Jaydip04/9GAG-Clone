@@ -11,30 +11,6 @@ class ChooseInterest extends StatefulWidget {
 }
 
 class _ChooseInterestState extends State<ChooseInterest> {
-  List<String> interest = [
-    "Anime & Manga",
-    "Latest News",
-    "Humor",
-    "Memes",
-    "Gaming",
-    "WTF",
-    "Relationship & Dating",
-    "Animals & Pets",
-    "Science & Tech",
-    "Comic",
-    "Wholesome",
-      "Sports",
-    "Movies & TV",
-    "Cat",
-    "Food & Drinks",
-    "Lifestyle",
-    "Superhero",
-    "Crypto",
-    "Random",
-    "Woah",
-    "Profile Only"
-
-  ];
   List icon = [
     Icons.ac_unit,
     Icons.accessibility,
@@ -107,11 +83,6 @@ class _ChooseInterestState extends State<ChooseInterest> {
     Colors.yellow,
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    print(interest.length.toString());
-  }
   String _interest = "";
   String _icon = "";
   String _url = "assets/logo/app_logo.png";
@@ -181,105 +152,12 @@ class _ChooseInterestState extends State<ChooseInterest> {
                         'imageUrl': _url,
                       });
                     },
-                    // onTap: () {
-                    //   BlocProvider.of<ItemSelectionBloc>(context).add(SelectItemEvent(interest));
-                    // },
-                    // selected: state is DrawerMenuSelected && state.selectMenuItem == 'Home',
-                    // onTap: () {
-                    //   context.read<DrawerBloc>().add(const SelectMenuItem('Home'));
-                    //   Navigator.pop(context); // Close the drawer
-                    // },
                   );
                 });
           })
-
-
-          // ListView(
-          //   children: <Widget>[
-          //     Container(
-          //       color: Colors.white,
-          //       child: SafeArea(
-          //         child: Column(
-          //           children: [
-          //             commonListTile("Anime & Manga", Icons.ac_unit,
-          //                 Colors.yellow, Colors.red),
-          //             commonListTile("Latest News", Icons.ac_unit,
-          //                 Colors.green, Colors.yellow),
-          //             commonListTile("Humor", Icons.ac_unit,
-          //                 Colors.deepPurple, Colors.yellow),
-          //             commonListTile("Memes", Icons.ac_unit,
-          //                 Colors.deepPurpleAccent, Colors.yellow),
-          //             commonListTile("Gaming", Icons.ac_unit,
-          //                 Colors.orange, Colors.yellow),
-          //             commonListTile("WTF", Icons.ac_unit,
-          //                 Colors.lightGreen, Colors.yellow),
-          //             commonListTile(
-          //                 "Relationship & Dating",
-          //                 Icons.ac_unit,
-          //                 Colors.pinkAccent,
-          //                 Colors.yellow),
-          //             commonListTile("Animals & Pets", Icons.ac_unit,
-          //                 Colors.deepPurple, Colors.yellow),
-          //             commonListTile("Science & Tech", Icons.ac_unit,
-          //                 Colors.red, Colors.yellow),
-          //             commonListTile("Comic", Icons.ac_unit, Colors.pink,
-          //                 Colors.yellow),
-          //             commonListTile("Wholesome", Icons.ac_unit,
-          //                 Colors.yellowAccent, Colors.red),
-          //             commonListTile("Sports", Icons.ac_unit,
-          //                 Colors.redAccent, Colors.yellow),
-          //             commonListTile("Movies & TV", Icons.ac_unit,
-          //                 Colors.greenAccent, Colors.yellow),
-          //             commonListTile("Cat", Icons.ac_unit,
-          //                 Colors.orangeAccent, Colors.yellow),
-          //             commonListTile("Food & Drinks", Icons.ac_unit,
-          //                 Colors.red, Colors.yellow),
-          //             commonListTile("Lifestyle", Icons.ac_unit,
-          //                 Colors.blueAccent, Colors.yellow),
-          //             commonListTile("Superhero", Icons.ac_unit,
-          //                 Colors.red, Colors.yellow),
-          //             commonListTile("Crypto", Icons.ac_unit, Colors.blue,
-          //                 Colors.yellow),
-          //             commonListTile("Random", Icons.ac_unit, Colors.pink,
-          //                 Colors.yellow),
-          //             commonListTile("Woah", Icons.ac_unit, Colors.orange,
-          //                 Colors.yellow),
-          //             commonListTile("Profile Only", Icons.accessibility, Colors.black,
-          //                 Colors.white),
-          //           ],
-          //         ),
-          //       ),
-          //     )
-          //   ],
-          // ),
         ),
       ),
           );
-  }
-  ListTile commonListTile(name, icon, color, iconColor) {
-    return ListTile(
-      visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
-      title: Text(
-        name,
-        style: commonTextStyle(Colors.black, FontWeight.bold, 16.0, null),
-      ),
-      leading: Container(
-        margin: EdgeInsets.symmetric(vertical: 5.0),
-        padding: const EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-            color: color, borderRadius: BorderRadius.circular(10.00)),
-        child: Icon(
-          icon,
-          color: iconColor,
-          size: 24,
-        ),
-      ),
-      // selected: state is DrawerMenuSelected && state.selectMenuItem == 'Home',
-      // onTap: () {
-      //   context.read<DrawerBloc>().add(const SelectMenuItem('Home'));
-      //   Navigator.pop(context); // Close the drawer
-      // },
-    );
   }
   TextStyle commonTextStyle(color, weight, size, decoration) {
     return TextStyle(

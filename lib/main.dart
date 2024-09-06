@@ -3,8 +3,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gagclone/authentication/login_page.dart';
+import 'package:gagclone/authentication/signup_page.dart';
 import 'package:gagclone/bloc/drawer_bloc/drawer_bloc.dart';
+import 'package:gagclone/create_post/choose_interest.dart';
+import 'package:gagclone/create_post/create_post.dart';
+import 'package:gagclone/create_post/create_post_form_link.dart';
+import 'package:gagclone/create_post/tags.dart';
 import 'package:gagclone/pages/home_page.dart';
+import 'package:gagclone/pages/interests_page.dart';
+import 'package:gagclone/pages/notification_page.dart';
+import 'package:gagclone/pages/search_page.dart';
+import 'package:gagclone/pages/setting%20_page.dart';
+import 'package:gagclone/profile/change_email.dart';
+import 'package:gagclone/profile/change_password.dart';
+import 'package:gagclone/profile/edit_profile_page.dart';
 import 'package:gagclone/profile/profile_page.dart';
 import 'bloc/video/video_bloc.dart';
 
@@ -25,25 +38,38 @@ Future main() async {
     await Firebase.initializeApp();
   }
   runApp(MyApp());
-
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    // final PushNotificationService _notificationService =
-    //     PushNotificationService();
-    // _notificationService.initialize();
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      home: MultiBlocProvider(
-        providers: [
-          BlocProvider(create: (_) => DrawerBloc()),
-          BlocProvider(create: (_) => VideoBloc()),
-        ],
-        child: HomePage(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => DrawerBloc()),
+        BlocProvider(create: (_) => VideoBloc()),
+      ],
+      child: MaterialApp(
+        title: '9GAG',
+        initialRoute: '/',
+        routes: {
+          '/': (context) => HomePage(),
+          '/search': (context) => SearchPage(),
+          '/notification': (context) => NotificationPage(),
+          '/interest': (context) => InterestsPage(),
+          '/profile': (context) => ProfilePage(),
+          '/profile/editProfile': (context) => EditProfilePage(),
+          '/profile/editProfile/email': (context) => ChangeEmail(),
+          '/profile/editProfile/password': (context) => ChangePassword(),
+          '/login': (context) => LoginPage(),
+          '/createPostFormLink': (context) => CreatePostFormLink(),
+          '/signUp': (context) => SignupPage(),
+          '/setting': (context) => SettingPage(),
+          '/createPost': (context) => CreatePost(),
+          '/createPost/chooseInterest': (context) => ChooseInterest(),
+          '/createPost/tag': (context) => Tags(),
+        },
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

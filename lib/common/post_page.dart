@@ -65,12 +65,6 @@ class _PostPageState extends State<PostPage> {
       timestamp: DateTime.now(),
     ),
   ];
-  // Future<List<dynamic>> fetchAllUserUIDs() async {
-  //   QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('users').get();
-  //
-  //   List<dynamic> userUIDs = querySnapshot.docs.map((doc) => doc.id).toList();
-  //   return userUIDs;
-  // }
   Future<List<dynamic>> fetchAllUserUIDs() async {
     try {
       QuerySnapshot querySnapshot =
@@ -109,7 +103,6 @@ class _PostPageState extends State<PostPage> {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: 20.0),
-      // height: MediaQuery.sizeOf(context).height/1.25,
       child: FutureBuilder<List<PostModel>>(
         future: fetchAllPosts(),
         builder: (context, snapshot) {
@@ -133,12 +126,6 @@ class _PostPageState extends State<PostPage> {
                   commentCount: post.postCommentCount,
                   postHours: post.postHoursCount,
                 );
-
-                //   ListTile(
-                //   title: Text(post.postHeading),
-                //   subtitle: Text(post.postSubHeading),
-                //   trailing: Text(post.postHoursCount),
-                // );
               },
             );
           }

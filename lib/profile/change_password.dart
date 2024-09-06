@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'edit_profile_page.dart';
-
 class ChangePassword extends StatefulWidget {
   const ChangePassword({super.key});
 
@@ -35,9 +33,7 @@ class _ChangePasswordState extends State<ChangePassword> {
         actions: <Widget>[
           TextButton(
               onPressed: () {
-                Navigator.of(context).push(_EditProfilePageRoute());
-                // Navigator.push(context,
-                //     MaterialPageRoute(builder: (_) => EditProfilePage()));
+                Navigator.pop(context);
               },
               child: Text(
                 "Save",
@@ -102,28 +98,6 @@ class _ChangePasswordState extends State<ChangePassword> {
           ),
         ),
       ),
-    );
-  }
-  Route _EditProfilePageRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const EditProfilePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000)
     );
   }
   TextStyle commonTextStyle(color, weight, size) {

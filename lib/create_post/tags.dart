@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gagclone/create_post/create_post.dart';
 
 class Tags extends StatefulWidget {
   const Tags({super.key});
@@ -73,10 +72,8 @@ class _TagsState extends State<Tags> {
 
                   tag = "$result_1 $result_2 $result_3 $result_4 $result_5";
 
-                  Navigator.pop(context,  tag);
+                  Navigator.pop(context, tag);
                 },
-                // => Navigator.pushReplacement(
-                //     context, MaterialPageRoute(builder: (_) => CreatePost())),
                 child: Text(
                   "OK",
                   style: commonTextStyle(

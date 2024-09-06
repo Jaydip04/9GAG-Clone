@@ -5,9 +5,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gagclone/profile/change_email.dart';
-import 'package:gagclone/profile/change_password.dart';
-import 'package:gagclone/profile/profile_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -230,12 +227,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             _isLoading = false;
                           });
                       showToast(message: "Saved");
-                      Navigator.of(context).push(_ProfilePageRoute());
+                      Navigator.pop(context);
                     }).catchError((error) {
                       showToast(message: "Some error happend");
                     });
                   }
-                  // Navigator.of(context).push(_ProfilePageRoute());
                 },
                 child: Text(
                   "Save",
@@ -1473,8 +1469,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(_EmailRoute());
-                    // Navigator.push(context, MaterialPageRoute(builder: (_) => ChangeEmail()));
+                    Navigator.pushNamed(context, '/profile/editProfile/email');
                   },
                   child: Container(
                     color: Colors.white,
@@ -1499,8 +1494,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(_PasswordRoute());
-                    // Navigator.push(context, MaterialPageRoute(builder: (_) => ChangePassword()));
+                    Navigator.pushNamed(context, '/profile/editProfile/password');
                   },
                   child: Container(
                     color: Colors.white,
@@ -1571,75 +1565,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
           ),
         ));
-  }
-
-  Route _ProfilePageRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const ProfilePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _EmailRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const ChangeEmail(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _PasswordRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const ChangePassword(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
   }
 
   TextStyle commonTextStyle(color, weight, size) {

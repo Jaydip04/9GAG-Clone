@@ -34,9 +34,7 @@ class _ChangeEmailState extends State<ChangeEmail> {
         actions: <Widget>[
           TextButton(
               onPressed: () {
-                Navigator.of(context).push(_EditProfilePageRoute());
-                // Navigator.push(context,
-                //     MaterialPageRoute(builder: (_) => EditProfilePage()));
+                Navigator.pop(context);
               },
               child: Text(
                 "Save",

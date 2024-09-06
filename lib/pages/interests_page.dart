@@ -4,11 +4,8 @@ import 'package:gagclone/common/post_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
-
-import '../create_post/create_post_form_link.dart';
 import '../tabs/ask_tab.dart';
 import '../tabs/fresh_tab.dart';
-import 'home_page.dart';
 
 class InterestsPage extends StatefulWidget {
   const InterestsPage({super.key});
@@ -221,11 +218,7 @@ class _InterestsPageState extends State<InterestsPage> with TickerProviderStateM
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context).push(_CreatePostRoute());
-                          // Navigator.pushReplacement(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) => CreatePostFormLink()));
+                          Navigator.pushNamedAndRemoveUntil(context, '/createPostFormLink', (route) => false);
                         },
                         child: Container(
                           margin: EdgeInsets.symmetric(
@@ -432,12 +425,7 @@ class _InterestsPageState extends State<InterestsPage> with TickerProviderStateM
                                                               ),
                                                               GestureDetector(
                                                                   onTap: () {
-                                                                    Navigator.of(context).push(_HomeRoute());
-                                                                    // Navigator.pushReplacement(
-                                                                    //     context,
-                                                                    //     MaterialPageRoute(
-                                                                    //         builder: (_) =>
-                                                                    //             HomePage()));
+                                                                    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                                                                   },
                                                                   child: Text(
                                                                     "Hide",
@@ -628,50 +616,6 @@ class _InterestsPageState extends State<InterestsPage> with TickerProviderStateM
           ),
         ),
       ),
-    );
-  }
-  Route _CreatePostRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const CreatePostFormLink(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000)
-    );
-  }
-  Route _HomeRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const HomePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000)
     );
   }
 

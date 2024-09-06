@@ -6,15 +6,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gagclone/authentication/login_page.dart';
-import 'package:gagclone/authentication/signup_page.dart';
-import 'package:gagclone/create_post/create_post.dart';
-import 'package:gagclone/create_post/create_post_form_link.dart';
-import 'package:gagclone/pages/interests_page.dart';
-import 'package:gagclone/pages/notification_page.dart';
-import 'package:gagclone/pages/search_page.dart';
-import 'package:gagclone/pages/setting%20_page.dart';
-import 'package:gagclone/profile/profile_page.dart';
 import 'package:gagclone/tabs/ask_tab.dart';
 import 'package:gagclone/tabs/fresh_tab.dart';
 import 'package:gagclone/tabs/home_tab.dart';
@@ -106,12 +97,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         setState(() {
           userName = data as String?;
         });
-        // if(userName == null){
-        //   userName = profileName.toString().toLowerCase().split(' ').reversed.join(' ');
-        //   setState(() {
-        //     userName = data as String?;
-        //   });
-        // }
       });
     } else {
       userName = "Sign up or Log in" as String?;
@@ -146,7 +131,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final ImagePicker _picker = ImagePicker();
   File? _cameraVideo;
   File? _galleryVideo;
-  // String? _videoPath;
 
   Future<void> _openCamera() async {
     final pickedFile  = await _picker.pickVideo(source: ImageSource.camera);
@@ -154,24 +138,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       print('Picked image path: ${pickedFile.path}');
       setState(() {
         _cameraVideo = File(pickedFile.path);
-        Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(videoUrl: _cameraVideo!,)));
+        Navigator.pushNamed(
+          context,
+          '/createPost',
+          arguments: _cameraVideo!,
+        );
       });
-      // Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
     } else {
       print('No image selected.');
     }
   }
 
   Future<void> _openGallery() async {
-    // final pickedFile  = await _picker.pickImage(source: ImageSource.gallery);
     final pickedFile = await _picker.pickVideo(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
-        // _videoPath = video.path;
-        // print("Video Path : $_videoPath");
         _galleryVideo = File(pickedFile.path);
-        Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(videoUrl: _galleryVideo!,)));
+        Navigator.pushNamed(
+          context,
+          '/createPost',
+          arguments: _galleryVideo!,
+        );
       });
     } else {
       print('No video selected.');
@@ -224,7 +212,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             // search page
             IconButton(
               onPressed: () {
-                Navigator.of(context).push(_SearchRoute());
+                Navigator.pushNamed(context, '/search');
               },
               icon: Icon(
                 Icons.search,
@@ -234,7 +222,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             IconButton(
               onPressed: () {
                 if (isLoggedIn) {
-                  Navigator.of(context).push(_NotificationRoute());
+                  Navigator.pushNamed(context, '/notification');
                 } else {
                   show_bottom_sheet();
                 }
@@ -275,7 +263,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   GestureDetector(
                                     onTap: (){
                                         if (isLoggedIn) {
-                                          Navigator.of(context).push(_ProfileRoute());
+                                          Navigator.pushNamed(context, '/profile');
                                         } else {
                                           show_bottom_sheet();
                                       }
@@ -350,7 +338,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   GestureDetector(
                                     onTap: (){
                                       if (isLoggedIn) {
-                                        Navigator.of(context).push(_ProfileRoute());
+                                        Navigator.pushNamed(context, '/profile');
                                       } else {
                                         show_bottom_sheet();
                                       }
@@ -399,8 +387,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 children: [
                                   GestureDetector(
                                     onTap: () {
-                                      Navigator.of(context)
-                                          .push(_SettingRoute());
+                                      Navigator.pushNamed(context, '/setting');
                                     },
                                     child: Row(
                                       mainAxisAlignment:
@@ -744,8 +731,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         size: 20,
       ),
       onTap: () {
-        Navigator.of(context).push(_InterestsRoute());
-        // Navigator.push(context, MaterialPageRoute(builder: (_) => InterestsPage()));
+        Navigator.pushNamed(context, '/interest');
       },
     );
   }
@@ -774,190 +760,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         width: 100,
       );
     }
-  }
-
-  Route _SearchRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const SearchPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _LoginRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const LoginPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _NotificationRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const NotificationPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _SignRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const SignupPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _ProfileRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const ProfilePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _SettingRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const SettingPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _InterestsRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const InterestsPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _CreatePostRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const CreatePostFormLink(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
   }
 
   Future show_bottom_sheet() {
@@ -1127,12 +929,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(_SignRoute());
-                    // Navigator.pushReplacement(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) =>
-                    //             SignupPage()));
+                    Navigator.pushNamed(context, '/signUp');
                   },
                   child: Container(
                     margin:
@@ -1161,7 +958,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(_LoginRoute());
+                    Navigator.pushNamed(context, '/login');
                   },
                   child: Container(
                     margin: EdgeInsets.symmetric(horizontal: 60.0),
@@ -1295,7 +1092,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 // create post form link
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(_CreatePostRoute());
+                    Navigator.pushNamed(context, '/createPostFormLink');
                   },
                   child: Container(
                     margin:
@@ -1348,7 +1145,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
         await _firebaseAuth.signInWithCredential(credential);
         showToast(message: "User is successfully signed in");
-        Navigator.of(context).push(_HomeRoute());
+        Navigator.of(context).pushReplacement(_HomeRoute());
       }
     } catch (e) {
       showToast(message: "some error occured $e");

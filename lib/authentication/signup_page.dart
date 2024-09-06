@@ -240,9 +240,8 @@ class _SignupPageState extends State<SignupPage> {
                                 "Date" : date,
                               };
                               reference.child(FirebaseAuth.instance.currentUser!.uid).set(userProfile).then((_) {
-                                // print("Profile Data successfully!");
                                 showToast(message: "User is successfully created");
-                                Navigator.of(context).push(_HomeRoute());
+                                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                               }).catchError((error) {
                                 showToast(message: "Some error happend");
                               });
@@ -274,27 +273,5 @@ class _SignupPageState extends State<SignupPage> {
         fontWeight: weight,
         fontSize: size,
         decoration: decoration);
-  }
-  Route _HomeRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-        const HomePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
   }
 }

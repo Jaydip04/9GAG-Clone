@@ -18,9 +18,7 @@ import 'package:video_player/video_player.dart';
 import '../models/post_model.dart';
 
 class CreatePost extends StatefulWidget {
-  // final File imageFile;
-  final File videoUrl;
-  const CreatePost({super.key, required this.videoUrl,});
+  const CreatePost({super.key,});
 
   @override
   State<CreatePost> createState() => _CreatePostState();
@@ -44,28 +42,18 @@ class _CreatePostState extends State<CreatePost> {
     });
   }
   Future<String> uploadImage(File imageFile) async {
-    // FirebaseStorage storage = FirebaseStorage.instance;
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     Reference storageReference = FirebaseStorage.instance.ref().child("videos/$fileName");
     UploadTask uploadTask = storageReference.putFile(File(imageFile.path));
     TaskSnapshot taskSnapshot = await uploadTask;
     String downloadURL = await taskSnapshot.ref.getDownloadURL();
-
     return downloadURL;
-
-    // Reference ref = storage.ref().child('posts/$fileName');
-    // UploadTask uploadTask = ref.putFile(imageFile);
-    //
-    // TaskSnapshot taskSnapshot = await uploadTask;
-    // return await taskSnapshot.ref.getDownloadURL();
   }
-  // Future<void> addPost(PostModel post) async {
-  //
-  // }
 
 
   @override
   Widget build(BuildContext context) {
+    final File requiredParameter = ModalRoute.of(context)!.settings.arguments as File;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -131,11 +119,7 @@ class _CreatePostState extends State<CreatePost> {
                               ),
                               GestureDetector(
                                   onTap: () {
-                                    Navigator.of(context).push(_HomeRoute());
-                                    // Navigator.pushReplacement(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //         builder: (_) => HomePage()));
+                                    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                                   },
                                   child: Text(
                                     "Discard",
@@ -173,20 +157,16 @@ class _CreatePostState extends State<CreatePost> {
                 String word_4 = words[3];
                 String word_5 = words[4];
 
-                // String imageUrl = await uploadImage(widget.imageFile);
                 try {
-                  // Upload the image to Firebase Storage
-                  // String imageUrl = await uploadImage(widget.videoUrl as File);
-                  String? downloadURL = await uploadImage(widget.videoUrl);
+                  String? downloadURL = await uploadImage(requiredParameter);
                   String postSubHeading = _controller.text.toString();
                   PostModel post = PostModel(id: postId,postHeading: _interest, postBottomScrollView: [word_1,word_2,word_3,word_4,word_5], postSubHeading: postSubHeading, postVideoUrl: downloadURL, postLikeCount: "0", postCommentCount: "0", postHoursCount: "0", timestamp: DateTime.now(),);
                   FirebaseFirestore firestore = FirebaseFirestore.instance;
                   await firestore.collection('posts').doc(FirebaseAuth.instance.currentUser!.uid).collection("posts").doc(postId).set(post.toMap()).then((onValue) async {
-                    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProfilePage()));
                     FirebaseFirestore firestoreUser = FirebaseFirestore.instance;
                     await firestoreUser.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).set({"currentUserUid" : FirebaseAuth.instance.currentUser!.uid
                     }).then((onValue){
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProfilePage()));
+                      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                       showToast(message: "Post added successfully!");
                     });
                     print('Post added successfully!');
@@ -235,18 +215,13 @@ class _CreatePostState extends State<CreatePost> {
             children: [
               GestureDetector(
                 onTap: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ChooseInterest()),
-                  );
-                  if (result != null) {
+                  final result = await Navigator.pushNamed(context, '/createPost/chooseInterest');
+                  if (result != null  && result is Map<String, dynamic>) {
                     setState(() {
                       _interest = result['interestText'];
                       _url = result['imageUrl'];
                     });
                   }
-                  // Navigator.of(context).push(_ChooseInterestRoute());
-                  // Navigator.push(context, MaterialPageRoute(builder: (_) => ChooseInterest()));
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -319,17 +294,12 @@ class _CreatePostState extends State<CreatePost> {
               ),
               GestureDetector(
                 onTap: () async{
-                  final tags = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Tags()),
-                  );
+                  final tags = await Navigator.pushNamed(context, '/createPost/tag') as String;
                   if (tags != null) {
                     setState(() {
                       _tags = tags;
                     });
                   }
-                  // Navigator.of(context).push(_TagsRoute());
-                  // Navigator.push(context, MaterialPageRoute(builder: (_) => Tags()));
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -349,11 +319,6 @@ class _CreatePostState extends State<CreatePost> {
                         children: [
                           Row(
                             children: [
-                              // TextField(
-                              //   decoration: InputDecoration(labelText: 'Tags'),
-                              //   controller: TextEditingController(text: _tags),
-                              //   readOnly: true,
-                              // ),
                               Text(
                                 "Tags",
                                 style: commonTextStyle(
@@ -382,80 +347,12 @@ class _CreatePostState extends State<CreatePost> {
               ),
               SizedBox(height: 20.00,),
               // widget.imageFile != null ? Image.file(widget.imageFile,width: MediaQuery.sizeOf(context).width,height: 400.00,fit: BoxFit.fill,):
-              PostVideo(videoURL: widget.videoUrl.path,)
+              PostVideo(videoURL: requiredParameter.path,)
             ],
           ),
         ),
       ),
     );
-  }
-
-  Route _HomeRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const HomePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _ChooseInterestRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const ChooseInterest(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
-  }
-
-  Route _TagsRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const Tags(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
   }
 
   TextStyle commonTextStyle(color, weight, size, decoration) {
