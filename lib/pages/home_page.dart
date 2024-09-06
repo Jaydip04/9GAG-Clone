@@ -1,10 +1,10 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gagclone/authentication/login_page.dart';
 import 'package:gagclone/authentication/signup_page.dart';
@@ -46,6 +46,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    _requestPermissions();
     _tabController = TabController(
         length: 5,
         vsync: this,
@@ -61,6 +63,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     listenToUserName();
     listenToProfileName();
     _fetchProfileImageUrl();
+  }
+
+  Future<void> _requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.photos,
+      Permission.videos,
+      Permission.storage,
+    ].request();
+
+    if (statuses[Permission.camera]!.isDenied) {
+    }
+    if (statuses[Permission.photos]!.isDenied) {
+    }
+    if (statuses[Permission.videos]!.isDenied) {
+    }
+    if (statuses[Permission.storage]!.isDenied) {
+    }
   }
   void listenToProfileName() {
     if (isLoggedIn) {
@@ -124,16 +144,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   final ImagePicker _picker = ImagePicker();
-  File? _image;
-  File? _video;
+  File? _cameraVideo;
+  File? _galleryVideo;
   // String? _videoPath;
 
   Future<void> _openCamera() async {
-    final pickedFile  = await _picker.pickImage(source: ImageSource.camera);
+    final pickedFile  = await _picker.pickVideo(source: ImageSource.camera);
     if (pickedFile  != null) {
       print('Picked image path: ${pickedFile.path}');
       setState(() {
-        _image = File(pickedFile.path);
+        _cameraVideo = File(pickedFile.path);
+        Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(videoUrl: _cameraVideo!,)));
       });
       // Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
     } else {
@@ -149,8 +170,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       setState(() {
         // _videoPath = video.path;
         // print("Video Path : $_videoPath");
-        _video = File(pickedFile.path);
-        Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(videoUrl: _video!,)));
+        _galleryVideo = File(pickedFile.path);
+        Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(videoUrl: _galleryVideo!,)));
       });
     } else {
       print('No video selected.');
@@ -670,7 +691,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             );
           },
         ),
-
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             if (isLoggedIn) {

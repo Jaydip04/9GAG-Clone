@@ -139,7 +139,7 @@ class _CreatePostState extends State<CreatePost> {
                                   },
                                   child: Text(
                                     "Discard",
-                                    style: commonTextStyle(Colors.indigo,
+                                    style: commonTextStyle(Colors.red,
                                         FontWeight.bold, 14.00, null),
                                   ))
                             ],
@@ -488,7 +488,7 @@ class _PostVideoState extends State<PostVideo> {
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
       looping: true,
-      allowMuting: true,
+      allowMuting: false,
       showControls: true,
       autoInitialize: true,
     );

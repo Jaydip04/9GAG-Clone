@@ -1,19 +1,16 @@
-import 'dart:developer';
-
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gagclone/bloc/drawer_bloc/drawer_bloc.dart';
 import 'package:gagclone/pages/home_page.dart';
+import 'package:gagclone/profile/profile_page.dart';
 import 'bloc/video/video_bloc.dart';
-import 'create_post/choose_interest.dart';
-import 'fetchAllUseruid.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   if (kIsWeb) {
     await Firebase.initializeApp(
       options: FirebaseOptions(
@@ -28,7 +25,7 @@ Future main() async {
     await Firebase.initializeApp();
   }
   runApp(MyApp());
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
 }
 
 class MyApp extends StatelessWidget {

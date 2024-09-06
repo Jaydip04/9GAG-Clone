@@ -6,12 +6,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:gagclone/common/toast.dart';
 import 'package:gagclone/profile/edit_profile_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
+import '../create_post/create_post.dart';
 import '../create_post/create_post_form_link.dart';
 import 'package:video_player/video_player.dart';
+
+import '../models/post_model.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -30,6 +35,7 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     _tabController = TabController(
         length: 4,
         vsync: this,
@@ -46,7 +52,6 @@ class _ProfilePageState extends State<ProfilePage>
     _fetchProfileImageUrl();
   }
 
-
   @override
   void dispose() {
     _tabController.dispose();
@@ -54,14 +59,16 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   final ImagePicker _picker = ImagePicker();
-  File? _image;
+  File? _cameraVideo;
+  File? _galleryVideo;
 
   Future<void> _openCamera() async {
-    final pickedFile  = await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile  != null) {
+    final pickedFile = await _picker.pickVideo(source: ImageSource.camera);
+    if (pickedFile != null) {
       print('Picked image path: ${pickedFile.path}');
       setState(() {
-        _image = File(pickedFile.path);
+        _cameraVideo = File(pickedFile.path);
+        Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(videoUrl: _cameraVideo!,)));
       });
       // Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
     } else {
@@ -70,12 +77,13 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Future<void> _openGallery() async {
-    final pickedFile  = await _picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await _picker.pickVideo(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       print('Picked image path: ${pickedFile.path}');
       setState(() {
-        _image = File(pickedFile.path);
+        _galleryVideo = File(pickedFile.path);
+        Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(videoUrl: _galleryVideo!,)));
       });
       // Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
     } else {
@@ -152,6 +160,7 @@ class _ProfilePageState extends State<ProfilePage>
       userName = "9GAG" as String?;
     }
   }
+
   void listenToProfileName() {
     if (isLoggedIn) {
       DatabaseReference reference = FirebaseDatabase.instance
@@ -184,7 +193,14 @@ class _ProfilePageState extends State<ProfilePage>
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          userName == null ? profileName.toString().toLowerCase().split(' ').reversed.join(' ') : userName.toString(),
+          userName == null
+              ? profileName
+                  .toString()
+                  .toLowerCase()
+                  .split(' ')
+                  .reversed
+                  .join(' ')
+              : userName.toString(),
           style: commonTextStyle(Colors.black, FontWeight.bold, 18.00),
         ),
         actions: <Widget>[
@@ -310,18 +326,17 @@ class _ProfilePageState extends State<ProfilePage>
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(30.0),
-                            child:  imageUrl != null
+                            child: imageUrl != null
                                 ? CircleAvatar(
-                              radius: 35,
-                              backgroundImage:
-                              NetworkImage(imageUrl!),
-                            )
+                                    radius: 35,
+                                    backgroundImage: NetworkImage(imageUrl!),
+                                  )
                                 : CircleAvatar(
-                              radius: 35,
-                              backgroundColor: Colors.grey,
-                              child: Icon(Icons.person,
-                                  size: 40, color: Colors.white),
-                            ),
+                                    radius: 35,
+                                    backgroundColor: Colors.grey,
+                                    child: Icon(Icons.person,
+                                        size: 40, color: Colors.white),
+                                  ),
                           ),
                         ],
                       ),
@@ -384,15 +399,16 @@ class _ProfilePageState extends State<ProfilePage>
                       horizontal: 15.0, vertical: 10.0),
                   child: Text(
                     "My Funny Collection",
-                    style: commonTextStyle(Colors.black, FontWeight.bold, 14.00),
+                    style:
+                        commonTextStyle(Colors.black, FontWeight.bold, 14.00),
                   ),
                 ),
                 Divider(),
                 TabBar(
                   controller: _tabController,
                   labelColor: Colors.black,
-                  labelStyle:
-                      TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                  labelStyle: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
                   unselectedLabelColor: Colors.grey,
                   dividerColor: Colors.white,
                   indicatorColor: Colors.black,
@@ -404,7 +420,6 @@ class _ProfilePageState extends State<ProfilePage>
                     Tab(text: 'Saved'),
                   ],
                 ),
-
                 Container(
                   margin: EdgeInsets.only(bottom: 20.0),
                   height: MediaQuery.sizeOf(context).height / 1.4,
@@ -421,268 +436,324 @@ class _ProfilePageState extends State<ProfilePage>
                                 .snapshots(),
                             builder: (context, snapshot) {
                               if (!snapshot.hasData) {
-                                return Center(child: CircularProgressIndicator());
+                                return Center(
+                                    child: CircularProgressIndicator());
                               }
                               List<DocumentSnapshot> docs = snapshot.data!.docs;
-                              return docs.length == 0 ?
-                              Column(
-                                children: [
-                                  Text(
-                                    'No Posts',
-                                    style: commonTextStyle(
-                                        Colors.black, FontWeight.bold, 16.00),
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  Text(
-                                    "Let's make something creative for fun!",
-                                    style: commonTextStyle(
-                                        Colors.grey, FontWeight.bold, 14.00),
-                                  ),
-                                  SizedBox(
-                                    height: 15.0,
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      showModalBottomSheet(
-                                          transitionAnimationController:
-                                          AnimationController(
-                                            duration: const Duration(milliseconds: 1000),
-                                            vsync: Navigator.of(context),
-                                          ),
-                                          backgroundColor: Colors.white,
-                                          constraints: BoxConstraints.loose(Size(
-                                              MediaQuery.of(context).size.width,
-                                              MediaQuery.of(context).size.height / 2.3)),
-                                          context: context,
-                                          isScrollControlled: true,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(0.0),
-                                              topRight: Radius.circular(0.0),
+                              return docs.length == 0
+                                  ? Column(
+                                      children: [
+                                        Text(
+                                          'No Posts',
+                                          style: commonTextStyle(Colors.black,
+                                              FontWeight.bold, 16.00),
+                                        ),
+                                        SizedBox(
+                                          height: 10.0,
+                                        ),
+                                        Text(
+                                          "Let's make something creative for fun!",
+                                          style: commonTextStyle(Colors.grey,
+                                              FontWeight.bold, 14.00),
+                                        ),
+                                        SizedBox(
+                                          height: 15.0,
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            showModalBottomSheet(
+                                                transitionAnimationController:
+                                                    AnimationController(
+                                                  duration: const Duration(
+                                                      milliseconds: 1000),
+                                                  vsync: Navigator.of(context),
+                                                ),
+                                                backgroundColor: Colors.white,
+                                                constraints:
+                                                    BoxConstraints.loose(Size(
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            2.3)),
+                                                context: context,
+                                                isScrollControlled: true,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topLeft:
+                                                        Radius.circular(0.0),
+                                                    topRight:
+                                                        Radius.circular(0.0),
+                                                  ),
+                                                ),
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return SingleChildScrollView(
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                          height: 100.0,
+                                                          child: mediaList
+                                                                  .isEmpty
+                                                              ? Center(
+                                                                  child:
+                                                                      CircularProgressIndicator())
+                                                              : ListView
+                                                                  .builder(
+                                                                  scrollDirection:
+                                                                      Axis.horizontal,
+                                                                  itemCount:
+                                                                      mediaList
+                                                                          .length,
+                                                                  itemBuilder:
+                                                                      (context,
+                                                                          index) {
+                                                                    return FutureBuilder<
+                                                                        Widget>(
+                                                                      future: _buildMediaThumbnail(
+                                                                          mediaList[
+                                                                              index]),
+                                                                      builder:
+                                                                          (context,
+                                                                              snapshot) {
+                                                                        if (snapshot.connectionState ==
+                                                                            ConnectionState.done) {
+                                                                          return Container(
+                                                                            margin:
+                                                                                EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+                                                                            child:
+                                                                                snapshot.data,
+                                                                          );
+                                                                        } else {
+                                                                          return Container(
+                                                                            width:
+                                                                                100.0,
+                                                                            height:
+                                                                                100.0,
+                                                                            child:
+                                                                                Center(child: CircularProgressIndicator()),
+                                                                          );
+                                                                        }
+                                                                      },
+                                                                    );
+                                                                  },
+                                                                ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 20,
+                                                        ),
+                                                        GestureDetector(
+                                                          onTap: _openCamera,
+                                                          child: Container(
+                                                            margin: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        10.0,
+                                                                    vertical:
+                                                                        5.0),
+                                                            width:
+                                                                double.infinity,
+                                                            child: Row(
+                                                              children: [
+                                                                Padding(
+                                                                    padding: const EdgeInsets
+                                                                        .only(
+                                                                        left:
+                                                                            10),
+                                                                    child: Icon(
+                                                                        Icons
+                                                                            .camera_alt,
+                                                                        color: Colors
+                                                                            .grey)),
+                                                                SizedBox(
+                                                                  width: 30.0,
+                                                                ),
+                                                                Text(
+                                                                  "Use Camera",
+                                                                  style:
+                                                                      commonTextStyle(
+                                                                    Colors
+                                                                        .black,
+                                                                    FontWeight
+                                                                        .bold,
+                                                                    14.00,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 20.0,
+                                                        ),
+                                                        GestureDetector(
+                                                          onTap: _openGallery,
+                                                          child: Container(
+                                                            margin: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        10.0,
+                                                                    vertical:
+                                                                        5.0),
+                                                            width:
+                                                                double.infinity,
+                                                            child: Row(
+                                                              children: [
+                                                                Padding(
+                                                                    padding: const EdgeInsets
+                                                                        .only(
+                                                                        left:
+                                                                            10),
+                                                                    child: Icon(
+                                                                        Icons
+                                                                            .image,
+                                                                        color: Colors
+                                                                            .grey)),
+                                                                SizedBox(
+                                                                  width: 30.0,
+                                                                ),
+                                                                Text(
+                                                                  "Choose Form Gallery",
+                                                                  style:
+                                                                      commonTextStyle(
+                                                                    Colors
+                                                                        .black,
+                                                                    FontWeight
+                                                                        .bold,
+                                                                    14.00,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 20.0,
+                                                        ),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .push(
+                                                                    _CreatePostFormLinkRoute());
+                                                            // Navigator.pushReplacement(
+                                                            //     context,
+                                                            //     MaterialPageRoute(
+                                                            //         builder: (context) =>
+                                                            //             CreatePostFormLink()));
+                                                          },
+                                                          child: Container(
+                                                            margin: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        10.0,
+                                                                    vertical:
+                                                                        5.0),
+                                                            width:
+                                                                double.infinity,
+                                                            child: Row(
+                                                              children: [
+                                                                Padding(
+                                                                    padding: const EdgeInsets
+                                                                        .only(
+                                                                        left:
+                                                                            10),
+                                                                    child: Icon(
+                                                                      Icons
+                                                                          .link,
+                                                                      color: Colors
+                                                                          .grey,
+                                                                    )),
+                                                                SizedBox(
+                                                                  width: 30.0,
+                                                                ),
+                                                                Text(
+                                                                  "Create Post Form Link",
+                                                                  style:
+                                                                      commonTextStyle(
+                                                                    Colors
+                                                                        .black,
+                                                                    FontWeight
+                                                                        .bold,
+                                                                    14.00,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 10.0,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                });
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10.0,
+                                                vertical: 5.0),
+                                            width: 90.0,
+                                            height: 40.0,
+                                            decoration: BoxDecoration(
+                                                color: Colors.indigo,
+                                                borderRadius:
+                                                    BorderRadius.circular(5.0)),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.edit,
+                                                  color: Colors.white,
+                                                ),
+                                                Text(
+                                                  "Post",
+                                                  style: commonTextStyle(
+                                                      Colors.white,
+                                                      FontWeight.bold,
+                                                      14.00),
+                                                )
+                                              ],
                                             ),
                                           ),
-                                          builder: (BuildContext context) {
-                                            return SingleChildScrollView(
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    height: 100.0,
-                                                    child: mediaList.isEmpty
-                                                        ? Center(
-                                                        child:
-                                                        CircularProgressIndicator())
-                                                        : ListView.builder(
-                                                      scrollDirection:
-                                                      Axis.horizontal,
-                                                      itemCount: mediaList.length,
-                                                      itemBuilder:
-                                                          (context, index) {
-                                                        return FutureBuilder<
-                                                            Widget>(
-                                                          future:
-                                                          _buildMediaThumbnail(
-                                                              mediaList[index]),
-                                                          builder:
-                                                              (context, snapshot) {
-                                                            if (snapshot
-                                                                .connectionState ==
-                                                                ConnectionState
-                                                                    .done) {
-                                                              return Container(
-                                                                margin: EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                    2.0,
-                                                                    vertical:
-                                                                    4.0),
-                                                                child:
-                                                                snapshot.data,
-                                                              );
-                                                            } else {
-                                                              return Container(
-                                                                width: 100.0,
-                                                                height: 100.0,
-                                                                child: Center(
-                                                                    child:
-                                                                    CircularProgressIndicator()),
-                                                              );
-                                                            }
-                                                          },
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    height: 20,
-                                                  ),
-                                                  GestureDetector(
-                                                    onTap: _openCamera,
-                                                    child: Container(
-                                                      margin: EdgeInsets.symmetric(
-                                                          horizontal: 10.0,
-                                                          vertical: 5.0),
-                                                      width: double.infinity,
-                                                      child: Row(
-                                                        children: [
-                                                          Padding(
-                                                              padding:
-                                                              const EdgeInsets.only(
-                                                                  left: 10),
-                                                              child: Icon(
-                                                                  Icons.camera_alt,
-                                                                  color: Colors.grey)),
-                                                          SizedBox(
-                                                            width: 30.0,
-                                                          ),
-                                                          Text(
-                                                            "Use Camera",
-                                                            style: commonTextStyle(
-                                                              Colors.black,
-                                                              FontWeight.bold,
-                                                              14.00,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    height: 20.0,
-                                                  ),
-                                                  GestureDetector(
-                                                    onTap: _openGallery,
-                                                    child: Container(
-                                                      margin: EdgeInsets.symmetric(
-                                                          horizontal: 10.0,
-                                                          vertical: 5.0),
-                                                      width: double.infinity,
-                                                      child: Row(
-                                                        children: [
-                                                          Padding(
-                                                              padding:
-                                                              const EdgeInsets.only(
-                                                                  left: 10),
-                                                              child: Icon(Icons.image,
-                                                                  color: Colors.grey)),
-                                                          SizedBox(
-                                                            width: 30.0,
-                                                          ),
-                                                          Text(
-                                                            "Choose Form Gallery",
-                                                            style: commonTextStyle(
-                                                              Colors.black,
-                                                              FontWeight.bold,
-                                                              14.00,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    height: 20.0,
-                                                  ),
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      Navigator.of(context).push(
-                                                          _CreatePostFormLinkRoute());
-                                                      // Navigator.pushReplacement(
-                                                      //     context,
-                                                      //     MaterialPageRoute(
-                                                      //         builder: (context) =>
-                                                      //             CreatePostFormLink()));
-                                                    },
-                                                    child: Container(
-                                                      margin: EdgeInsets.symmetric(
-                                                          horizontal: 10.0,
-                                                          vertical: 5.0),
-                                                      width: double.infinity,
-                                                      child: Row(
-                                                        children: [
-                                                          Padding(
-                                                              padding:
-                                                              const EdgeInsets.only(
-                                                                  left: 10),
-                                                              child: Icon(
-                                                                Icons.link,
-                                                                color: Colors.grey,
-                                                              )),
-                                                          SizedBox(
-                                                            width: 30.0,
-                                                          ),
-                                                          Text(
-                                                            "Create Post Form Link",
-                                                            style: commonTextStyle(
-                                                              Colors.black,
-                                                              FontWeight.bold,
-                                                              14.00,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    height: 10.0,
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          });
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10.0, vertical: 5.0),
-                                      width: 90.0,
-                                      height: 40.0,
-                                      decoration: BoxDecoration(
-                                          color: Colors.indigo,
-                                          borderRadius: BorderRadius.circular(5.0)),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.edit,
-                                            color: Colors.white,
+                                        )
+                                      ],
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                    )
+                                  : ListView.builder(
+                                      itemCount: docs.length,
+                                      itemBuilder: (context, index) {
+                                        Map<String, dynamic> data = docs[index]
+                                            .data() as Map<String, dynamic>;
+                                        return Container(
+                                          child: postCard(
+                                            uid: data['id'],
+                                            heading: data['postHeading'],
+                                            subHeading: data['postSubHeading'],
+                                            // bottomScroll: data['postBottomScrollView'],
+                                            videoURL: data['postVideoUrl'],
+                                            likeCount: data['postLikeCount'],
+                                            commentCount:
+                                                data['postCommentCount'],
+                                            postHours: data['postHoursCount'],
                                           ),
-                                          Text(
-                                            "Post",
-                                            style: commonTextStyle(
-                                                Colors.white, FontWeight.bold, 14.00),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                ],
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                              ) :
-                                ListView.builder(
-                                itemCount: docs.length,
-                                itemBuilder: (context, index) {
-                                  Map<String, dynamic> data =
-                                  docs[index].data() as Map<String, dynamic>;
-                                  return Container(
-                                    child: postCard(
-                                      heading: data['postHeading'],
-                                      subHeading: data['postSubHeading'],
-                                      // bottomScroll: data['postBottomScrollView'],
-                                      videoURL: data['postVideoUrl'],
-                                      likeCount: data['postLikeCount'],
-                                      commentCount: data['postCommentCount'],
-                                      postHours: data['postHoursCount'],
-                                    ),
-                                  );
-                                  //   ListTile(
-                                  //   title: Text(data['postHeading']),
-                                  //   subtitle: Text(data['postSubHeading']),
-                                  // );
-                                },
-                              );
+                                        );
+                                        //   ListTile(
+                                        //   title: Text(data['postHeading']),
+                                        //   subtitle: Text(data['postSubHeading']),
+                                        // );
+                                      },
+                                    );
                             }),
                       ),
                       Center(
@@ -789,6 +860,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Widget postCard({
+    required uid,
     required heading,
     required subHeading,
     required videoURL,
@@ -800,13 +872,15 @@ class _ProfilePageState extends State<ProfilePage>
     return Container(
       child: Column(
         children: [
-          postTitle(heading: heading, subHeading: subHeading, hours: postHours),
+          postTitle(heading: heading, subHeading: subHeading, hours: postHours,id: uid),
           SizedBox(
             height: 5,
           ),
           // isLoggedIn ?
           // Image.network(videoURL,height: 300,width: MediaQuery.sizeOf(context).width,fit: BoxFit.fill,),
-          PostVideo(videoURL: videoURL,),
+          PostVideo(
+            videoURL: videoURL,
+          ),
           // postBottomScrollView(
           //   list: bottomScroll,
           //   listItem: bottomScroll,
@@ -826,10 +900,13 @@ class _ProfilePageState extends State<ProfilePage>
       ),
     );
   }
-  Widget postTitle(
-      {required String heading,
-        required String subHeading,
-        required String hours}) {
+
+  Widget postTitle({
+    required String heading,
+    required String subHeading,
+    required String hours,
+    required id,
+  }) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 10),
       child: Column(
@@ -882,10 +959,139 @@ class _ProfilePageState extends State<ProfilePage>
                       SizedBox(
                         width: 5,
                       ),
-                      Icon(
-                        Icons.close,
-                        color: Colors.grey,
-                        size: 20,
+                      GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                              transitionAnimationController:
+                                  AnimationController(
+                                duration: const Duration(milliseconds: 1000),
+                                vsync: Navigator.of(context),
+                              ),
+                              backgroundColor: Colors.white,
+                              constraints: BoxConstraints.loose(Size(
+                                  MediaQuery.of(context).size.width,
+                                  MediaQuery.of(context).size.height / 2.3)),
+                              context: context,
+                              isScrollControlled: true,
+                              shape: RoundedRectangleBorder(
+                                // <-- for border radius
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(15.0),
+                                  topRight: Radius.circular(15.0),
+                                ),
+                              ),
+                              builder: (BuildContext context) {
+                                return SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text('Delete Post'),
+                                              content: Text('Are you sure you want to delete this post?'),
+                                              actions: [
+                                                TextButton(
+                                                  child: Text('Cancel'),
+                                                  onPressed: () => Navigator.of(context).pop(),
+                                                ),
+                                                TextButton(
+                                                  child: Text('Delete',style: TextStyle(color: Colors.red),),
+                                                  onPressed: (){
+                                                    FirebaseFirestore.instance
+                                                        .collection('posts')
+                                                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                                                        .collection("posts").doc(id).delete().then((onValue){
+                                                      showToast(message: "Post Delete Successfully");
+                                                      Navigator.pop(context);
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ).then((onValue){
+                                            Navigator.pop(context);
+                                          });
+
+                                        },
+                                        child: Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 10.0, vertical: 5.0),
+                                          width: double.infinity,
+                                          child: Row(
+                                            children: [
+                                              Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 10),
+                                                  child: Icon(
+                                                    Icons.delete,
+                                                    color: Colors.red,
+                                                  )),
+                                              SizedBox(
+                                                width: 30.0,
+                                              ),
+                                              Text(
+                                                "Delete Post",
+                                                style: commonTextStyle(
+                                                    Colors.red,
+                                                    FontWeight.bold,
+                                                    14.00),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 20.0,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 10.0, vertical: 5.0),
+                                          width: double.infinity,
+                                          child: Row(
+                                            children: [
+                                              Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 10),
+                                                  child: Icon(Icons.close,
+                                                      color: Colors.grey)),
+                                              SizedBox(
+                                                width: 30.0,
+                                              ),
+                                              Text(
+                                                "Close",
+                                                style: commonTextStyle(
+                                                    Colors.black,
+                                                    FontWeight.bold,
+                                                    14.00),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 10.0,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              });
+                        },
+                        child: Icon(
+                          Icons.close,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
                       ),
                     ],
                   ),
@@ -974,8 +1180,8 @@ class _ProfilePageState extends State<ProfilePage>
       ),
     );
   }
-
 }
+
 class PostVideo extends StatefulWidget {
   final String videoURL;
   const PostVideo({super.key, required this.videoURL});
@@ -1024,4 +1230,3 @@ class _PostVideoState extends State<PostVideo> {
     );
   }
 }
-
