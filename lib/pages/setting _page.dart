@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:lottie/lottie.dart';
 import '../common/toast.dart';
+import '../services/authService.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -11,8 +14,22 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  bool isLoggedIn = FirebaseAuth.instance.currentUser != null ? true : false;
   bool _switchValue = false;
+
+  final AuthService _authService = AuthService();
+
+  final storage = FlutterSecureStorage();
+
+  void _deleteAccount(BuildContext context) async {
+    await _authService.deleteUser();
+    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1060,64 +1077,62 @@ class _SettingPageState extends State<SettingPage> {
                 thickness: 15.00,
               ),
               GestureDetector(
-                onTap: () {
-                  if(isLoggedIn){
-                  showCupertinoDialog(
-                    context: context,
-                    // barrierDismissible: false,
-                    builder: (context) => AlertDialog(
-                      title: Text(
-                        "Sign Out?",
-                        style: commonTextStyletitle(),
-                      ),
-                      content: Text(
-                        "Are You Sure?",
-                        style: commonTextStyle16(),
-                      ),
-                      actions: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.indigo,
-                                  minimumSize: Size(
-                                      MediaQuery.of(context).size.width / 4,
-                                      40)),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text(
-                                "Cancel",
-                                style: commonTextStyle18(),
+                onTap: () async {
+                  bool isLoggedIn = await _authService.isLoggedIn();
+                  if (isLoggedIn) {
+                    showCupertinoDialog(
+                      context: context,
+                      // barrierDismissible: false,
+                      builder: (context) => AlertDialog(
+                        title: Text(
+                          "Sign Out?",
+                          style: commonTextStyletitle(),
+                        ),
+                        content: Text(
+                          "Are You Sure?",
+                          style: commonTextStyle16(),
+                        ),
+                        actions: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.indigo,
+                                    minimumSize: Size(
+                                        MediaQuery.of(context).size.width / 4,
+                                        40)),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  "Cancel",
+                                  style: commonTextStyle18(),
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  minimumSize: Size(
-                                      MediaQuery.of(context).size.width / 4,
-                                      40)),
-                              onPressed: () {
-                                FirebaseAuth.instance.signOut().then((onValue) {
-                                  Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-                                  showToast(message: "Successfully signed out");
-                                });
-                              },
-                              child:
-                                  Text("Sign Out", style: commonTextStyle18()),
-                            ),
-                          ],
-                        )
-                      ],
-                      elevation: 24.0,
-                      backgroundColor: Colors.white,
-                    ),
-                  );
-                  }else{
+                              SizedBox(
+                                width: 5,
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    minimumSize: Size(
+                                        MediaQuery.of(context).size.width / 4,
+                                        40)),
+                                onPressed: () {
+                                  _deleteAccount(context);
+                                },
+                                child: Text("Sign Out",
+                                    style: commonTextStyle18()),
+                              ),
+                            ],
+                          )
+                        ],
+                        elevation: 24.0,
+                        backgroundColor: Colors.white,
+                      ),
+                    );
+                  } else {
                     showToast(message: "No User available");
                   }
                 },
@@ -1172,6 +1187,35 @@ class _SettingPageState extends State<SettingPage> {
     return TextStyle(
       fontSize: 16,
       fontWeight: FontWeight.w500,
+    );
+  }
+}
+
+class Thank_you extends StatefulWidget {
+  const Thank_you({super.key});
+
+  @override
+  State<Thank_you> createState() => _Thank_youState();
+}
+
+class _Thank_youState extends State<Thank_you> {
+  @override
+  void initState() {
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        color: Colors.white,
+        child: Center(
+          child: Lottie.asset("assets/lottie_file/login.json"),
+        ),
+      ),
     );
   }
 }

@@ -19,6 +19,7 @@ import '../bloc/drawer_bloc/drawer_bloc.dart';
 import '../bloc/drawer_bloc/drawer_state.dart';
 import '../bloc/video/video_bloc.dart';
 import '../common/toast.dart';
+import '../services/authService.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,12 +32,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<AssetEntity> mediaList = [];
   late TabController _tabController;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  bool isLoggedIn = FirebaseAuth.instance.currentUser != null ? true : false;
-  String? userName;
-  String? profileName;
+  final AuthService _authService = AuthService();
+  Future<Map<String, dynamic>?>? _userData;
+
   @override
   void initState() {
     super.initState();
+    _userData = fetchUserData();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     _requestPermissions();
     _tabController = TabController(
@@ -51,9 +53,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         });
       });
     });
-    listenToUserName();
-    listenToProfileName();
-    _fetchProfileImageUrl();
+  }
+
+  Future<Map<String, dynamic>?> fetchUserData() async {
+    await Future.delayed(Duration(seconds: 1));
+    String? token = await _authService.getToken();
+    if (token == null) {
+      return {};
+    } else {
+      String? token = await _authService.getToken();
+      final userData = await _authService.getUserData(token!);
+      return {
+        'name': userData!['username'],
+      };
+    }
   }
 
   Future<void> _requestPermissions() async {
@@ -64,44 +77,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       Permission.storage,
     ].request();
 
-    if (statuses[Permission.camera]!.isDenied) {
-    }
-    if (statuses[Permission.photos]!.isDenied) {
-    }
-    if (statuses[Permission.videos]!.isDenied) {
-    }
-    if (statuses[Permission.storage]!.isDenied) {
-    }
-  }
-  void listenToProfileName() {
-    if (isLoggedIn) {
-      DatabaseReference reference = FirebaseDatabase.instance
-          .ref("Profile")
-          .child(FirebaseAuth.instance.currentUser!.uid)
-          .child("profileName");
-      reference.onValue.listen((DatabaseEvent event) {
-        final data = event.snapshot.value;
-        setState(() {
-          profileName = data as String?;
-        });
-      });
-    } else {
-      profileName = "9GAG" as String?;
-    }
-  }
-  void listenToUserName() {
-    if (isLoggedIn) {
-      DatabaseReference reference = FirebaseDatabase.instance.ref("Profile").child(FirebaseAuth.instance.currentUser!.uid).child("userName");
-      reference.onValue.listen((DatabaseEvent event) {
-        final data = event.snapshot.value;
-        setState(() {
-          userName = data as String?;
-        });
-      });
-    } else {
-      userName = "Sign up or Log in" as String?;
-    }
-
+    if (statuses[Permission.camera]!.isDenied) {}
+    if (statuses[Permission.photos]!.isDenied) {}
+    if (statuses[Permission.videos]!.isDenied) {}
+    if (statuses[Permission.storage]!.isDenied) {}
   }
 
   @override
@@ -133,8 +112,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   File? _galleryVideo;
 
   Future<void> _openCamera() async {
-    final pickedFile  = await _picker.pickVideo(source: ImageSource.camera);
-    if (pickedFile  != null) {
+    final pickedFile = await _picker.pickVideo(source: ImageSource.camera);
+    if (pickedFile != null) {
       print('Picked image path: ${pickedFile.path}');
       setState(() {
         _cameraVideo = File(pickedFile.path);
@@ -164,209 +143,363 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     } else {
       print('No video selected.');
     }
-    // if (pickedFile != null) {
-    //   print('Picked image path: ${pickedFile.path}');
-    //   setState(() {
-    //     _image = File(pickedFile.path);
-    //   });
-    //   Navigator.push(context, MaterialPageRoute(builder: (_) => CreatePost(imageFile: _image!,)));
-    // } else {
-    //   print('No image selected.');
-    // }
   }
 
   String? imageUrl;
-  Future<void> _fetchProfileImageUrl() async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref(
-        'Profile Photo/${FirebaseAuth.instance.currentUser!.uid}/profile_photo');
-    DataSnapshot snapshot = await ref.get();
-
-    if (snapshot.exists) {
-      setState(() {
-        imageUrl = snapshot.value as String?;
-      });
-    } else {
-      print('No image URL found');
-    }
-  }
+  // Future<void> _fetchProfileImageUrl() async {
+  //   DatabaseReference ref = FirebaseDatabase.instance.ref(
+  //       'Profile Photo/${FirebaseAuth.instance.currentUser!.uid}/profile_photo');
+  //   DataSnapshot snapshot = await ref.get();
+  //
+  //   if (snapshot.exists) {
+  //     setState(() {
+  //       imageUrl = snapshot.value as String?;
+  //     });
+  //   } else {
+  //     print('No image URL found');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => DrawerBloc()),
-        BlocProvider(create: (_) => VideoBloc()),
-      ],
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          iconTheme: IconThemeData(color: Colors.grey),
-          title: Transform.translate(
-              offset: Offset(-15.0, 0.0),
-              child: Image.asset(
-                "assets/logo/app_bar_logo.png",
-                width: 50,
-                height: 40,
-              )),
-          actions: <Widget>[
-            // search page
-            IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/search');
-              },
-              icon: Icon(
-                Icons.search,
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _userData,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            color: Colors.white,
+            child: Center(
+              child: CircularProgressIndicator(
+                color: Colors.black,
               ),
             ),
-            // notification page
-            IconButton(
-              onPressed: () {
-                if (isLoggedIn) {
-                  Navigator.pushNamed(context, '/notification');
-                } else {
-                  show_bottom_sheet();
-                }
-              },
-              icon: Icon(
-                Icons.notifications,
-              ),
+          );
+        } else if (snapshot.hasError) {
+          return Container(
+            color: Colors.white,
+            child: Center(
+              child: Text('Error loading user data',style: TextStyle(color: Colors.black,fontSize: 18.00,fontWeight: FontWeight.bold),textAlign:TextAlign.center,),
             ),
-            // profile page
-            IconButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    transitionAnimationController: AnimationController(
-                      duration: const Duration(milliseconds: 1000),
-                      vsync: Navigator.of(context),
+          );
+        } else if (!snapshot.hasData || snapshot.data == null) {
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => DrawerBloc()),
+              BlocProvider(create: (_) => VideoBloc()),
+            ],
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                iconTheme: IconThemeData(color: Colors.grey),
+                title: Transform.translate(
+                    offset: Offset(-15.0, 0.0),
+                    child: Image.asset(
+                      "assets/logo/app_bar_logo.png",
+                      width: 50,
+                      height: 40,
+                    )),
+                actions: <Widget>[
+                  // search page
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/search');
+                    },
+                    icon: Icon(
+                      Icons.search,
                     ),
-                    backgroundColor: Colors.white,
-                    constraints: BoxConstraints.loose(Size(
-                        MediaQuery.of(context).size.width,
-                        MediaQuery.of(context).size.height / 2.5)),
-                    context: context,
-                    isScrollControlled: true,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(15.0),
-                        topRight: Radius.circular(15.0),
-                      ),
+                  ),
+                  // notification page
+                  IconButton(
+                    onPressed: () async {
+                      bool isLoggedIn = await _authService.isLoggedIn();
+                      if (isLoggedIn) {
+                        Navigator.pushNamed(context, '/notification');
+                      } else {
+                        show_bottom_sheet();
+                      }
+                    },
+                    icon: Icon(
+                      Icons.notifications,
                     ),
-                    builder: (BuildContext context) {
-                      return SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 15.0, vertical: 20.0),
+                  ),
+                  // profile page
+                  IconButton(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          transitionAnimationController: AnimationController(
+                            duration: const Duration(milliseconds: 1000),
+                            vsync: Navigator.of(context),
+                          ),
+                          backgroundColor: Colors.white,
+                          constraints: BoxConstraints.loose(Size(
+                              MediaQuery.of(context).size.width,
+                              MediaQuery.of(context).size.height / 2.5)),
+                          context: context,
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(15.0),
+                              topRight: Radius.circular(15.0),
+                            ),
+                          ),
+                          builder: (BuildContext context) {
+                            return SingleChildScrollView(
                               child: Column(
                                 children: [
-                                  GestureDetector(
-                                    onTap: (){
-                                        if (isLoggedIn) {
-                                          Navigator.pushNamed(context, '/profile');
-                                        } else {
-                                          show_bottom_sheet();
-                                      }
-                                    },
-                                    child: Container(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  ClipRRect(
-                                                    child: imageUrl != null
-                                                        ? CircleAvatar(
-                                                      radius: 15,
-                                                      backgroundImage:
-                                                      NetworkImage(imageUrl!),
-                                                    )
-                                                        : CircleAvatar(
-                                                      radius: 15,
-                                                      backgroundColor: Colors.grey,
-                                                      child: Icon(Icons.person,
-                                                          size: 20, color: Colors.white),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 20.0),
+                                    child: Column(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () async {
+                                            bool isLoggedIn =
+                                                await _authService.isLoggedIn();
+                                            if (isLoggedIn) {
+                                              Navigator.pushNamed(
+                                                  context, '/profile');
+                                            } else {
+                                              show_bottom_sheet();
+                                            }
+                                          },
+                                          child: Container(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        ClipRRect(
+                                                          child: imageUrl !=
+                                                                  null
+                                                              ? CircleAvatar(
+                                                                  radius: 15,
+                                                                  backgroundImage:
+                                                                      NetworkImage(
+                                                                          imageUrl!),
+                                                                )
+                                                              : CircleAvatar(
+                                                                  radius: 15,
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .grey,
+                                                                  child: Icon(
+                                                                      Icons
+                                                                          .person,
+                                                                      size: 20,
+                                                                      color: Colors
+                                                                          .white),
+                                                                ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      30.0),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 30,
+                                                        ),
+                                                        Text(
+                                                          "Sign up or Log in",
+                                                          style:
+                                                              commonTextStyle(
+                                                                  Colors.black,
+                                                                  FontWeight
+                                                                      .bold,
+                                                                  16.0,
+                                                                  null),
+                                                        ),
+                                                      ],
                                                     ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30.0),
+                                                  ],
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Container(
+                                                      child: Text(
+                                                        "PRO",
+                                                        style: commonTextStyle(
+                                                            Colors.white,
+                                                            FontWeight.bold,
+                                                            14.0,
+                                                            null),
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.grey,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      5.0)),
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 3),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 25.0),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            bool isLoggedIn =
+                                                await _authService.isLoggedIn();
+                                            if (isLoggedIn) {
+                                              Navigator.pushNamed(
+                                                  context, '/profile');
+                                            } else {
+                                              show_bottom_sheet();
+                                            }
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.bookmarks,
+                                                        size: 25,
+                                                        color: Colors.grey,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 35,
+                                                      ),
+                                                      Text(
+                                                        "Saved",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      )
+                                                    ],
                                                   ),
-                                                  SizedBox(
-                                                    width: 30,
-                                                  ),
-                                                  Text(
-                                                    userName == null ? profileName.toString().toLowerCase().split(' ').reversed.join(' ') : userName.toString(),
-                                                    style: commonTextStyle(
-                                                        Colors.black,
-                                                        FontWeight.bold,
-                                                        16.0,
-                                                        null),
-                                                  )
                                                 ],
                                               ),
                                             ],
                                           ),
-                                          Column(
-                                            children: [
-                                              Container(
-                                                child: Text(
-                                                  "PRO",
-                                                  style: commonTextStyle(
-                                                      Colors.white,
-                                                      FontWeight.bold,
-                                                      14.0,
-                                                      null),
-                                                ),
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5.0)),
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 3),
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  SizedBox(height: 25.0),
-                                  GestureDetector(
-                                    onTap: (){
-                                      if (isLoggedIn) {
-                                        Navigator.pushNamed(context, '/profile');
-                                      } else {
-                                        show_bottom_sheet();
-                                      }
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                  Divider(
+                                    color: Colors.grey.withOpacity(0.3),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 20.0),
+                                    child: Column(
                                       children: [
-                                        Column(
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.pushNamed(
+                                                context, '/setting');
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.settings,
+                                                        size: 25,
+                                                        color: Colors.grey,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 30,
+                                                      ),
+                                                      Text(
+                                                        "Setting",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(height: 25.0),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Row(
+                                            Column(
                                               children: [
-                                                Icon(
-                                                  Icons.bookmarks,
-                                                  size: 25,
-                                                  color: Colors.grey,
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.feedback,
+                                                      size: 25,
+                                                      color: Colors.grey,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 35,
+                                                    ),
+                                                    Text(
+                                                      "Send feedback",
+                                                      style: commonTextStyle(
+                                                          Colors.black,
+                                                          FontWeight.bold,
+                                                          16.0,
+                                                          null),
+                                                    )
+                                                  ],
                                                 ),
-                                                SizedBox(
-                                                  width: 35,
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Divider(
+                                    color: Colors.grey.withOpacity(0.3),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 20.0),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.dark_mode,
+                                                      size: 25,
+                                                      color: Colors.grey,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 30,
+                                                    ),
+                                                    Text(
+                                                      "Dark Mode",
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )
+                                                  ],
                                                 ),
-                                                Text(
-                                                  "Saved",
-                                                  style: commonTextStyle(
-                                                      Colors.black,
-                                                      FontWeight.bold,
-                                                      16.0,
-                                                      null),
-                                                )
                                               ],
                                             ),
                                           ],
@@ -376,328 +509,772 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   ),
                                 ],
                               ),
-                            ),
-                            Divider(
-                              color: Colors.grey.withOpacity(0.3),
-                            ),
+                            );
+                          },
+                        );
+                      },
+                      icon: ClipRRect(
+                        child: ClipRRect(
+                          child: imageUrl != null
+                              ? CircleAvatar(
+                                  radius: 15,
+                                  backgroundImage: NetworkImage(imageUrl!),
+                                )
+                              : CircleAvatar(
+                                  radius: 15,
+                                  backgroundColor: Colors.grey,
+                                  child: Icon(Icons.person,
+                                      size: 20, color: Colors.white),
+                                ),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ))
+                ],
+              ),
+              // drawer
+              drawer: BlocBuilder<DrawerBloc, DrawerState>(
+                builder: (context, state) {
+                  return Container(
+                    color: Colors.white,
+                    child: Drawer(
+                        width: MediaQuery.sizeOf(context).width / 1.45,
+                        child: ListView(
+                          children: <Widget>[
                             Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 15.0, vertical: 20.0),
-                              child: Column(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.pushNamed(context, '/setting');
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.settings,
-                                                  size: 25,
-                                                  color: Colors.grey,
-                                                ),
-                                                SizedBox(
-                                                  width: 30,
-                                                ),
-                                                Text(
-                                                  "Setting",
-                                                  style: commonTextStyle(
-                                                      Colors.black,
-                                                      FontWeight.bold,
-                                                      16.0,
-                                                      null),
-                                                )
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                              color: Colors.white,
+                              child: SafeArea(
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          border: Border(
+                                              bottom: BorderSide(
+                                                  width: 1.0,
+                                                  color: Colors.grey
+                                                      .withOpacity(0.2)))),
+                                      child: const ListTile(
+                                        title: Text('Home'),
+                                        leading: Icon(Icons.home),
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(height: 25.0),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.feedback,
-                                                size: 25,
-                                                color: Colors.grey,
-                                              ),
-                                              SizedBox(
-                                                width: 35,
-                                              ),
-                                              Text(
-                                                "Send feedback",
-                                                style: commonTextStyle(
-                                                    Colors.black,
-                                                    FontWeight.bold,
-                                                    16.0,
-                                                    null),
-                                              )
-                                            ],
-                                          ),
-                                        ],
+                                    Container(
+                                      child: const ListTile(
+                                        visualDensity:
+                                            VisualDensity(vertical: -4),
+                                        title: Text(
+                                          'Interests',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                              color: Colors.grey),
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Divider(
-                              color: Colors.grey.withOpacity(0.3),
-                            ),
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 15.0, vertical: 20.0),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.dark_mode,
-                                                size: 25,
-                                                color: Colors.grey,
-                                              ),
-                                              SizedBox(
-                                                width: 30,
-                                              ),
-                                              Text(
-                                                "Dark Mode",
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-                icon: ClipRRect(
-                  child: ClipRRect(
-                    child: imageUrl != null
-                        ? CircleAvatar(
-                      radius: 15,
-                      backgroundImage:
-                      NetworkImage(imageUrl!),
-                    )
-                        : CircleAvatar(
-                      radius: 15,
-                      backgroundColor: Colors.grey,
-                      child: Icon(Icons.person,
-                          size: 20, color: Colors.white),
-                    ),
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                ))
-          ],
-        ),
-        // drawer
-        drawer: BlocBuilder<DrawerBloc, DrawerState>(
-          builder: (context, state) {
-            return Container(
-              color: Colors.white,
-              child: Drawer(
-                  width: MediaQuery.sizeOf(context).width / 1.45,
-                  child: ListView(
-                    children: <Widget>[
-                      Container(
-                        color: Colors.white,
-                        child: SafeArea(
-                          child: Column(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                        bottom: BorderSide(
-                                            width: 1.0,
-                                            color:
-                                                Colors.grey.withOpacity(0.2)))),
-                                child: const ListTile(
-                                  title: Text('Home'),
-                                  leading: Icon(Icons.home),
+                                    ),
+                                    commonListTile(
+                                        "Anime & Manga",
+                                        Icons.ac_unit,
+                                        Colors.yellow,
+                                        Colors.red),
+                                    commonListTile("Latest News", Icons.ac_unit,
+                                        Colors.green, Colors.yellow),
+                                    commonListTile("Humor", Icons.ac_unit,
+                                        Colors.deepPurple, Colors.yellow),
+                                    commonListTile("Memes", Icons.ac_unit,
+                                        Colors.deepPurpleAccent, Colors.yellow),
+                                    commonListTile("Gaming", Icons.ac_unit,
+                                        Colors.orange, Colors.yellow),
+                                    commonListTile("WTF", Icons.ac_unit,
+                                        Colors.lightGreen, Colors.yellow),
+                                    commonListTile(
+                                        "Relationship & Dating",
+                                        Icons.ac_unit,
+                                        Colors.pinkAccent,
+                                        Colors.yellow),
+                                    commonListTile(
+                                        "Animals & Pets",
+                                        Icons.ac_unit,
+                                        Colors.deepPurple,
+                                        Colors.yellow),
+                                    commonListTile(
+                                        "Science & Tech",
+                                        Icons.ac_unit,
+                                        Colors.red,
+                                        Colors.yellow),
+                                    commonListTile("Comic", Icons.ac_unit,
+                                        Colors.pink, Colors.yellow),
+                                    commonListTile("Wholesome", Icons.ac_unit,
+                                        Colors.yellowAccent, Colors.red),
+                                    commonListTile("Sports", Icons.ac_unit,
+                                        Colors.redAccent, Colors.yellow),
+                                    commonListTile("Movies & TV", Icons.ac_unit,
+                                        Colors.greenAccent, Colors.yellow),
+                                    commonListTile("Cat", Icons.ac_unit,
+                                        Colors.orangeAccent, Colors.yellow),
+                                    commonListTile(
+                                        "Food & Drinks",
+                                        Icons.ac_unit,
+                                        Colors.red,
+                                        Colors.yellow),
+                                    commonListTile("Lifestyle", Icons.ac_unit,
+                                        Colors.blueAccent, Colors.yellow),
+                                    commonListTile("Superhero", Icons.ac_unit,
+                                        Colors.red, Colors.yellow),
+                                    commonListTile("Crypto", Icons.ac_unit,
+                                        Colors.blue, Colors.yellow),
+                                    commonListTile("Random", Icons.ac_unit,
+                                        Colors.pink, Colors.yellow),
+                                    commonListTile("Woah", Icons.ac_unit,
+                                        Colors.orange, Colors.yellow),
+                                  ],
                                 ),
                               ),
-                              Container(
-                                child: const ListTile(
-                                  visualDensity: VisualDensity(vertical: -4),
-                                  title: Text(
-                                    'Interests',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: Colors.grey),
-                                  ),
-                                ),
-                              ),
-                              commonListTile("Anime & Manga", Icons.ac_unit,
-                                  Colors.yellow, Colors.red),
-                              commonListTile("Latest News", Icons.ac_unit,
-                                  Colors.green, Colors.yellow),
-                              commonListTile("Humor", Icons.ac_unit,
-                                  Colors.deepPurple, Colors.yellow),
-                              commonListTile("Memes", Icons.ac_unit,
-                                  Colors.deepPurpleAccent, Colors.yellow),
-                              commonListTile("Gaming", Icons.ac_unit,
-                                  Colors.orange, Colors.yellow),
-                              commonListTile("WTF", Icons.ac_unit,
-                                  Colors.lightGreen, Colors.yellow),
-                              commonListTile(
-                                  "Relationship & Dating",
-                                  Icons.ac_unit,
-                                  Colors.pinkAccent,
-                                  Colors.yellow),
-                              commonListTile("Animals & Pets", Icons.ac_unit,
-                                  Colors.deepPurple, Colors.yellow),
-                              commonListTile("Science & Tech", Icons.ac_unit,
-                                  Colors.red, Colors.yellow),
-                              commonListTile("Comic", Icons.ac_unit,
-                                  Colors.pink, Colors.yellow),
-                              commonListTile("Wholesome", Icons.ac_unit,
-                                  Colors.yellowAccent, Colors.red),
-                              commonListTile("Sports", Icons.ac_unit,
-                                  Colors.redAccent, Colors.yellow),
-                              commonListTile("Movies & TV", Icons.ac_unit,
-                                  Colors.greenAccent, Colors.yellow),
-                              commonListTile("Cat", Icons.ac_unit,
-                                  Colors.orangeAccent, Colors.yellow),
-                              commonListTile("Food & Drinks", Icons.ac_unit,
-                                  Colors.red, Colors.yellow),
-                              commonListTile("Lifestyle", Icons.ac_unit,
-                                  Colors.blueAccent, Colors.yellow),
-                              commonListTile("Superhero", Icons.ac_unit,
-                                  Colors.red, Colors.yellow),
-                              commonListTile("Crypto", Icons.ac_unit,
-                                  Colors.blue, Colors.yellow),
-                              commonListTile("Random", Icons.ac_unit,
-                                  Colors.pink, Colors.yellow),
-                              commonListTile("Woah", Icons.ac_unit,
-                                  Colors.orange, Colors.yellow),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  )),
-            );
-          },
-        ),
-        body: BlocBuilder<DrawerBloc, DrawerState>(
-          builder: (context, state) {
-            if (state is DrawerMenuSelected) {
-              if (state.selectMenuItem == 'Home') {
-                return const Center(child: Text('Home Screen'));
-              } else if (state.selectMenuItem == 'Settings') {
-                return const Center(child: Text('Settings Screen'));
-              }
-            }
-            return SingleChildScrollView(
-              child: Container(
-                height: MediaQuery.sizeOf(context).height,
-                color: Colors.white,
-                child: ListView(
-                  children: [
-                    Container(
-                        width: MediaQuery.sizeOf(context).width,
-                        color: Colors.white,
-                        margin: EdgeInsets.symmetric(horizontal: 20.0),
-                        child: TabBar(
-                          // isScrollable: true,
-                          // padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                          controller: _tabController,
-                          labelColor: Colors.black,
-                          labelStyle: TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.black),
-                          unselectedLabelColor: Colors.grey,
-                          dividerColor: Colors.white,
-                          indicatorColor: Colors.black,
-                          labelPadding: EdgeInsets.symmetric(horizontal: 0.0),
-                          // indicatorSize: TabBarIndicatorSize.tab,
-                          tabs: const [
-                            Tab(
-                              text: "Ask",
-                            ),
-                            Tab(
-                              text: "Home",
-                            ),
-                            Tab(
-                              text: "Top",
-                            ),
-                            Tab(
-                              text: "Trending",
-                            ),
-                            Tab(
-                              text: "Fresh",
-                            ),
+                            )
                           ],
                         )),
-                    Container(
-                      height: 730,
-                      child: TabBarView(
-                        controller: _tabController,
+                  );
+                },
+              ),
+              body: BlocBuilder<DrawerBloc, DrawerState>(
+                builder: (context, state) {
+                  if (state is DrawerMenuSelected) {
+                    if (state.selectMenuItem == 'Home') {
+                      return const Center(child: Text('Home Screen'));
+                    } else if (state.selectMenuItem == 'Settings') {
+                      return const Center(child: Text('Settings Screen'));
+                    }
+                  }
+                  return SingleChildScrollView(
+                    child: Container(
+                      height: MediaQuery.sizeOf(context).height,
+                      color: Colors.white,
+                      child: ListView(
                         children: [
-                          AskTab(),
-                          HomeTab(),
-                          TopTab(),
-                          TrendingTab(),
-                          FreshTab()
+                          Container(
+                              width: MediaQuery.sizeOf(context).width,
+                              color: Colors.white,
+                              margin: EdgeInsets.symmetric(horizontal: 20.0),
+                              child: TabBar(
+                                // isScrollable: true,
+                                // padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                                controller: _tabController,
+                                labelColor: Colors.black,
+                                labelStyle: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                                unselectedLabelColor: Colors.grey,
+                                dividerColor: Colors.white,
+                                indicatorColor: Colors.black,
+                                labelPadding:
+                                    EdgeInsets.symmetric(horizontal: 0.0),
+                                // indicatorSize: TabBarIndicatorSize.tab,
+                                tabs: const [
+                                  Tab(
+                                    text: "Ask",
+                                  ),
+                                  Tab(
+                                    text: "Home",
+                                  ),
+                                  Tab(
+                                    text: "Top",
+                                  ),
+                                  Tab(
+                                    text: "Trending",
+                                  ),
+                                  Tab(
+                                    text: "Fresh",
+                                  ),
+                                ],
+                              )),
+                          Container(
+                            height: 730,
+                            child: TabBarView(
+                              controller: _tabController,
+                              children: [
+                                AskTab(),
+                                HomeTab(),
+                                TopTab(),
+                                TrendingTab(),
+                                FreshTab()
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
-            );
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            if (isLoggedIn) {
-              // create post page
-              show_bottom_sheet_add_post();
-            } else {
-              show_bottom_sheet();
-            }
-          },
-          child: Icon(
-            Icons.edit,
-            color: Colors.white,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-          backgroundColor: CupertinoColors.systemBlue,
-          elevation: 5.0,
-        ),
-      ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () async {
+                  bool isLoggedIn = await _authService.isLoggedIn();
+                  if (isLoggedIn) {
+                    // create post page
+                    show_bottom_sheet_add_post();
+                  } else {
+                    show_bottom_sheet();
+                  }
+                },
+                child: Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                backgroundColor: CupertinoColors.systemBlue,
+                elevation: 5.0,
+              ),
+            ),
+          );
+        } else {
+          final userData = snapshot.data!;
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => DrawerBloc()),
+              BlocProvider(create: (_) => VideoBloc()),
+            ],
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                iconTheme: IconThemeData(color: Colors.grey),
+                title: Transform.translate(
+                    offset: Offset(-15.0, 0.0),
+                    child: Image.asset(
+                      "assets/logo/app_bar_logo.png",
+                      width: 50,
+                      height: 40,
+                    )),
+                actions: <Widget>[
+                  // search page
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/search');
+                    },
+                    icon: Icon(
+                      Icons.search,
+                    ),
+                  ),
+                  // notification page
+                  IconButton(
+                    onPressed: () async {
+                      bool isLoggedIn = await _authService.isLoggedIn();
+                      if (isLoggedIn) {
+                        Navigator.pushNamed(context, '/notification');
+                      } else {
+                        show_bottom_sheet();
+                      }
+                    },
+                    icon: Icon(
+                      Icons.notifications,
+                    ),
+                  ),
+                  // profile page
+                  IconButton(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          transitionAnimationController: AnimationController(
+                            duration: const Duration(milliseconds: 1000),
+                            vsync: Navigator.of(context),
+                          ),
+                          backgroundColor: Colors.white,
+                          constraints: BoxConstraints.loose(Size(
+                              MediaQuery.of(context).size.width,
+                              MediaQuery.of(context).size.height / 2.5)),
+                          context: context,
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(15.0),
+                              topRight: Radius.circular(15.0),
+                            ),
+                          ),
+                          builder: (BuildContext context) {
+                            return SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 20.0),
+                                    child: Column(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () async {
+                                            bool isLoggedIn =
+                                                await _authService.isLoggedIn();
+                                            if (isLoggedIn) {
+                                              Navigator.pushNamed(
+                                                  context, '/profile');
+                                            } else {
+                                              show_bottom_sheet();
+                                            }
+                                          },
+                                          child: Container(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        ClipRRect(
+                                                          child: imageUrl !=
+                                                                  null
+                                                              ? CircleAvatar(
+                                                                  radius: 15,
+                                                                  backgroundImage:
+                                                                      NetworkImage(
+                                                                          imageUrl!),
+                                                                )
+                                                              : CircleAvatar(
+                                                                  radius: 15,
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .grey,
+                                                                  child: Icon(
+                                                                      Icons
+                                                                          .person,
+                                                                      size: 20,
+                                                                      color: Colors
+                                                                          .white),
+                                                                ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      30.0),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 30,
+                                                        ),
+                                                        Text(
+                                                          userData['name'] ??
+                                                              'Sign up or Log in',
+                                                          style:
+                                                              commonTextStyle(
+                                                                  Colors.black,
+                                                                  FontWeight
+                                                                      .bold,
+                                                                  16.0,
+                                                                  null),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Container(
+                                                      child: Text(
+                                                        "PRO",
+                                                        style: commonTextStyle(
+                                                            Colors.white,
+                                                            FontWeight.bold,
+                                                            14.0,
+                                                            null),
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.grey,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      5.0)),
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 3),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 25.0),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            bool isLoggedIn =
+                                                await _authService.isLoggedIn();
+                                            if (isLoggedIn) {
+                                              Navigator.pushNamed(
+                                                  context, '/profile');
+                                            } else {
+                                              show_bottom_sheet();
+                                            }
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.bookmarks,
+                                                        size: 25,
+                                                        color: Colors.grey,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 35,
+                                                      ),
+                                                      Text(
+                                                        "Saved",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Divider(
+                                    color: Colors.grey.withOpacity(0.3),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 20.0),
+                                    child: Column(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.pushNamed(
+                                                context, '/setting');
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.settings,
+                                                        size: 25,
+                                                        color: Colors.grey,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 30,
+                                                      ),
+                                                      Text(
+                                                        "Setting",
+                                                        style: commonTextStyle(
+                                                            Colors.black,
+                                                            FontWeight.bold,
+                                                            16.0,
+                                                            null),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(height: 25.0),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.feedback,
+                                                      size: 25,
+                                                      color: Colors.grey,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 35,
+                                                    ),
+                                                    Text(
+                                                      "Send feedback",
+                                                      style: commonTextStyle(
+                                                          Colors.black,
+                                                          FontWeight.bold,
+                                                          16.0,
+                                                          null),
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Divider(
+                                    color: Colors.grey.withOpacity(0.3),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 20.0),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.dark_mode,
+                                                      size: 25,
+                                                      color: Colors.grey,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 30,
+                                                    ),
+                                                    Text(
+                                                      "Dark Mode",
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      icon: ClipRRect(
+                        child: ClipRRect(
+                          child: imageUrl != null
+                              ? CircleAvatar(
+                                  radius: 15,
+                                  backgroundImage: NetworkImage(imageUrl!),
+                                )
+                              : CircleAvatar(
+                                  radius: 15,
+                                  backgroundColor: Colors.grey,
+                                  child: Icon(Icons.person,
+                                      size: 20, color: Colors.white),
+                                ),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ))
+                ],
+              ),
+              // drawer
+              drawer: BlocBuilder<DrawerBloc, DrawerState>(
+                builder: (context, state) {
+                  return Container(
+                    color: Colors.white,
+                    child: Drawer(
+                        width: MediaQuery.sizeOf(context).width / 1.45,
+                        child: ListView(
+                          children: <Widget>[
+                            Container(
+                              color: Colors.white,
+                              child: SafeArea(
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          border: Border(
+                                              bottom: BorderSide(
+                                                  width: 1.0,
+                                                  color: Colors.grey
+                                                      .withOpacity(0.2)))),
+                                      child: const ListTile(
+                                        title: Text('Home'),
+                                        leading: Icon(Icons.home),
+                                      ),
+                                    ),
+                                    Container(
+                                      child: const ListTile(
+                                        visualDensity:
+                                            VisualDensity(vertical: -4),
+                                        title: Text(
+                                          'Interests',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                              color: Colors.grey),
+                                        ),
+                                      ),
+                                    ),
+                                    commonListTile(
+                                        "Anime & Manga",
+                                        Icons.ac_unit,
+                                        Colors.yellow,
+                                        Colors.red),
+                                    commonListTile("Latest News", Icons.ac_unit,
+                                        Colors.green, Colors.yellow),
+                                    commonListTile("Humor", Icons.ac_unit,
+                                        Colors.deepPurple, Colors.yellow),
+                                    commonListTile("Memes", Icons.ac_unit,
+                                        Colors.deepPurpleAccent, Colors.yellow),
+                                    commonListTile("Gaming", Icons.ac_unit,
+                                        Colors.orange, Colors.yellow),
+                                    commonListTile("WTF", Icons.ac_unit,
+                                        Colors.lightGreen, Colors.yellow),
+                                    commonListTile(
+                                        "Relationship & Dating",
+                                        Icons.ac_unit,
+                                        Colors.pinkAccent,
+                                        Colors.yellow),
+                                    commonListTile(
+                                        "Animals & Pets",
+                                        Icons.ac_unit,
+                                        Colors.deepPurple,
+                                        Colors.yellow),
+                                    commonListTile(
+                                        "Science & Tech",
+                                        Icons.ac_unit,
+                                        Colors.red,
+                                        Colors.yellow),
+                                    commonListTile("Comic", Icons.ac_unit,
+                                        Colors.pink, Colors.yellow),
+                                    commonListTile("Wholesome", Icons.ac_unit,
+                                        Colors.yellowAccent, Colors.red),
+                                    commonListTile("Sports", Icons.ac_unit,
+                                        Colors.redAccent, Colors.yellow),
+                                    commonListTile("Movies & TV", Icons.ac_unit,
+                                        Colors.greenAccent, Colors.yellow),
+                                    commonListTile("Cat", Icons.ac_unit,
+                                        Colors.orangeAccent, Colors.yellow),
+                                    commonListTile(
+                                        "Food & Drinks",
+                                        Icons.ac_unit,
+                                        Colors.red,
+                                        Colors.yellow),
+                                    commonListTile("Lifestyle", Icons.ac_unit,
+                                        Colors.blueAccent, Colors.yellow),
+                                    commonListTile("Superhero", Icons.ac_unit,
+                                        Colors.red, Colors.yellow),
+                                    commonListTile("Crypto", Icons.ac_unit,
+                                        Colors.blue, Colors.yellow),
+                                    commonListTile("Random", Icons.ac_unit,
+                                        Colors.pink, Colors.yellow),
+                                    commonListTile("Woah", Icons.ac_unit,
+                                        Colors.orange, Colors.yellow),
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        )),
+                  );
+                },
+              ),
+              body: BlocBuilder<DrawerBloc, DrawerState>(
+                builder: (context, state) {
+                  if (state is DrawerMenuSelected) {
+                    if (state.selectMenuItem == 'Home') {
+                      return const Center(child: Text('Home Screen'));
+                    } else if (state.selectMenuItem == 'Settings') {
+                      return const Center(child: Text('Settings Screen'));
+                    }
+                  }
+                  return SingleChildScrollView(
+                    child: Container(
+                      height: MediaQuery.sizeOf(context).height,
+                      color: Colors.white,
+                      child: ListView(
+                        children: [
+                          Container(
+                              width: MediaQuery.sizeOf(context).width,
+                              color: Colors.white,
+                              margin: EdgeInsets.symmetric(horizontal: 20.0),
+                              child: TabBar(
+                                // isScrollable: true,
+                                // padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                                controller: _tabController,
+                                labelColor: Colors.black,
+                                labelStyle: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                                unselectedLabelColor: Colors.grey,
+                                dividerColor: Colors.white,
+                                indicatorColor: Colors.black,
+                                labelPadding:
+                                    EdgeInsets.symmetric(horizontal: 0.0),
+                                // indicatorSize: TabBarIndicatorSize.tab,
+                                tabs: const [
+                                  Tab(
+                                    text: "Ask",
+                                  ),
+                                  Tab(
+                                    text: "Home",
+                                  ),
+                                  Tab(
+                                    text: "Top",
+                                  ),
+                                  Tab(
+                                    text: "Trending",
+                                  ),
+                                  Tab(
+                                    text: "Fresh",
+                                  ),
+                                ],
+                              )),
+                          Container(
+                            height: 730,
+                            child: TabBarView(
+                              controller: _tabController,
+                              children: [
+                                AskTab(),
+                                HomeTab(),
+                                TopTab(),
+                                TrendingTab(),
+                                FreshTab()
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () async {
+                  bool isLoggedIn = await _authService.isLoggedIn();
+                  if (isLoggedIn) {
+                    // create post page
+                    show_bottom_sheet_add_post();
+                  } else {
+                    show_bottom_sheet();
+                  }
+                },
+                child: Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                backgroundColor: CupertinoColors.systemBlue,
+                elevation: 5.0,
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -737,7 +1314,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<Widget> _buildMediaThumbnail(AssetEntity asset) async {
-    final thumbnail = await asset.thumbnailDataWithSize(ThumbnailSize(100, 100));
+    final thumbnail =
+        await asset.thumbnailDataWithSize(ThumbnailSize(100, 100));
     if (asset.type == AssetType.video) {
       return Stack(
         children: [
@@ -1145,33 +1723,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
         await _firebaseAuth.signInWithCredential(credential);
         showToast(message: "User is successfully signed in");
-        Navigator.of(context).pushReplacement(_HomeRoute());
+        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
       }
     } catch (e) {
       showToast(message: "some error occured $e");
     }
-  }
-
-  Route _HomeRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const HomePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end);
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: curve,
-          );
-
-          return SlideTransition(
-            position: tween.animate(curvedAnimation),
-            child: child,
-          );
-        },
-        transitionDuration: Duration(milliseconds: 1000));
   }
 }

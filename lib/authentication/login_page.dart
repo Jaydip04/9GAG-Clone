@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:gagclone/authentication/services/firebase_auth_services.dart';
-import 'package:gagclone/pages/home_page.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../common/toast.dart';
+import '../services/authService.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,6 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isSigning = false;
   bool _isLoading = false;
 
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -341,18 +343,32 @@ class _LoginPageState extends State<LoginPage> {
                     }else if(password.isEmpty){
                       showToast(message: "Password is empty");
                     }else{
-                      user = await  _auth.signInWithEmailAndPAssword(email, password);
+                      // user = await  _auth.signInWithEmailAndPAssword(email, password);
+                      final result  = await _authService.login(
+                        _emailController.text,
+                        _passwordController.text,
+                      );
+
+                      if (result != null) {
+                        final token = result['token'];
+                        final userId = result['userId'];
+
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => Thank_you()));
+                      } else {
+                        showToast(message: "something wrong");
+                      }
                       setState(() {
                         _isSigning = false;
                         _isLoading = false;
                       });
 
-                      if (user != null) {
-                        showToast(message: "User is successfully signed in");
-                        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-                      } else {
-                        showToast(message: "some error occured");
-                      }
+                      // if (user != null) {
+                      //   // showToast(message: "User is successfully signed in");
+                      //   Navigator.push(context, MaterialPageRoute(builder: (_) => Thank_you()));
+                      //   // Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                      // } else {
+                      //   showToast(message: "some error occured");
+                      // }
                     }
                   },
                   child: Container(
@@ -399,8 +415,9 @@ class _LoginPageState extends State<LoginPage> {
           accessToken: googleSignInAuthentication.accessToken,
         );
         await _firebaseAuth.signInWithCredential(credential);
-        showToast(message: "User is successfully signed in");
-        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+        // showToast(message: "User is successfully signed in");
+        Navigator.push(context, MaterialPageRoute(builder: (_) => Thank_you()));
+        // Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
       }
 
     }catch(e) {
@@ -408,5 +425,35 @@ class _LoginPageState extends State<LoginPage> {
     }
 
 
+  }
+}
+class Thank_you extends StatefulWidget {
+  const Thank_you({super.key});
+
+  @override
+  State<Thank_you> createState() => _Thank_youState();
+}
+
+class _Thank_youState extends State<Thank_you> {
+
+  @override
+  void initState() {
+    Future.delayed(
+        const Duration(seconds: 3),(){
+      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    }
+    );
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        color: Colors.white,
+        child: Center(
+          child:  Lottie.asset("assets/lottie_file/login.json"),
+        ),
+      ),
+    );
   }
 }

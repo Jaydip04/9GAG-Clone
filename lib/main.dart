@@ -31,7 +31,7 @@ Future main() async {
         appId: "1:580067420849:android:2943bb277c9b1ca1961090",
         messagingSenderId: "580067420849",
         projectId: "gag-17c23",
-        // Your web Firebase config options
+        databaseURL: "https://<gag-17c23>.firebaseio.com",
       ),
     );
   } else {
@@ -50,6 +50,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => VideoBloc()),
       ],
       child: MaterialApp(
+        
         title: '9GAG',
         initialRoute: '/',
         routes: {
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
           '/profile/editProfile/email': (context) => ChangeEmail(),
           '/profile/editProfile/password': (context) => ChangePassword(),
           '/login': (context) => LoginPage(),
+          '/signUp/login': (context) => LoginPage(),
           '/createPostFormLink': (context) => CreatePostFormLink(),
           '/signUp': (context) => SignupPage(),
           '/setting': (context) => SettingPage(),

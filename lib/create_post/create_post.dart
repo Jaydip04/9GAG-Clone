@@ -16,9 +16,13 @@ import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 
 import '../models/post_model.dart';
+import '../services/authService.dart';
+import '../services/postService.dart';
 
 class CreatePost extends StatefulWidget {
-  const CreatePost({super.key,});
+  const CreatePost({
+    super.key,
+  });
 
   @override
   State<CreatePost> createState() => _CreatePostState();
@@ -29,31 +33,65 @@ class _CreatePostState extends State<CreatePost> {
   bool _isButtonEnabled = false;
   String _tags = 'Add at least 1 tag';
   String _interest = 'Choose interest';
-  String _url= 'assets/logo/apple.png';
+  String _url = 'assets/logo/apple.png';
   bool _isLoading = false;
+  final AuthService _authService = AuthService();
+  PostService postService = PostService();
 
   @override
   void initState() {
     super.initState();
+    fetchUserData();
     _controller.addListener(() {
       setState(() {
         _isButtonEnabled = _controller.text.isNotEmpty;
       });
     });
   }
+
+  // void fetchUserData() async {
+  //   String? token = await _authService.getToken();
+  //   Map<String, dynamic>? userData = await _authService.getUserData(token!);
+  //
+  //   if (userData != null) {
+  //     String userId = userData['id'];
+  //     String email = userData['email'];
+  //     print('User ID: $userId');
+  //     print('Email: $email');
+  //   } else {
+  //     print('Failed to fetch user data');
+  //   }
+  // }
+  String? userId;
+  void fetchUserData() async {
+    String? token = await _authService.getToken();
+    Map<String, dynamic>? userData = await _authService.getUserData(token!);
+
+    if (userData != null) {
+      setState(() {
+        userId = userData['_id'];
+      });
+      print('User ID: $userId');
+    } else {
+      print('Failed to fetch user data');
+      // Handle the case when userData is null
+    }
+  }
+
   Future<String> uploadImage(File imageFile) async {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference storageReference = FirebaseStorage.instance.ref().child("videos/$fileName");
+    Reference storageReference =
+        FirebaseStorage.instance.ref().child("videos/$fileName");
     UploadTask uploadTask = storageReference.putFile(File(imageFile.path));
     TaskSnapshot taskSnapshot = await uploadTask;
     String downloadURL = await taskSnapshot.ref.getDownloadURL();
     return downloadURL;
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final File requiredParameter = ModalRoute.of(context)!.settings.arguments as File;
+    final File requiredParameter =
+        ModalRoute.of(context)!.settings.arguments as File;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -119,7 +157,8 @@ class _CreatePostState extends State<CreatePost> {
                               ),
                               GestureDetector(
                                   onTap: () {
-                                    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                                    Navigator.pushNamedAndRemoveUntil(
+                                        context, '/', (route) => false);
                                   },
                                   child: Text(
                                     "Discard",
@@ -141,13 +180,10 @@ class _CreatePostState extends State<CreatePost> {
         ),
         actions: [
           GestureDetector(
-
-            onTap: () async{
+            onTap: () async {
               setState(() {
                 _isLoading = true;
               });
-              var uuid = Uuid();
-              String postId = uuid.v4();
 
               List<String> words = _tags.split(' ');
               if (words.length >= 5) {
@@ -158,19 +194,96 @@ class _CreatePostState extends State<CreatePost> {
                 String word_5 = words[4];
 
                 try {
-                  String? downloadURL = await uploadImage(requiredParameter);
+                  // String? downloadURL = ;
                   String postSubHeading = _controller.text.toString();
-                  PostModel post = PostModel(id: postId,postHeading: _interest, postBottomScrollView: [word_1,word_2,word_3,word_4,word_5], postSubHeading: postSubHeading, postVideoUrl: downloadURL, postLikeCount: "0", postCommentCount: "0", postHoursCount: "0", timestamp: DateTime.now(),);
-                  FirebaseFirestore firestore = FirebaseFirestore.instance;
-                  await firestore.collection('posts').doc(FirebaseAuth.instance.currentUser!.uid).collection("posts").doc(postId).set(post.toMap()).then((onValue) async {
-                    FirebaseFirestore firestoreUser = FirebaseFirestore.instance;
-                    await firestoreUser.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).set({"currentUserUid" : FirebaseAuth.instance.currentUser!.uid
-                    }).then((onValue){
-                      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                  final newPost = PostModel(
+                    userId: userId!,
+                    postHeading: _interest,
+                    tags: [
+                        word_1,
+                        word_2,
+                        word_3,
+                        word_4,
+                        word_5
+                      ],
+                    postSubHeading: postSubHeading,
+                    postVideoUrl: 'http://video.url',
+                    postLikeCount: '0',
+                    postCommentCount: '0',
+                    postHoursCount: '1',
+                    timestamp: DateTime.now(),
+                  );
+                  // PostModel newPost = PostModel(
+                  //   postHeading: _interest,
+                  //   tags: [
+                  //     word_1,
+                  //     word_2,
+                  //     word_3,
+                  //     word_4,
+                  //     word_5
+                  //   ],
+                  //   postSubHeading: postSubHeading,
+                  //   postVideoUrl: "http://example.com/video.mp4",
+                  //   postLikeCount: "10",
+                  //   postCommentCount: "5.0",
+                  //   postHoursCount: "20",
+                  //   timestamp: DateTime.now(),
+                  //   userId: userId!,
+                  // );
+                  try {
+                    var result =  await postService.createPost(newPost);
+                    if(result != null){
+                      Navigator.pushNamedAndRemoveUntil(
+                                  context, '/', (route) => false);
                       showToast(message: "Post added successfully!");
-                    });
-                    print('Post added successfully!');
-                  });
+                      print('Post created');
+                    }else{
+                      showToast(message: "Failed to create post");
+                      print('Post created');
+                    }
+                  } catch (error) {
+                    print('Error creating post: $error');
+                  }
+                  // try{
+                  //   final result = await postService.createPost(newPost);
+                  //   if (result != null) {
+                  //     showToast(message: "Post added successfully!");
+                  //     print('Post created');
+                  //   } else {
+                  //     showToast(message: "Failed to create post");
+                  //     print('Failed to create post');
+                  //   }
+                  // }catch(e){
+                  //   print(e);
+                  // }
+
+                  // FirebaseFirestore firestore = FirebaseFirestore.instance;
+                  // await firestore
+                  //     .collection('posts')
+                  //     .doc(FirebaseAuth.instance.currentUser!.uid)
+                  //     .collection("posts")
+                  //     .doc(postId)
+                  //     .set(post.toMap())
+                  //     .then((onValue) async {
+                  //   FirebaseFirestore firestoreUser =
+                  //       FirebaseFirestore.instance;
+                  //   await firestoreUser
+                  //       .collection('users')
+                  //       .doc(FirebaseAuth.instance.currentUser!.uid)
+                  //       .set({
+                  //     "currentUserUid": FirebaseAuth.instance.currentUser!.uid
+                  //   }).then((onValue) {
+                  //     firestoreUser
+                  //         .collection('allPost')
+                  //         .doc(postId)
+                  //         .set(post.toMap()).then((onValue) {
+                  //       Navigator.pushNamedAndRemoveUntil(
+                  //           context, '/', (route) => false);
+                  //       showToast(message: "Post added successfully!");
+                  //     });
+                  //   });
+                  //   print('Post added successfully!');
+                  // });
 
                   setState(() {
                     _isLoading = false;
@@ -188,11 +301,13 @@ class _CreatePostState extends State<CreatePost> {
                 width: 80.00,
                 height: 45.00,
                 padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                child:Center(
+                child: Center(
                   child: Text(
                     "Post",
                     style: commonTextStyle(
-                        _controller.text.isNotEmpty ? Colors.white : Colors.white.withOpacity(0.4),
+                        _controller.text.isNotEmpty
+                            ? Colors.white
+                            : Colors.white.withOpacity(0.4),
                         FontWeight.bold,
                         14.00,
                         null),
@@ -211,145 +326,168 @@ class _CreatePostState extends State<CreatePost> {
         child: Container(
           height: MediaQuery.sizeOf(context).height,
           color: Colors.white,
-          child: _isLoading ? Center(child: CircularProgressIndicator(color: Colors.black,strokeWidth: 4.0,)) :  Column(
-            children: [
-              GestureDetector(
-                onTap: () async {
-                  final result = await Navigator.pushNamed(context, '/createPost/chooseInterest');
-                  if (result != null  && result is Map<String, dynamic>) {
-                    setState(() {
-                      _interest = result['interestText'];
-                      _url = result['imageUrl'];
-                    });
-                  }
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                      bottom: BorderSide(
-                          color: Colors.grey.withOpacity(0.2), width: 1.0),
-                    ),
-                  ),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Column(
-                        children: [
-                          Row(
-                            children: [
-                              Image.asset(_url,width: 30.00,height: 30.00,),
-                              SizedBox(
-                                width: 20.00,
-                              ),
-                              Text(
-                                "$_interest",
-                                style: commonTextStyle(
-                                    Colors.black, FontWeight.bold, 14.00, null),
-                              ),
-                            ],
+          child: _isLoading
+              ? Center(
+                  child: CircularProgressIndicator(
+                  color: Colors.black,
+                  strokeWidth: 4.0,
+                ))
+              : Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final result = await Navigator.pushNamed(
+                            context, '/createPost/chooseInterest');
+                        if (result != null && result is Map<String, dynamic>) {
+                          setState(() {
+                            _interest = result['interestText'];
+                            _url = result['imageUrl'];
+                          });
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            bottom: BorderSide(
+                                color: Colors.grey.withOpacity(0.2),
+                                width: 1.0),
                           ),
-                        ],
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Image.asset(
+                                      _url,
+                                      width: 30.00,
+                                      height: 30.00,
+                                    ),
+                                    SizedBox(
+                                      width: 20.00,
+                                    ),
+                                    Text(
+                                      "$_interest",
+                                      style: commonTextStyle(Colors.black,
+                                          FontWeight.bold, 14.00, null),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Icon(
+                              CupertinoIcons.chevron_right,
+                              color: Colors.grey,
+                              size: 18.0,
+                            )
+                          ],
+                        ),
                       ),
-                      Icon(
-                        CupertinoIcons.chevron_right,
-                        color: Colors.grey,
-                        size: 18.0,
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    bottom: BorderSide(
-                        color: Colors.grey.withOpacity(0.2), width: 1.0),
-                  ),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                child: TextField(
-                  keyboardType: TextInputType.multiline,
-                  minLines: 4,
-                  maxLines: 8,
-                  maxLength: 280,
-                  showCursor: true,
-                  inputFormatters: [
-                    LengthLimitingTextInputFormatter(280), // Max 280 characters
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border(
+                          bottom: BorderSide(
+                              color: Colors.grey.withOpacity(0.2), width: 1.0),
+                        ),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 10.0, vertical: 10.0),
+                      child: TextField(
+                        keyboardType: TextInputType.multiline,
+                        minLines: 4,
+                        maxLines: 8,
+                        maxLength: 280,
+                        showCursor: true,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(
+                              280), // Max 280 characters
+                        ],
+                        style: commonTextStyle(Colors.black, FontWeight.bold,
+                            18.00, TextDecoration.underline),
+                        cursorColor: Colors.indigo,
+                        controller: _controller,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 0.0, vertical: 0.0),
+                          border:
+                              OutlineInputBorder(borderSide: BorderSide.none),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        final tags = await Navigator.pushNamed(
+                            context, '/createPost/tag') as String;
+                        if (tags != null) {
+                          setState(() {
+                            _tags = tags;
+                          });
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            bottom: BorderSide(
+                                color: Colors.grey.withOpacity(0.2),
+                                width: 1.0),
+                          ),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Tags",
+                                      style: commonTextStyle(Colors.black,
+                                          FontWeight.bold, 14.00, null),
+                                    ),
+                                    SizedBox(
+                                      width: 20.0,
+                                    ),
+                                    Text(
+                                      _tags != null
+                                          ? _tags
+                                          : "Add at least 1 tag",
+                                      style: commonTextStyle(Colors.grey,
+                                          FontWeight.bold, 14.00, null),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Icon(
+                              CupertinoIcons.chevron_right,
+                              color: Colors.grey,
+                              size: 18.0,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20.00,
+                    ),
+                    // widget.imageFile != null ? Image.file(widget.imageFile,width: MediaQuery.sizeOf(context).width,height: 400.00,fit: BoxFit.fill,):
+                    PostVideo(
+                      videoURL: requiredParameter.path,
+                    )
                   ],
-                  style: commonTextStyle(Colors.black, FontWeight.bold, 18.00,
-                      TextDecoration.underline),
-                  cursorColor: Colors.indigo,
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-                    border: OutlineInputBorder(borderSide: BorderSide.none),
-                  ),
                 ),
-              ),
-              GestureDetector(
-                onTap: () async{
-                  final tags = await Navigator.pushNamed(context, '/createPost/tag') as String;
-                  if (tags != null) {
-                    setState(() {
-                      _tags = tags;
-                    });
-                  }
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                      bottom: BorderSide(
-                          color: Colors.grey.withOpacity(0.2), width: 1.0),
-                    ),
-                  ),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "Tags",
-                                style: commonTextStyle(
-                                    Colors.black, FontWeight.bold, 14.00, null),
-                              ),
-                              SizedBox(
-                                width: 20.0,
-                              ),
-                              Text(
-                                _tags != null ? _tags : "Add at least 1 tag",
-                                style: commonTextStyle(
-                                    Colors.grey, FontWeight.bold, 14.00, null),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      Icon(
-                        CupertinoIcons.chevron_right,
-                        color: Colors.grey,
-                        size: 18.0,
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 20.00,),
-              // widget.imageFile != null ? Image.file(widget.imageFile,width: MediaQuery.sizeOf(context).width,height: 400.00,fit: BoxFit.fill,):
-              PostVideo(videoURL: requiredParameter.path,)
-            ],
-          ),
         ),
       ),
     );

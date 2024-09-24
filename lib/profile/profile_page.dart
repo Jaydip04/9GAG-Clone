@@ -14,6 +14,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
 
+import '../services/authService.dart';
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -25,12 +27,14 @@ class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   List<AssetEntity> mediaList = [];
   late TabController _tabController;
-  bool isLoggedIn = FirebaseAuth.instance.currentUser != null ? true : false;
-  String? userName;
-  String? profileName;
+  final AuthService _authService = AuthService();
+  Future<Map<String, dynamic>?>? _userData;
+
+
   @override
   void initState() {
     super.initState();
+    _userData = fetchUserData();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     _tabController = TabController(
         length: 4,
@@ -43,9 +47,20 @@ class _ProfilePageState extends State<ProfilePage>
         });
       });
     });
-    listenToUserName();
-    listenToProfileName();
-    _fetchProfileImageUrl();
+  }
+
+  Future<Map<String, dynamic>?> fetchUserData() async {
+    await Future.delayed(Duration(seconds: 1));
+    String? token = await _authService.getToken();
+    if(token == null){
+      return {};
+    }else{
+      String? token = await _authService.getToken();
+      final userData = await _authService.getUserData(token!);
+      return {
+        'name': userData!['username'],
+      };
+    }
   }
 
   @override
@@ -93,19 +108,19 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   String? imageUrl;
-  Future<void> _fetchProfileImageUrl() async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref(
-        'Profile Photo/${FirebaseAuth.instance.currentUser!.uid}/profile_photo');
-    DataSnapshot snapshot = await ref.get();
-
-    if (snapshot.exists) {
-      setState(() {
-        imageUrl = snapshot.value as String?;
-      });
-    } else {
-      print('No image URL found');
-    }
-  }
+  // Future<void> _fetchProfileImageUrl() async {
+  //   DatabaseReference ref = FirebaseDatabase.instance.ref(
+  //       'Profile Photo/${FirebaseAuth.instance.currentUser!.uid}/profile_photo');
+  //   DataSnapshot snapshot = await ref.get();
+  //
+  //   if (snapshot.exists) {
+  //     setState(() {
+  //       imageUrl = snapshot.value as String?;
+  //     });
+  //   } else {
+  //     print('No image URL found');
+  //   }
+  // }
 
   Future<void> requestPermission() async {
     await Permission.photos.request();
@@ -145,627 +160,625 @@ class _ProfilePageState extends State<ProfilePage>
   //   }
   // }
 
-  void listenToUserName() {
-    if (isLoggedIn) {
-      DatabaseReference reference = FirebaseDatabase.instance
-          .ref("Profile")
-          .child(FirebaseAuth.instance.currentUser!.uid)
-          .child("userName");
-      reference.onValue.listen((DatabaseEvent event) {
-        final data = event.snapshot.value;
-        setState(() {
-          userName = data as String?;
-        });
-      });
-    } else {
-      userName = "9GAG" as String?;
-    }
-  }
-
-  void listenToProfileName() {
-    if (isLoggedIn) {
-      DatabaseReference reference = FirebaseDatabase.instance
-          .ref("Profile")
-          .child(FirebaseAuth.instance.currentUser!.uid)
-          .child("profileName");
-      reference.onValue.listen((DatabaseEvent event) {
-        final data = event.snapshot.value;
-        setState(() {
-          profileName = data as String?;
-        });
-      });
-    } else {
-      profileName = "9GAG" as String?;
-    }
-  }
+  // void _fetchToken() async {
+  //   String? token = await _authService.getToken();
+  //   final userData = await _authService.getUserData(token!);
+  //   setState(() {
+  //     _userData = userData;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.grey),
-        leading: IconButton(
-          icon: Icon(
-            CupertinoIcons.arrow_left,
-            color: Colors.grey,
-            size: 22,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          userName == null
-              ? profileName
-                  .toString()
-                  .toLowerCase()
-                  .split(' ')
-                  .reversed
-                  .join(' ')
-              : userName.toString(),
-          style: commonTextStyle(Colors.black, FontWeight.bold, 18.00),
-        ),
-        actions: <Widget>[
-          TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/profile/editProfile');
-              },
-              child: Text(
-                "Edit profile",
-                style: commonTextStyle(Colors.indigo, FontWeight.bold, 14.00),
-              )),
-          IconButton(
-              onPressed: () {
-                showModalBottomSheet(
-                    transitionAnimationController: AnimationController(
-                      duration: const Duration(milliseconds: 1000),
-                      vsync: Navigator.of(context),
-                    ),
-                    backgroundColor: Colors.white,
-                    constraints: BoxConstraints.loose(Size(
-                        MediaQuery.of(context).size.width,
-                        MediaQuery.of(context).size.height / 2.3)),
-                    context: context,
-                    isScrollControlled: true,
-                    shape: RoundedRectangleBorder(
-                      // <-- for border radius
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(15.0),
-                        topRight: Radius.circular(15.0),
-                      ),
-                    ),
-                    builder: (BuildContext context) {
-                      return SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 20,
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _userData,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            color: Colors.white,
+            child: Center(
+              child: CircularProgressIndicator(
+                color: Colors.black,
+              ),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Container(
+            color: Colors.white,
+            child: Center(
+              child: Text('Error loading user data',style: TextStyle(color: Colors.black,fontSize: 18.00,fontWeight: FontWeight.bold),textAlign:TextAlign.center,),
+            ),
+          );
+        } else if (!snapshot.hasData || snapshot.data == null) {
+          return Container(
+            color: Colors.white,
+            child: Center(
+              child: Text('No user data available',style: TextStyle(color: Colors.black,fontSize: 18.00,fontWeight: FontWeight.bold),textAlign:TextAlign.center,),
+            ),
+          );
+        } else {
+          final userData = snapshot.data!;
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              iconTheme: IconThemeData(color: Colors.grey),
+              leading: IconButton(
+                icon: Icon(
+                  CupertinoIcons.arrow_left,
+                  color: Colors.grey,
+                  size: 22,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              title:Text( userData['name'] ??
+                  '9GAG',
+                style: commonTextStyle(Colors.black, FontWeight.bold, 18.00),
+              ),
+              actions: <Widget>[
+                TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/profile/editProfile');
+                    },
+                    child: Text(
+                      "Edit profile",
+                      style: commonTextStyle(Colors.indigo, FontWeight.bold, 14.00),
+                    )),
+                IconButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                          transitionAnimationController: AnimationController(
+                            duration: const Duration(milliseconds: 1000),
+                            vsync: Navigator.of(context),
+                          ),
+                          backgroundColor: Colors.white,
+                          constraints: BoxConstraints.loose(Size(
+                              MediaQuery.of(context).size.width,
+                              MediaQuery.of(context).size.height / 2.3)),
+                          context: context,
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                            // <-- for border radius
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(15.0),
+                              topRight: Radius.circular(15.0),
                             ),
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 5.0),
-                              width: double.infinity,
-                              child: Row(
+                          ),
+                          builder: (BuildContext context) {
+                            return SingleChildScrollView(
+                              child: Column(
                                 children: [
-                                  Padding(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      child: Icon(
-                                        Icons.link,
-                                        color: Colors.grey,
-                                      )),
                                   SizedBox(
-                                    width: 30.0,
+                                    height: 20,
                                   ),
-                                  Text(
-                                    "Share Profile",
-                                    style: commonTextStyle(
-                                        Colors.black, FontWeight.bold, 14.00),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 5.0),
+                                    width: double.infinity,
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                            padding: const EdgeInsets.only(left: 10),
+                                            child: Icon(
+                                              Icons.link,
+                                              color: Colors.grey,
+                                            )),
+                                        SizedBox(
+                                          width: 30.0,
+                                        ),
+                                        Text(
+                                          "Share Profile",
+                                          style: commonTextStyle(
+                                              Colors.black, FontWeight.bold, 14.00),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 20.0,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.pushNamed(context, '/profile/editProfile');
+                                    },
+                                    child: Container(
+                                      margin: EdgeInsets.symmetric(
+                                          horizontal: 10.0, vertical: 5.0),
+                                      width: double.infinity,
+                                      child: Row(
+                                        children: [
+                                          Padding(
+                                              padding:
+                                              const EdgeInsets.only(left: 10),
+                                              child: Icon(Icons.edit,
+                                                  color: Colors.grey)),
+                                          SizedBox(
+                                            width: 30.0,
+                                          ),
+                                          Text(
+                                            "Edit profile",
+                                            style: commonTextStyle(
+                                                Colors.black, FontWeight.bold, 14.00),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
                                   ),
                                 ],
                               ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pushNamed(context, '/profile/editProfile');
-                              },
-                              child: Container(
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 10.0, vertical: 5.0),
-                                width: double.infinity,
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
-                                        child: Icon(Icons.edit,
-                                            color: Colors.grey)),
-                                    SizedBox(
-                                      width: 30.0,
-                                    ),
-                                    Text(
-                                      "Edit profile",
-                                      style: commonTextStyle(
-                                          Colors.black, FontWeight.bold, 14.00),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10.0,
-                            ),
-                          ],
-                        ),
-                      );
-                    });
-              },
-              icon: Icon(Icons.more_vert_outlined))
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _fetchProfileImageUrl,
-        child: SingleChildScrollView(
-          child: Container(
-            color: Colors.white,
-            height: MediaQuery.sizeOf(context).height,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 10.0,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Column(
+                            );
+                          });
+                    },
+                    icon: Icon(Icons.more_vert_outlined))
+              ],
+            ),
+            body: SingleChildScrollView(
+              child: Container(
+                color: Colors.white,
+                height: MediaQuery.sizeOf(context).height,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: imageUrl != null
-                                ? CircleAvatar(
-                                    radius: 35,
-                                    backgroundImage: NetworkImage(imageUrl!),
-                                  )
-                                : CircleAvatar(
-                                    radius: 35,
-                                    backgroundColor: Colors.grey,
-                                    child: Icon(Icons.person,
-                                        size: 40, color: Colors.white),
-                                  ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 15.0,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                          Column(
                             children: [
-                              Text(
-                                profileName.toString(),
-                                style: commonTextStyle(
-                                    Colors.black, FontWeight.bold, 18.00),
-                              ),
-                              SizedBox(
-                                width: 4.0,
-                              ),
-                              Container(
-                                child: Text(
-                                  "PRO",
-                                  style: commonTextStyle(
-                                    Colors.white,
-                                    FontWeight.bold,
-                                    12.0,
-                                  ),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(30.0),
+                                child: imageUrl != null
+                                    ? CircleAvatar(
+                                  radius: 35,
+                                  backgroundImage: NetworkImage(imageUrl!),
+                                )
+                                    : CircleAvatar(
+                                  radius: 35,
+                                  backgroundColor: Colors.grey,
+                                  child: Icon(Icons.person,
+                                      size: 40, color: Colors.white),
                                 ),
-                                decoration: BoxDecoration(
-                                    color: Colors.grey,
-                                    borderRadius: BorderRadius.circular(5.0)),
-                                padding: EdgeInsets.symmetric(horizontal: 3),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 15.0,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text( userData['name'] ??
+                                      '9GAG',
+                                    style: commonTextStyle(
+                                        Colors.black, FontWeight.bold, 18.00),
+                                  ),
+                                  SizedBox(
+                                    width: 4.0,
+                                  ),
+                                  Container(
+                                    child: Text(
+                                      "PRO",
+                                      style: commonTextStyle(
+                                        Colors.white,
+                                        FontWeight.bold,
+                                        12.0,
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey,
+                                        borderRadius: BorderRadius.circular(5.0)),
+                                    padding: EdgeInsets.symmetric(horizontal: 3),
+                                  )
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "0 days .",
+                                    style: commonTextStyle(
+                                        Colors.grey, FontWeight.bold, 14.00),
+                                  ),
+                                  SizedBox(
+                                    width: 4.0,
+                                  ),
+                                  Text(
+                                    "1st day streak",
+                                    style: commonTextStyle(
+                                        Colors.grey, FontWeight.bold, 14.00),
+                                  ),
+                                ],
                               )
                             ],
                           ),
-                          Row(
-                            children: [
-                              Text(
-                                "0 days .",
-                                style: commonTextStyle(
-                                    Colors.grey, FontWeight.bold, 14.00),
-                              ),
-                              SizedBox(
-                                width: 4.0,
-                              ),
-                              Text(
-                                "1st day streak",
-                                style: commonTextStyle(
-                                    Colors.grey, FontWeight.bold, 14.00),
-                              ),
-                            ],
-                          )
                         ],
                       ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 15.0, vertical: 10.0),
-                  child: Text(
-                    "My Funny Collection",
-                    style:
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15.0, vertical: 10.0),
+                      child: Text(
+                        "My Funny Collection",
+                        style:
                         commonTextStyle(Colors.black, FontWeight.bold, 14.00),
-                  ),
-                ),
-                Divider(),
-                TabBar(
-                  controller: _tabController,
-                  labelColor: Colors.black,
-                  labelStyle: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.black),
-                  unselectedLabelColor: Colors.grey,
-                  dividerColor: Colors.white,
-                  indicatorColor: Colors.black,
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  tabs: [
-                    Tab(text: 'Posts'),
-                    Tab(text: 'Comments'),
-                    Tab(text: 'Upvotes'),
-                    Tab(text: 'Saved'),
+                      ),
+                    ),
+                    Divider(),
+                    TabBar(
+                      controller: _tabController,
+                      labelColor: Colors.black,
+                      labelStyle: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black),
+                      unselectedLabelColor: Colors.grey,
+                      dividerColor: Colors.white,
+                      indicatorColor: Colors.black,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      tabs: [
+                        Tab(text: 'Posts'),
+                        Tab(text: 'Comments'),
+                        Tab(text: 'Upvotes'),
+                        Tab(text: 'Saved'),
+                      ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20.0),
+                      height: MediaQuery.sizeOf(context).height / 1.4,
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          // Container(
+                          //   color: Colors.white,
+                          //   child: StreamBuilder<QuerySnapshot>(
+                          //       stream: FirebaseFirestore.instance
+                          //           .collection('posts')
+                          //           .doc(FirebaseAuth.instance.currentUser!.uid)
+                          //           .collection("posts")
+                          //           .snapshots(),
+                          //       builder: (context, snapshot) {
+                          //         if (!snapshot.hasData) {
+                          //           return Center(
+                          //               child: CircularProgressIndicator());
+                          //         }
+                          //         List<DocumentSnapshot> docs = snapshot.data!.docs;
+                          //         return docs.length == 0
+                          //             ? Column(
+                          //                 children: [
+                          //                   Text(
+                          //                     'No Posts',
+                          //                     style: commonTextStyle(Colors.black,
+                          //                         FontWeight.bold, 16.00),
+                          //                   ),
+                          //                   SizedBox(
+                          //                     height: 10.0,
+                          //                   ),
+                          //                   Text(
+                          //                     "Let's make something creative for fun!",
+                          //                     style: commonTextStyle(Colors.grey,
+                          //                         FontWeight.bold, 14.00),
+                          //                   ),
+                          //                   SizedBox(
+                          //                     height: 15.0,
+                          //                   ),
+                          //                   GestureDetector(
+                          //                     onTap: () {
+                          //                       showModalBottomSheet(
+                          //                           transitionAnimationController:
+                          //                               AnimationController(
+                          //                             duration: const Duration(
+                          //                                 milliseconds: 1000),
+                          //                             vsync: Navigator.of(context),
+                          //                           ),
+                          //                           backgroundColor: Colors.white,
+                          //                           constraints:
+                          //                               BoxConstraints.loose(Size(
+                          //                                   MediaQuery.of(context)
+                          //                                       .size
+                          //                                       .width,
+                          //                                   MediaQuery.of(context)
+                          //                                           .size
+                          //                                           .height /
+                          //                                       2.3)),
+                          //                           context: context,
+                          //                           isScrollControlled: true,
+                          //                           shape: RoundedRectangleBorder(
+                          //                             borderRadius:
+                          //                                 BorderRadius.only(
+                          //                               topLeft:
+                          //                                   Radius.circular(0.0),
+                          //                               topRight:
+                          //                                   Radius.circular(0.0),
+                          //                             ),
+                          //                           ),
+                          //                           builder:
+                          //                               (BuildContext context) {
+                          //                             return SingleChildScrollView(
+                          //                               child: Column(
+                          //                                 children: [
+                          //                                   Container(
+                          //                                     height: 100.0,
+                          //                                     child: mediaList
+                          //                                             .isEmpty
+                          //                                         ? Center(
+                          //                                             child:
+                          //                                                 CircularProgressIndicator())
+                          //                                         : ListView
+                          //                                             .builder(
+                          //                                             scrollDirection:
+                          //                                                 Axis.horizontal,
+                          //                                             itemCount:
+                          //                                                 mediaList
+                          //                                                     .length,
+                          //                                             itemBuilder:
+                          //                                                 (context,
+                          //                                                     index) {
+                          //                                               return FutureBuilder<
+                          //                                                   Widget>(
+                          //                                                 future: _buildMediaThumbnail(
+                          //                                                     mediaList[
+                          //                                                         index]),
+                          //                                                 builder:
+                          //                                                     (context,
+                          //                                                         snapshot) {
+                          //                                                   if (snapshot.connectionState ==
+                          //                                                       ConnectionState.done) {
+                          //                                                     return Container(
+                          //                                                       margin:
+                          //                                                           EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+                          //                                                       child:
+                          //                                                           snapshot.data,
+                          //                                                     );
+                          //                                                   } else {
+                          //                                                     return Container(
+                          //                                                       width:
+                          //                                                           100.0,
+                          //                                                       height:
+                          //                                                           100.0,
+                          //                                                       child:
+                          //                                                           Center(child: CircularProgressIndicator()),
+                          //                                                     );
+                          //                                                   }
+                          //                                                 },
+                          //                                               );
+                          //                                             },
+                          //                                           ),
+                          //                                   ),
+                          //                                   SizedBox(
+                          //                                     height: 20,
+                          //                                   ),
+                          //                                   GestureDetector(
+                          //                                     onTap: _openCamera,
+                          //                                     child: Container(
+                          //                                       margin: EdgeInsets
+                          //                                           .symmetric(
+                          //                                               horizontal:
+                          //                                                   10.0,
+                          //                                               vertical:
+                          //                                                   5.0),
+                          //                                       width:
+                          //                                           double.infinity,
+                          //                                       child: Row(
+                          //                                         children: [
+                          //                                           Padding(
+                          //                                               padding: const EdgeInsets
+                          //                                                   .only(
+                          //                                                   left:
+                          //                                                       10),
+                          //                                               child: Icon(
+                          //                                                   Icons
+                          //                                                       .camera_alt,
+                          //                                                   color: Colors
+                          //                                                       .grey)),
+                          //                                           SizedBox(
+                          //                                             width: 30.0,
+                          //                                           ),
+                          //                                           Text(
+                          //                                             "Use Camera",
+                          //                                             style:
+                          //                                                 commonTextStyle(
+                          //                                               Colors
+                          //                                                   .black,
+                          //                                               FontWeight
+                          //                                                   .bold,
+                          //                                               14.00,
+                          //                                             ),
+                          //                                           ),
+                          //                                         ],
+                          //                                       ),
+                          //                                     ),
+                          //                                   ),
+                          //                                   SizedBox(
+                          //                                     height: 20.0,
+                          //                                   ),
+                          //                                   GestureDetector(
+                          //                                     onTap: _openGallery,
+                          //                                     child: Container(
+                          //                                       margin: EdgeInsets
+                          //                                           .symmetric(
+                          //                                               horizontal:
+                          //                                                   10.0,
+                          //                                               vertical:
+                          //                                                   5.0),
+                          //                                       width:
+                          //                                           double.infinity,
+                          //                                       child: Row(
+                          //                                         children: [
+                          //                                           Padding(
+                          //                                               padding: const EdgeInsets
+                          //                                                   .only(
+                          //                                                   left:
+                          //                                                       10),
+                          //                                               child: Icon(
+                          //                                                   Icons
+                          //                                                       .image,
+                          //                                                   color: Colors
+                          //                                                       .grey)),
+                          //                                           SizedBox(
+                          //                                             width: 30.0,
+                          //                                           ),
+                          //                                           Text(
+                          //                                             "Choose Form Gallery",
+                          //                                             style:
+                          //                                                 commonTextStyle(
+                          //                                               Colors
+                          //                                                   .black,
+                          //                                               FontWeight
+                          //                                                   .bold,
+                          //                                               14.00,
+                          //                                             ),
+                          //                                           ),
+                          //                                         ],
+                          //                                       ),
+                          //                                     ),
+                          //                                   ),
+                          //                                   SizedBox(
+                          //                                     height: 20.0,
+                          //                                   ),
+                          //                                   GestureDetector(
+                          //                                     onTap: () {
+                          //                                       Navigator.pushNamed(context, '/createPostFormLink');
+                          //                                     },
+                          //                                     child: Container(
+                          //                                       margin: EdgeInsets
+                          //                                           .symmetric(
+                          //                                               horizontal:
+                          //                                                   10.0,
+                          //                                               vertical:
+                          //                                                   5.0),
+                          //                                       width:
+                          //                                           double.infinity,
+                          //                                       child: Row(
+                          //                                         children: [
+                          //                                           Padding(
+                          //                                               padding: const EdgeInsets
+                          //                                                   .only(
+                          //                                                   left:
+                          //                                                       10),
+                          //                                               child: Icon(
+                          //                                                 Icons
+                          //                                                     .link,
+                          //                                                 color: Colors
+                          //                                                     .grey,
+                          //                                               )),
+                          //                                           SizedBox(
+                          //                                             width: 30.0,
+                          //                                           ),
+                          //                                           Text(
+                          //                                             "Create Post Form Link",
+                          //                                             style:
+                          //                                                 commonTextStyle(
+                          //                                               Colors
+                          //                                                   .black,
+                          //                                               FontWeight
+                          //                                                   .bold,
+                          //                                               14.00,
+                          //                                             ),
+                          //                                           ),
+                          //                                         ],
+                          //                                       ),
+                          //                                     ),
+                          //                                   ),
+                          //                                   SizedBox(
+                          //                                     height: 10.0,
+                          //                                   ),
+                          //                                 ],
+                          //                               ),
+                          //                             );
+                          //                           });
+                          //                     },
+                          //                     child: Container(
+                          //                       padding: EdgeInsets.symmetric(
+                          //                           horizontal: 10.0,
+                          //                           vertical: 5.0),
+                          //                       width: 90.0,
+                          //                       height: 40.0,
+                          //                       decoration: BoxDecoration(
+                          //                           color: Colors.indigo,
+                          //                           borderRadius:
+                          //                               BorderRadius.circular(5.0)),
+                          //                       child: Row(
+                          //                         mainAxisAlignment:
+                          //                             MainAxisAlignment.center,
+                          //                         crossAxisAlignment:
+                          //                             CrossAxisAlignment.center,
+                          //                         children: [
+                          //                           Icon(
+                          //                             Icons.edit,
+                          //                             color: Colors.white,
+                          //                           ),
+                          //                           Text(
+                          //                             "Post",
+                          //                             style: commonTextStyle(
+                          //                                 Colors.white,
+                          //                                 FontWeight.bold,
+                          //                                 14.00),
+                          //                           )
+                          //                         ],
+                          //                       ),
+                          //                     ),
+                          //                   )
+                          //                 ],
+                          //                 crossAxisAlignment:
+                          //                     CrossAxisAlignment.center,
+                          //                 mainAxisAlignment:
+                          //                     MainAxisAlignment.center,
+                          //               )
+                          //             : ListView.builder(
+                          //                 itemCount: docs.length,
+                          //                 itemBuilder: (context, index) {
+                          //                   Map<String, dynamic> data = docs[index]
+                          //                       .data() as Map<String, dynamic>;
+                          //                   return Container(
+                          //                     child: postCard(
+                          //                       uid: data['id'],
+                          //                       heading: data['postHeading'],
+                          //                       subHeading: data['postSubHeading'],
+                          //                       // bottomScroll: data['postBottomScrollView'],
+                          //                       videoURL: data['postVideoUrl'],
+                          //                       likeCount: data['postLikeCount'],
+                          //                       commentCount:
+                          //                           data['postCommentCount'],
+                          //                       postHours: data['postHoursCount'],
+                          //                     ),
+                          //                   );
+                          //                   //   ListTile(
+                          //                   //   title: Text(data['postHeading']),
+                          //                   //   subtitle: Text(data['postSubHeading']),
+                          //                   // );
+                          //                 },
+                          //               );
+                          //       }),
+                          // ),
+                          Center(
+                            child: Text("No posts"),
+                          ),
+                          Center(
+                            child: Text("No commented posts"),
+                          ),
+                          Center(
+                            child: Text("No upvoted posts"),
+                          ),
+                          Center(
+                            child: Text("No saved posts"),
+                          ),
+
+                          // SavedTab(),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-                Container(
-                  margin: EdgeInsets.only(bottom: 20.0),
-                  height: MediaQuery.sizeOf(context).height / 1.4,
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('posts')
-                                .doc(FirebaseAuth.instance.currentUser!.uid)
-                                .collection("posts")
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              List<DocumentSnapshot> docs = snapshot.data!.docs;
-                              return docs.length == 0
-                                  ? Column(
-                                      children: [
-                                        Text(
-                                          'No Posts',
-                                          style: commonTextStyle(Colors.black,
-                                              FontWeight.bold, 16.00),
-                                        ),
-                                        SizedBox(
-                                          height: 10.0,
-                                        ),
-                                        Text(
-                                          "Let's make something creative for fun!",
-                                          style: commonTextStyle(Colors.grey,
-                                              FontWeight.bold, 14.00),
-                                        ),
-                                        SizedBox(
-                                          height: 15.0,
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            showModalBottomSheet(
-                                                transitionAnimationController:
-                                                    AnimationController(
-                                                  duration: const Duration(
-                                                      milliseconds: 1000),
-                                                  vsync: Navigator.of(context),
-                                                ),
-                                                backgroundColor: Colors.white,
-                                                constraints:
-                                                    BoxConstraints.loose(Size(
-                                                        MediaQuery.of(context)
-                                                            .size
-                                                            .width,
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height /
-                                                            2.3)),
-                                                context: context,
-                                                isScrollControlled: true,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(0.0),
-                                                    topRight:
-                                                        Radius.circular(0.0),
-                                                  ),
-                                                ),
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return SingleChildScrollView(
-                                                    child: Column(
-                                                      children: [
-                                                        Container(
-                                                          height: 100.0,
-                                                          child: mediaList
-                                                                  .isEmpty
-                                                              ? Center(
-                                                                  child:
-                                                                      CircularProgressIndicator())
-                                                              : ListView
-                                                                  .builder(
-                                                                  scrollDirection:
-                                                                      Axis.horizontal,
-                                                                  itemCount:
-                                                                      mediaList
-                                                                          .length,
-                                                                  itemBuilder:
-                                                                      (context,
-                                                                          index) {
-                                                                    return FutureBuilder<
-                                                                        Widget>(
-                                                                      future: _buildMediaThumbnail(
-                                                                          mediaList[
-                                                                              index]),
-                                                                      builder:
-                                                                          (context,
-                                                                              snapshot) {
-                                                                        if (snapshot.connectionState ==
-                                                                            ConnectionState.done) {
-                                                                          return Container(
-                                                                            margin:
-                                                                                EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
-                                                                            child:
-                                                                                snapshot.data,
-                                                                          );
-                                                                        } else {
-                                                                          return Container(
-                                                                            width:
-                                                                                100.0,
-                                                                            height:
-                                                                                100.0,
-                                                                            child:
-                                                                                Center(child: CircularProgressIndicator()),
-                                                                          );
-                                                                        }
-                                                                      },
-                                                                    );
-                                                                  },
-                                                                ),
-                                                        ),
-                                                        SizedBox(
-                                                          height: 20,
-                                                        ),
-                                                        GestureDetector(
-                                                          onTap: _openCamera,
-                                                          child: Container(
-                                                            margin: EdgeInsets
-                                                                .symmetric(
-                                                                    horizontal:
-                                                                        10.0,
-                                                                    vertical:
-                                                                        5.0),
-                                                            width:
-                                                                double.infinity,
-                                                            child: Row(
-                                                              children: [
-                                                                Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .only(
-                                                                        left:
-                                                                            10),
-                                                                    child: Icon(
-                                                                        Icons
-                                                                            .camera_alt,
-                                                                        color: Colors
-                                                                            .grey)),
-                                                                SizedBox(
-                                                                  width: 30.0,
-                                                                ),
-                                                                Text(
-                                                                  "Use Camera",
-                                                                  style:
-                                                                      commonTextStyle(
-                                                                    Colors
-                                                                        .black,
-                                                                    FontWeight
-                                                                        .bold,
-                                                                    14.00,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          height: 20.0,
-                                                        ),
-                                                        GestureDetector(
-                                                          onTap: _openGallery,
-                                                          child: Container(
-                                                            margin: EdgeInsets
-                                                                .symmetric(
-                                                                    horizontal:
-                                                                        10.0,
-                                                                    vertical:
-                                                                        5.0),
-                                                            width:
-                                                                double.infinity,
-                                                            child: Row(
-                                                              children: [
-                                                                Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .only(
-                                                                        left:
-                                                                            10),
-                                                                    child: Icon(
-                                                                        Icons
-                                                                            .image,
-                                                                        color: Colors
-                                                                            .grey)),
-                                                                SizedBox(
-                                                                  width: 30.0,
-                                                                ),
-                                                                Text(
-                                                                  "Choose Form Gallery",
-                                                                  style:
-                                                                      commonTextStyle(
-                                                                    Colors
-                                                                        .black,
-                                                                    FontWeight
-                                                                        .bold,
-                                                                    14.00,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          height: 20.0,
-                                                        ),
-                                                        GestureDetector(
-                                                          onTap: () {
-                                                            Navigator.pushNamed(context, '/createPostFormLink');
-                                                          },
-                                                          child: Container(
-                                                            margin: EdgeInsets
-                                                                .symmetric(
-                                                                    horizontal:
-                                                                        10.0,
-                                                                    vertical:
-                                                                        5.0),
-                                                            width:
-                                                                double.infinity,
-                                                            child: Row(
-                                                              children: [
-                                                                Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .only(
-                                                                        left:
-                                                                            10),
-                                                                    child: Icon(
-                                                                      Icons
-                                                                          .link,
-                                                                      color: Colors
-                                                                          .grey,
-                                                                    )),
-                                                                SizedBox(
-                                                                  width: 30.0,
-                                                                ),
-                                                                Text(
-                                                                  "Create Post Form Link",
-                                                                  style:
-                                                                      commonTextStyle(
-                                                                    Colors
-                                                                        .black,
-                                                                    FontWeight
-                                                                        .bold,
-                                                                    14.00,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          height: 10.0,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                });
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 10.0,
-                                                vertical: 5.0),
-                                            width: 90.0,
-                                            height: 40.0,
-                                            decoration: BoxDecoration(
-                                                color: Colors.indigo,
-                                                borderRadius:
-                                                    BorderRadius.circular(5.0)),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.edit,
-                                                  color: Colors.white,
-                                                ),
-                                                Text(
-                                                  "Post",
-                                                  style: commonTextStyle(
-                                                      Colors.white,
-                                                      FontWeight.bold,
-                                                      14.00),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                    )
-                                  : ListView.builder(
-                                      itemCount: docs.length,
-                                      itemBuilder: (context, index) {
-                                        Map<String, dynamic> data = docs[index]
-                                            .data() as Map<String, dynamic>;
-                                        return Container(
-                                          child: postCard(
-                                            uid: data['id'],
-                                            heading: data['postHeading'],
-                                            subHeading: data['postSubHeading'],
-                                            // bottomScroll: data['postBottomScrollView'],
-                                            videoURL: data['postVideoUrl'],
-                                            likeCount: data['postLikeCount'],
-                                            commentCount:
-                                                data['postCommentCount'],
-                                            postHours: data['postHoursCount'],
-                                          ),
-                                        );
-                                        //   ListTile(
-                                        //   title: Text(data['postHeading']),
-                                        //   subtitle: Text(data['postSubHeading']),
-                                        // );
-                                      },
-                                    );
-                            }),
-                      ),
-                      Center(
-                        child: Text("No commented posts"),
-                      ),
-                      Center(
-                        child: Text("No upvoted posts"),
-                      ),
-                      Center(
-                        child: Text("No saved posts"),
-                      ),
-
-                      // SavedTab(),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
+          );
+        }
+      },
     );
   }
 
