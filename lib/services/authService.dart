@@ -6,7 +6,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 
 class AuthService {
-  final String apiUrl = 'http://192.168.171.52:5000/9GAG/auth';
+  final String apiUrl = 'http://192.168.173.52:5000/9GAG/auth';
   final storage = FlutterSecureStorage();
 
   Future<bool> register(String name, String email, String password) async {

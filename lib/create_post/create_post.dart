@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +12,7 @@ import 'package:gagclone/create_post/choose_interest.dart';
 import 'package:gagclone/create_post/tags.dart';
 import 'package:gagclone/pages/home_page.dart';
 import 'package:gagclone/profile/profile_page.dart';
-import 'package:uuid/uuid.dart';
+// import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 
 import '../models/post_model.dart';
@@ -78,14 +78,20 @@ class _CreatePostState extends State<CreatePost> {
     }
   }
 
-  Future<String> uploadImage(File imageFile) async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference storageReference =
-        FirebaseStorage.instance.ref().child("videos/$fileName");
-    UploadTask uploadTask = storageReference.putFile(File(imageFile.path));
-    TaskSnapshot taskSnapshot = await uploadTask;
-    String downloadURL = await taskSnapshot.ref.getDownloadURL();
-    return downloadURL;
+  // Future<String> uploadImage(File imageFile) async {
+  //   String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+  //   Reference storageReference =
+  //       FirebaseStorage.instance.ref().child("videos/$fileName");
+  //   UploadTask uploadTask = storageReference.putFile(File(imageFile.path));
+  //   TaskSnapshot taskSnapshot = await uploadTask;
+  //   String downloadURL = await taskSnapshot.ref.getDownloadURL();
+  //   return downloadURL;
+  // }
+  List<String> finalTags = [];
+  void addWord(String word) {
+    if (word != null && word.isNotEmpty) {
+      finalTags.add(word);
+    }
   }
 
   @override
@@ -186,26 +192,22 @@ class _CreatePostState extends State<CreatePost> {
               });
 
               List<String> words = _tags.split(' ');
-              if (words.length >= 5) {
-                String word_1 = words[0];
-                String word_2 = words[1];
-                String word_3 = words[2];
-                String word_4 = words[3];
-                String word_5 = words[4];
+
+              if (words.length <= 5) {
+
+                addWord(words[0].isNotEmpty ? words[0] : "");
+                addWord(words[1].isNotEmpty ? words[1] : "");
+                addWord(words[2].isNotEmpty ? words[2] : "");
+                addWord(words[3].isNotEmpty ? words[3] : "");
+                addWord(words[4].isNotEmpty ? words[4] : "");
 
                 try {
-                  // String? downloadURL = ;
                   String postSubHeading = _controller.text.toString();
+
                   final newPost = PostModel(
                     userId: userId!,
                     postHeading: _interest,
-                    tags: [
-                        word_1,
-                        word_2,
-                        word_3,
-                        word_4,
-                        word_5
-                      ],
+                    tags: finalTags,
                     postSubHeading: postSubHeading,
                     postVideoUrl: 'http://video.url',
                     postLikeCount: '0',
@@ -213,23 +215,6 @@ class _CreatePostState extends State<CreatePost> {
                     postHoursCount: '1',
                     timestamp: DateTime.now(),
                   );
-                  // PostModel newPost = PostModel(
-                  //   postHeading: _interest,
-                  //   tags: [
-                  //     word_1,
-                  //     word_2,
-                  //     word_3,
-                  //     word_4,
-                  //     word_5
-                  //   ],
-                  //   postSubHeading: postSubHeading,
-                  //   postVideoUrl: "http://example.com/video.mp4",
-                  //   postLikeCount: "10",
-                  //   postCommentCount: "5.0",
-                  //   postHoursCount: "20",
-                  //   timestamp: DateTime.now(),
-                  //   userId: userId!,
-                  // );
                   try {
                     var result =  await postService.createPost(newPost);
                     if(result != null){

@@ -49,7 +49,7 @@ class PostModel {
       postHeading: map["postHeading"],
       postSubHeading: map["postSubHeading"],
       postVideoUrl: map["postVideoUrl"],
-      tags: map["tags"],
+      tags: List<String>.from(map['tags']),
       postLikeCount: map["postLikeCount"],
       postCommentCount: map["postCommentCount"],
       postHoursCount: map["postHoursCount"],

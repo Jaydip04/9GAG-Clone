@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+// import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +14,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
 
+import '../models/post_model.dart';
 import '../services/authService.dart';
+import '../services/postService.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -29,7 +31,8 @@ class _ProfilePageState extends State<ProfilePage>
   late TabController _tabController;
   final AuthService _authService = AuthService();
   Future<Map<String, dynamic>?>? _userData;
-
+  PostService postService = PostService();
+  late Future<List<PostModel>> fetchCurrentUserPost;
 
   @override
   void initState() {
@@ -57,8 +60,13 @@ class _ProfilePageState extends State<ProfilePage>
     }else{
       String? token = await _authService.getToken();
       final userData = await _authService.getUserData(token!);
+      setState(() {
+        // fetchCurrentUserPost = postService.fetchCurrentUserPosts( userData!['_id']);
+        fetchCurrentUserPost = postService.fetchCurrentUserPosts(userData!['_id']);
+      });
       return {
         'name': userData!['username'],
+        'userId':userData['_id']
       };
     }
   }
@@ -734,18 +742,16 @@ class _ProfilePageState extends State<ProfilePage>
                           //                 itemBuilder: (context, index) {
                           //                   Map<String, dynamic> data = docs[index]
                           //                       .data() as Map<String, dynamic>;
-                          //                   return Container(
-                          //                     child: postCard(
-                          //                       uid: data['id'],
-                          //                       heading: data['postHeading'],
-                          //                       subHeading: data['postSubHeading'],
-                          //                       // bottomScroll: data['postBottomScrollView'],
-                          //                       videoURL: data['postVideoUrl'],
-                          //                       likeCount: data['postLikeCount'],
-                          //                       commentCount:
-                          //                           data['postCommentCount'],
-                          //                       postHours: data['postHoursCount'],
-                          //                     ),
+                          //                   return postCard(
+                          //                     uid: data['id'],
+                          //                     heading: data['postHeading'],
+                          //                     subHeading: data['postSubHeading'],
+                          //                     bottomScroll: data['postBottomScrollView'],
+                          //                     videoURL: data['postVideoUrl'],
+                          //                     likeCount: data['postLikeCount'],
+                          //                     commentCount:
+                          //                         data['postCommentCount'],
+                          //                     postHours: data['postHoursCount'],
                           //                   );
                           //                   //   ListTile(
                           //                   //   title: Text(data['postHeading']),
@@ -755,8 +761,324 @@ class _ProfilePageState extends State<ProfilePage>
                           //               );
                           //       }),
                           // ),
-                          Center(
-                            child: Text("No posts"),
+                          FutureBuilder<List<PostModel>>(
+                            future: fetchCurrentUserPost,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Center(child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(child: Text('Error: ${snapshot.error}'));
+                              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return Column(
+                                  children: [
+                                    Text(
+                                      'No Posts',
+                                      style: commonTextStyle(Colors.black,
+                                          FontWeight.bold, 16.00),
+                                    ),
+                                    SizedBox(
+                                      height: 10.0,
+                                    ),
+                                    Text(
+                                      "Let's make something creative for fun!",
+                                      style: commonTextStyle(Colors.grey,
+                                          FontWeight.bold, 14.00),
+                                    ),
+                                    SizedBox(
+                                      height: 15.0,
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        showModalBottomSheet(
+                                            transitionAnimationController:
+                                            AnimationController(
+                                              duration: const Duration(
+                                                  milliseconds: 1000),
+                                              vsync: Navigator.of(context),
+                                            ),
+                                            backgroundColor: Colors.white,
+                                            constraints:
+                                            BoxConstraints.loose(Size(
+                                                MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                                MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                    2.3)),
+                                            context: context,
+                                            isScrollControlled: true,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius.only(
+                                                topLeft:
+                                                Radius.circular(0.0),
+                                                topRight:
+                                                Radius.circular(0.0),
+                                              ),
+                                            ),
+                                            builder:
+                                                (BuildContext context) {
+                                              return SingleChildScrollView(
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      height: 100.0,
+                                                      child: mediaList
+                                                          .isEmpty
+                                                          ? Center(
+                                                          child:
+                                                          CircularProgressIndicator())
+                                                          : ListView
+                                                          .builder(
+                                                        scrollDirection:
+                                                        Axis.horizontal,
+                                                        itemCount:
+                                                        mediaList
+                                                            .length,
+                                                        itemBuilder:
+                                                            (context,
+                                                            index) {
+                                                          return FutureBuilder<
+                                                              Widget>(
+                                                            future: _buildMediaThumbnail(
+                                                                mediaList[
+                                                                index]),
+                                                            builder:
+                                                                (context,
+                                                                snapshot) {
+                                                              if (snapshot.connectionState ==
+                                                                  ConnectionState.done) {
+                                                                return Container(
+                                                                  margin:
+                                                                  EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+                                                                  child:
+                                                                  snapshot.data,
+                                                                );
+                                                              } else {
+                                                                return Container(
+                                                                  width:
+                                                                  100.0,
+                                                                  height:
+                                                                  100.0,
+                                                                  child:
+                                                                  Center(child: CircularProgressIndicator()),
+                                                                );
+                                                              }
+                                                            },
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 20,
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: _openCamera,
+                                                      child: Container(
+                                                        margin: EdgeInsets
+                                                            .symmetric(
+                                                            horizontal:
+                                                            10.0,
+                                                            vertical:
+                                                            5.0),
+                                                        width:
+                                                        double.infinity,
+                                                        child: Row(
+                                                          children: [
+                                                            Padding(
+                                                                padding: const EdgeInsets
+                                                                    .only(
+                                                                    left:
+                                                                    10),
+                                                                child: Icon(
+                                                                    Icons
+                                                                        .camera_alt,
+                                                                    color: Colors
+                                                                        .grey)),
+                                                            SizedBox(
+                                                              width: 30.0,
+                                                            ),
+                                                            Text(
+                                                              "Use Camera",
+                                                              style:
+                                                              commonTextStyle(
+                                                                Colors
+                                                                    .black,
+                                                                FontWeight
+                                                                    .bold,
+                                                                14.00,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 20.0,
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: _openGallery,
+                                                      child: Container(
+                                                        margin: EdgeInsets
+                                                            .symmetric(
+                                                            horizontal:
+                                                            10.0,
+                                                            vertical:
+                                                            5.0),
+                                                        width:
+                                                        double.infinity,
+                                                        child: Row(
+                                                          children: [
+                                                            Padding(
+                                                                padding: const EdgeInsets
+                                                                    .only(
+                                                                    left:
+                                                                    10),
+                                                                child: Icon(
+                                                                    Icons
+                                                                        .image,
+                                                                    color: Colors
+                                                                        .grey)),
+                                                            SizedBox(
+                                                              width: 30.0,
+                                                            ),
+                                                            Text(
+                                                              "Choose Form Gallery",
+                                                              style:
+                                                              commonTextStyle(
+                                                                Colors
+                                                                    .black,
+                                                                FontWeight
+                                                                    .bold,
+                                                                14.00,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 20.0,
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        Navigator.pushNamed(context, '/createPostFormLink');
+                                                      },
+                                                      child: Container(
+                                                        margin: EdgeInsets
+                                                            .symmetric(
+                                                            horizontal:
+                                                            10.0,
+                                                            vertical:
+                                                            5.0),
+                                                        width:
+                                                        double.infinity,
+                                                        child: Row(
+                                                          children: [
+                                                            Padding(
+                                                                padding: const EdgeInsets
+                                                                    .only(
+                                                                    left:
+                                                                    10),
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .link,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                )),
+                                                            SizedBox(
+                                                              width: 30.0,
+                                                            ),
+                                                            Text(
+                                                              "Create Post Form Link",
+                                                              style:
+                                                              commonTextStyle(
+                                                                Colors
+                                                                    .black,
+                                                                FontWeight
+                                                                    .bold,
+                                                                14.00,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 10.0,
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10.0,
+                                            vertical: 5.0),
+                                        width: 90.0,
+                                        height: 40.0,
+                                        decoration: BoxDecoration(
+                                            color: Colors.indigo,
+                                            borderRadius:
+                                            BorderRadius.circular(5.0)),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.edit,
+                                              color: Colors.white,
+                                            ),
+                                            Text(
+                                              "Post",
+                                              style: commonTextStyle(
+                                                  Colors.white,
+                                                  FontWeight.bold,
+                                                  14.00),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.center,
+                                );
+                              } else {
+                                return ListView.builder(
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder: (context, index) {
+                                    PostModel post = snapshot.data![index];
+                                    return postCard(
+                                      uid: post.id,
+                                      heading: post.postHeading,
+                                      subHeading: post.postSubHeading,
+                                      bottomScroll: post.tags,
+                                      videoURL: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+                                      likeCount: post.postLikeCount,
+                                      commentCount:post.postCommentCount,
+                                      postHours: post.postHoursCount,
+                                    );
+                                    //   postCard(
+                                    //   // id: post.id,
+                                    //   heading: post.postHeading,
+                                    //   subHeading: post.postSubHeading,
+                                    //   videoURL: "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+                                    //   bottomScroll: post.tags,
+                                    //   likeCount: post.postLikeCount,
+                                    //   commentCount: post.postCommentCount,
+                                    //   postHours: post.postHoursCount,
+                                    // );
+                                  },
+                                );
+                              }
+                            },
                           ),
                           Center(
                             child: Text("No commented posts"),
@@ -847,7 +1169,7 @@ class _ProfilePageState extends State<ProfilePage>
     required subHeading,
     required videoURL,
     required likeCount,
-    // required bottomScroll,
+    required bottomScroll,
     required commentCount,
     required postHours,
   }) {
@@ -860,13 +1182,13 @@ class _ProfilePageState extends State<ProfilePage>
           ),
           // isLoggedIn ?
           // Image.network(videoURL,height: 300,width: MediaQuery.sizeOf(context).width,fit: BoxFit.fill,),
-          PostVideo(
-            videoURL: videoURL,
-          ),
-          // postBottomScrollView(
-          //   list: bottomScroll,
-          //   listItem: bottomScroll,
+          // PostVideo(
+          //   videoURL: videoURL,
           // ),
+          postBottomScrollView(
+            list: bottomScroll,
+            listItem: bottomScroll,
+          ),
           SizedBox(
             height: 5.0,
           ),
@@ -1160,6 +1482,53 @@ class _ProfilePageState extends State<ProfilePage>
           ),
         ],
       ),
+    );
+  }
+}
+
+class postBottomScrollView extends StatefulWidget {
+  final List<String> list;
+  final List<String> listItem;
+  const postBottomScrollView(
+      {super.key, required this.list, required this.listItem});
+
+  @override
+  State<postBottomScrollView> createState() => _postBottomScrollViewState();
+}
+
+class _postBottomScrollViewState extends State<postBottomScrollView> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 35.0,
+      margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: widget.list.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+            child: Container(
+              child: Text(
+                widget.listItem[index],
+                style: commonTextStyle(Colors.black, FontWeight.bold, 14.00),
+              ),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.grey, width: 1)),
+              padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  TextStyle commonTextStyle(color, weight, size) {
+    return TextStyle(
+      color: color,
+      fontWeight: weight,
+      fontSize: size,
     );
   }
 }

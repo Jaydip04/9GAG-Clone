@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:firebase_database/firebase_database.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -34,7 +34,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String? userEmail;
   String? profileName;
   String? birthday;
-  DatabaseReference reference = FirebaseDatabase.instance.ref("Profile");
+  // DatabaseReference reference = FirebaseDatabase.instance.ref("Profile");
   bool _isLoading = false;
 
   final AuthService _authService = AuthService();
@@ -149,81 +149,81 @@ class _EditProfilePageState extends State<EditProfilePage> {
   //   }
   // }
 
-  void listenToProfileName() async {
-    bool isLoggedIn = await _authService.isLoggedIn();
-    if (isLoggedIn) {
-      DatabaseReference reference = FirebaseDatabase.instance
-          .ref("Profile")
-          .child(FirebaseAuth.instance.currentUser!.uid)
-          .child("profileName");
-      reference.onValue.listen((DatabaseEvent event) {
-        final data = event.snapshot.value;
-        setState(() {
-          profileName = data as String?;
-          _controllerName.text = profileName.toString();
-        });
-      });
-    } else {
-      profileName = "9GAG" as String?;
-    }
-  }
-
-  void listenToBirthday() async {
-    bool isLoggedIn = await _authService.isLoggedIn();
-    if (isLoggedIn) {
-      DatabaseReference reference = FirebaseDatabase.instance
-          .ref("Profile")
-          .child(FirebaseAuth.instance.currentUser!.uid)
-          .child("birthday");
-      reference.onValue.listen((DatabaseEvent event) {
-        final data = event.snapshot.value;
-        setState(() {
-          birthday = data as String?;
-          _controllerDate.text = birthday.toString();
-        });
-      });
-    } else {
-      birthday = "9GAG" as String?;
-    }
-  }
-
-  void listenToUserName() async {
-    bool isLoggedIn = await _authService.isLoggedIn();
-    if (isLoggedIn) {
-      DatabaseReference reference = FirebaseDatabase.instance
-          .ref("Profile")
-          .child(FirebaseAuth.instance.currentUser!.uid)
-          .child("userName");
-      reference.onValue.listen((DatabaseEvent event) {
-        final data = event.snapshot.value;
-        setState(() {
-          userName = data as String?;
-          _controllerEmail.text =
-              userName.toString().isEmpty ? "Empty" : userName.toString();
-        });
-      });
-    } else {
-      userName = "9GAG" as String?;
-    }
-  }
-
-  void listenToUserEmail() async {
-    bool isLoggedIn = await _authService.isLoggedIn();
-    if (isLoggedIn) {
-      DatabaseReference reference = FirebaseDatabase.instance
-          .ref("Profile")
-          .child(FirebaseAuth.instance.currentUser!.uid)
-          .child("email");
-      reference.onValue.listen((DatabaseEvent event) {
-        final data = event.snapshot.value;
-        setState(() {
-          userEmail = data as String?;
-        });
-      });
-    } else {
-      userEmail = "9GAG" as String?;
-    }
-  }
+  // void listenToProfileName() async {
+  //   bool isLoggedIn = await _authService.isLoggedIn();
+  //   if (isLoggedIn) {
+  //     DatabaseReference reference = FirebaseDatabase.instance
+  //         .ref("Profile")
+  //         .child(FirebaseAuth.instance.currentUser!.uid)
+  //         .child("profileName");
+  //     reference.onValue.listen((DatabaseEvent event) {
+  //       final data = event.snapshot.value;
+  //       setState(() {
+  //         profileName = data as String?;
+  //         _controllerName.text = profileName.toString();
+  //       });
+  //     });
+  //   } else {
+  //     profileName = "9GAG" as String?;
+  //   }
+  // }
+  //
+  // void listenToBirthday() async {
+  //   bool isLoggedIn = await _authService.isLoggedIn();
+  //   if (isLoggedIn) {
+  //     DatabaseReference reference = FirebaseDatabase.instance
+  //         .ref("Profile")
+  //         .child(FirebaseAuth.instance.currentUser!.uid)
+  //         .child("birthday");
+  //     reference.onValue.listen((DatabaseEvent event) {
+  //       final data = event.snapshot.value;
+  //       setState(() {
+  //         birthday = data as String?;
+  //         _controllerDate.text = birthday.toString();
+  //       });
+  //     });
+  //   } else {
+  //     birthday = "9GAG" as String?;
+  //   }
+  // }
+  //
+  // void listenToUserName() async {
+  //   bool isLoggedIn = await _authService.isLoggedIn();
+  //   if (isLoggedIn) {
+  //     DatabaseReference reference = FirebaseDatabase.instance
+  //         .ref("Profile")
+  //         .child(FirebaseAuth.instance.currentUser!.uid)
+  //         .child("userName");
+  //     reference.onValue.listen((DatabaseEvent event) {
+  //       final data = event.snapshot.value;
+  //       setState(() {
+  //         userName = data as String?;
+  //         _controllerEmail.text =
+  //             userName.toString().isEmpty ? "Empty" : userName.toString();
+  //       });
+  //     });
+  //   } else {
+  //     userName = "9GAG" as String?;
+  //   }
+  // }
+  //
+  // void listenToUserEmail() async {
+  //   bool isLoggedIn = await _authService.isLoggedIn();
+  //   if (isLoggedIn) {
+  //     DatabaseReference reference = FirebaseDatabase.instance
+  //         .ref("Profile")
+  //         .child(FirebaseAuth.instance.currentUser!.uid)
+  //         .child("email");
+  //     reference.onValue.listen((DatabaseEvent event) {
+  //       final data = event.snapshot.value;
+  //       setState(() {
+  //         userEmail = data as String?;
+  //       });
+  //     });
+  //   } else {
+  //     userEmail = "9GAG" as String?;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

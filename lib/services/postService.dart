@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import '../models/post_model.dart';
 
 class PostService {
-  final String apiUrl = 'http://192.168.171.52:5000/9GAG/post';
+  final String apiUrl = 'http://192.168.173.52:5000/9GAG/post';
 
   Future<bool> createPost(PostModel post) async {
     final response = await http.post(
@@ -21,6 +21,30 @@ class PostService {
       return true;
     } else {
       throw Exception('Failed to create post');
+    }
+  }
+
+  Future<List<PostModel>> fetchPosts() async {
+    final response = await http.get( Uri.parse('$apiUrl/getPosts'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> body = json.decode(response.body);
+      List<PostModel> posts = body.map((dynamic item) => PostModel.fromMap(item)).toList();
+      return posts;
+    } else {
+      throw Exception('Failed to load posts');
+    }
+  }
+
+  Future<List<PostModel>> fetchCurrentUserPosts(String userId) async {
+    final response = await http.get( Uri.parse('$apiUrl/getCurrentUserPosts/$userId'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> body = json.decode(response.body);
+      List<PostModel> posts = body.map((dynamic item) => PostModel.fromMap(item)).toList();
+      return posts;
+    } else {
+      throw Exception('Failed to load posts');
     }
   }
   // Future<PostModel?> createPost(PostModel post) async {
